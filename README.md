@@ -1,5 +1,7 @@
 # Camin MVD
 
+*Can AI produce the data I want?*
+
 Minimum Viable Data — quality-check tooling for AI-produced KPIs and narratives.
 
 ## Commands (repo root)
