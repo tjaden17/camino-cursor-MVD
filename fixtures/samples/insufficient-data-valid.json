@@ -1,0 +1,8 @@
+{
+  "kind": "insufficient_data",
+  "kpiId": "kpi.job_seekers_active",
+  "title": "Active job seekers (weekly)",
+  "missingData": ["Job seeker registrations export", "De-duplication key across pharmacy groups"],
+  "whyItMatters": "Cannot compute a trustworthy active seeker count without identity resolution across your systems.",
+  "metricsWithheld": true
+}

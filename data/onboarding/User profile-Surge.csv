@@ -1,0 +1,103 @@
+Question,Description/Options,Answer 1,Answer - More detail,
+,,Surge @ Locumate,,
+Role,,CEO,,
+Company stage,"(Seed, Series A-D, Public, etc.)",Seed. 1 biggish round. $750k. $300 late last year 2025. Big builds for other environments. ,,
+Team Size,"(Direct reports, total company)","17, including developers. ",,
+Industry/Vertical,"(SaaS, FinTech, E-commerce, etc.)",SaaS,,
+Market,,"Pharmacies, Healthcare providers, e.g. 
+Workforce tech. ",,
+Competitors,,"Indirect 
+Scheduling systems, chronos (multi site scheduiing)
+Shift match
+Imprivo - Agency portal
+Agencies",,
+Business model,"(B2B, B2C, Marketplace, etc.)",B2B,,
+"What's important
+(pre-tag signals to their real decisions, shows immediate relevance)",,,,
+Top 3 metrics you own (Now),,Sales + Pipeline,"Sales
+ # of prospects
+# of calls / week
+% win/loss from calls",
+,,"Customer Support (Zoho): issues
+Customer success (Zoho + Appusage data): How are they using system,  current customer base","Customer Support 
+Leading indcators of churn",Why is that happening? What could it impact?
+,,"Supoprt/Tech QA
+Bugs, size of impact",,
+"What's on your mind, still figuring out? (Next 90 Days)
+When do you need to decide, figure it out?","E.g. 
+For CEO: What opportunitines to evaluate?
+For CS: What customer problems to solve?
+For Sales: What does to focus on?
+For product leaders: What features to prioritise? Next big thin?","Product roadmap
+- who to target (e.g. aged health care)
+- what features/iterations to target pharmacy
+- which will produce revenue in short term?
+- what opportunities will produce revenue in long term?
+E.g. Terry White. If early-stage experience (onbaording), will they affect upsell features?
+Customer Success Manager can't answer questions. Want to replace with data. 
+
+Internalising development
+- what to hire internal vs external
+- justification to hire internally
+
+Internal expansion vs australian expansion
+- going to dubai in a month - exploratory
+- limited budget, how to streth it further. Strategic decisions. Penetration vs expansion.",,
+Decision Frequency,,Product roadmap: review weekly. De Prioritsed.,,
+Decision Stakeholders,,Tech lead (internally). Surge. Jnr Product owner. ,,
+Information Workflow Fields,,,,
+Current Tools/Dashboards,,"Zoho Desk, CRM,
+Zoho Marketing
+App usage - Track activity, inside app. Want to bring it out. Correlate it with other behaviour. Right now customer support team.",,
+How often?,(When do they check metrics? Morning? Before meetings?),"Daily basis. But in his head. Want it to be accessible, on the same page.",,
+Daily routine?,,,,
+**Notification Preferences**,"(Slack, Email, None)",,,
+Time Budget for Analysis,(5 mins? 30 mins? 2 hours?),,,
+Pain points,,,,
+Biggest Information Gap,(What do they wish they knew faster?),,,
+"Last ""Surprised by Data"" Moment","Reveals gap between data & understanding
+Didn't see it coming - Monitoring gap?
+Didn't understand it - - Analysis gap?
+Didn't know what to do (action gap?
+(When? What happened? How long to figure out?)","Last week. Reviewing data around usage of platform.
+Want to reduce agency usage, fill shifts yourself. Reduced cost.
+A group loves them. 
+Agency usage has gone up 30% form last year. Why did it go up? It's a bad thing.
+What have we done to keep it down? Team didn't. 
+60 seconds to run report. When did it start? No response yet. A day or two. Himself - within an hour.",,
+**Time from Signal → Insight**,(Current state: hours? days?),,,
+Time from Insight → Action,(How fast do they move?),,,
+Biggest Blocker to Fast Decisions,(Lack of context? Trust? Alignment?),,,
+Network & Collab fields,,,,
+Internal connection,(Who on their team should see these signals?),"Sales (Surge)
+Everyone else (customer support, usage,) Kavi (ops), Csuccess Manage, Csupport manager. 
+Trend analysis - Customer support team (2)",,
+Cross-Functional Dependencies,(Whose metrics impact theirs?),,,
+Success Criteria Fields,,,,
+Success Metric for Camino,"(What would make this worth it, after going live for 30 days?","Basics
+- What's happening with current customers?
+- e.g support issues? what kind? why? 
+- Are we onboarding properly?
+Are they getting the most out of system?",,
+Time to Value Expectation,(When do they need to see results?),,,
+**Value Moment**,(What specific outcome proves value?),,,
+Renewal Trigger,(What would make them pay/stay?),,,
+Historical context,,,,
+,,,,
+,,,,
+Data Access & Integration readiness,,,,
+Phase 1: Manual upload,We only need read only access. Don't need admin credentials,,,
+"""Can I export a CSV of your key metrics from [Tool]?""",To manually upload CSVs,,,
+Can you manually export for me?,Zendesk → Analytics → Export,,,
+Can you screenshot your current dashboards?,To understand data structure,,,
+Phase 2: Integrations,Security notes,,,
+Data access level (of person I'm speaking to),(Admin? Read-only? Need to request?),,,
+IT/Security approvel needed?,(For tool integrations),,,
+API keys available?,(Can they connect tools today?),,,
+OAuth token,,,,
+Data freshness needs,(Real-time? Daily? Weekly?),,,
+,,,,
+Want advice as well,,What should we know? What data?,,
+,,What decisions do others focus on? ,,
+,,"People only track what they know to track.
+What SOULD I track? Wjhat should it?",,

@@ -1,0 +1,124 @@
+{
+  "$id": "https://camin.local/schemas/onboarding-profile.json",
+  "title": "OnboardingProfile",
+  "type": "object",
+  "required": [
+    "user",
+    "company_context",
+    "decision_context",
+    "owned_metrics",
+    "data_sources",
+    "pain_points",
+    "trust_and_validation",
+    "signal_preferences",
+    "gaps_and_assumptions"
+  ],
+  "properties": {
+    "source": {
+      "type": "object",
+      "required": ["type", "document", "derived_by", "derived_at"],
+      "properties": {
+        "type": { "type": "string", "minLength": 1 },
+        "document": { "type": "string", "minLength": 1 },
+        "derived_by": { "type": "string", "minLength": 1 },
+        "derived_at": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "user": {
+      "type": "object",
+      "required": ["user_id", "name", "role"],
+      "properties": {
+        "user_id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "role": { "type": "string", "minLength": 1 },
+        "experience_summary": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "company_context": {
+      "type": "object",
+      "required": ["company", "industry"],
+      "properties": {
+        "company": { "type": "string", "minLength": 1 },
+        "industry": { "type": "string", "minLength": 1 },
+        "business_model": { "type": ["string", "null"] },
+        "stage": { "type": ["string", "null"] },
+        "team_size": { "type": ["integer", "null"], "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "decision_context": {
+      "type": "object",
+      "required": ["primary_goals", "review_moments", "decision_outcomes"],
+      "properties": {
+        "primary_goals": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "review_moments": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "decision_outcomes": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      },
+      "additionalProperties": false
+    },
+    "owned_metrics": {
+      "type": "object",
+      "required": ["current_top_metrics"],
+      "properties": {
+        "current_top_metrics": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "additional_focus_metrics": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      },
+      "additionalProperties": false
+    },
+    "data_sources": {
+      "type": "object",
+      "required": ["uses"],
+      "properties": {
+        "uses": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "known_constraints": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      },
+      "additionalProperties": false
+    },
+    "pain_points": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "trust_and_validation": {
+      "type": "object",
+      "required": ["attitude_to_ai"],
+      "properties": {
+        "attitude_to_ai": { "type": "string", "minLength": 1 },
+        "required_transparency": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      },
+      "additionalProperties": false
+    },
+    "signal_preferences": {
+      "type": "object",
+      "required": ["requested_signal_candidates", "recommended_signal_candidates"],
+      "properties": {
+        "requested_signal_candidates": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1
+        },
+        "recommended_signal_candidates": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "glossary": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "gaps_and_assumptions": {
+      "type": "object",
+      "required": ["missing_structured_fields", "note"],
+      "properties": {
+        "missing_structured_fields": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "note": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

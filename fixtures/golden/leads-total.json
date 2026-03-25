@@ -1,0 +1,8 @@
+{
+  "scenarioId": "golden-leads-total",
+  "description": "Total row count in Zoho CRM Leads export (all time in file).",
+  "ruleId": "RULE_LEADS_ROW_COUNT",
+  "claimedNumeric": 53,
+  "tolerance": 0,
+  "replayFn": "replayLeadsTotalCount"
+}

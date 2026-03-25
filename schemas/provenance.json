@@ -1,0 +1,35 @@
+{
+  "$id": "https://camin.local/schemas/provenance.json",
+  "title": "ProvenanceBundle",
+  "type": "object",
+  "required": [
+    "sourceId",
+    "sourcePath",
+    "timeRange",
+    "ruleId",
+    "formulaDescription",
+    "sampleRows"
+  ],
+  "properties": {
+    "sourceId": { "type": "string", "minLength": 1 },
+    "sourcePath": { "type": "string", "minLength": 1 },
+    "timeRange": {
+      "type": "object",
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "type": "string" },
+        "end": { "type": "string" },
+        "label": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "ruleId": { "type": "string", "minLength": 1 },
+    "formulaDescription": { "type": "string", "minLength": 1 },
+    "sampleRows": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": true }
+    },
+    "sampleRowCount": { "type": "integer", "minimum": 0 }
+  },
+  "additionalProperties": false
+}

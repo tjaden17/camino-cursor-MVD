@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 340" width="920" height="340" role="img" aria-labelledby="title desc">
+  <title id="title">MVD data flow</title>
+  <desc id="desc">From onboarding and user data files through pipeline stages to JSON artifacts and the signal preview UI.</desc>
+  <defs>
+    <style type="text/css"><![CDATA[
+      .box { fill: #f4f4f5; stroke: #27272a; stroke-width: 1.5; rx: 6; }
+      .box-in { fill: #ecfdf5; stroke: #047857; }
+      .box-out { fill: #eff6ff; stroke: #1d4ed8; }
+      .box-ui { fill: #faf5ff; stroke: #7c3aed; }
+      .box-p { fill: #fffbeb; stroke: #b45309; }
+      .lbl { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 12px; fill: #18181b; }
+      .lbl-sm { font-size: 10px; fill: #52525b; }
+      .hdr { font-size: 13px; font-weight: 600; fill: #18181b; }
+      .arrow { stroke: #3f3f46; stroke-width: 1.5; fill: none; marker-end: url(#m); }
+      .dash { stroke-dasharray: 4 3; stroke: #a16207; }
+    ]]></style>
+    <marker id="m" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <polygon points="0 0, 8 4, 0 8" fill="#3f3f46"/>
+    </marker>
+  </defs>
+
+  <!-- Inputs -->
+  <rect class="box box-in" x="20" y="40" width="140" height="56"/>
+  <text class="hdr" x="90" y="62" text-anchor="middle">Onboarding JSON</text>
+  <text class="lbl-sm" x="90" y="80" text-anchor="middle">data/onboarding/*.json</text>
+
+  <rect class="box box-in" x="20" y="120" width="140" height="56"/>
+  <text class="hdr" x="90" y="142" text-anchor="middle">User / company data</text>
+  <text class="lbl-sm" x="90" y="160" text-anchor="middle">CSVs, etc.</text>
+
+  <!-- Prompts -->
+  <rect class="box box-p" x="20" y="220" width="140" height="72"/>
+  <text class="hdr" x="90" y="242" text-anchor="middle">Instructions</text>
+  <text class="lbl-sm" x="90" y="258" text-anchor="middle">prompts/*.md per stage</text>
+  <text class="lbl-sm" x="90" y="274" text-anchor="middle">(editable)</text>
+
+  <!-- Pipeline -->
+  <text class="hdr" x="330" y="28" text-anchor="middle">Pipeline (CLI)</text>
+  <rect class="box" x="200" y="70" width="100" height="48"/>
+  <text class="lbl" x="250" y="98" text-anchor="middle">Normalize</text>
+  <rect class="box" x="320" y="70" width="100" height="48"/>
+  <text class="lbl" x="370" y="98" text-anchor="middle">Quality</text>
+  <rect class="box" x="440" y="70" width="100" height="48"/>
+  <text class="lbl" x="490" y="98" text-anchor="middle">KPIs / BI</text>
+  <rect class="box" x="560" y="70" width="110" height="48"/>
+  <text class="lbl" x="615" y="92" text-anchor="middle">Strategy +</text>
+  <text class="lbl" x="615" y="106" text-anchor="middle">narrative</text>
+
+  <line class="arrow" x1="300" y1="94" x2="318" y2="94"/>
+  <line class="arrow" x1="420" y1="94" x2="438" y2="94"/>
+  <line class="arrow" x1="540" y1="94" x2="558" y2="94"/>
+
+  <!-- Arrows from inputs -->
+  <line class="arrow" x1="160" y1="68" x2="198" y2="88"/>
+  <line class="arrow" x1="160" y1="148" x2="198" y2="100"/>
+
+  <!-- Dashed from prompts to strategy -->
+  <line class="arrow dash" x1="160" y1="240" x2="580" y2="130"/>
+
+  <!-- Artifacts -->
+  <text class="hdr" x="760" y="28" text-anchor="middle">Artifacts (out/)</text>
+  <rect class="box box-out" x="700" y="50" width="120" height="36"/>
+  <text class="lbl" x="760" y="72" text-anchor="middle">pipeline-run.json</text>
+  <rect class="box box-out" x="700" y="94" width="120" height="36"/>
+  <text class="lbl" x="760" y="116" text-anchor="middle">processing-diagnostics</text>
+  <rect class="box box-out" x="700" y="138" width="120" height="36"/>
+  <text class="lbl" x="760" y="160" text-anchor="middle">agent-signals.json</text>
+  <rect class="box box-out" x="700" y="182" width="120" height="36"/>
+  <text class="lbl" x="760" y="204" text-anchor="middle">processed-signals.json</text>
+
+  <line class="arrow" x1="670" y1="94" x2="698" y2="68"/>
+  <line class="arrow" x1="670" y1="94" x2="698" y2="112"/>
+  <line class="arrow" x1="670" y1="94" x2="698" y2="156"/>
+  <line class="arrow" x1="670" y1="94" x2="698" y2="200"/>
+
+  <!-- UI -->
+  <rect class="box box-ui" x="700" y="250" width="120" height="56"/>
+  <text class="hdr" x="760" y="272" text-anchor="middle">Signal preview</text>
+  <text class="lbl-sm" x="760" y="290" text-anchor="middle">apps/qc-ui</text>
+
+  <line class="arrow" x1="760" y1="220" x2="760" y2="246"/>
+
+  <text class="lbl-sm" x="460" y="330" text-anchor="middle">Surge / Sam: same artifacts, filtered by user id in the UI</text>
+</svg>

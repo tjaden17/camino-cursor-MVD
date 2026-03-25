@@ -1,0 +1,8 @@
+{
+  "scenarioId": "golden-shifts-finished-sep-2025",
+  "description": "Finished shifts with Shift Date in September 2025 (local date).",
+  "ruleId": "RULE_SHIFTS_FINISHED_SEP_2025",
+  "claimedNumeric": 479,
+  "tolerance": 0,
+  "replayFn": "replayShiftsFinishedSeptember2025"
+}

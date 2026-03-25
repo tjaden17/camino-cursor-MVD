@@ -1,0 +1,26 @@
+{
+  "$id": "https://camin.local/schemas/signal-overview.json",
+  "title": "SignalOverview",
+  "type": "object",
+  "required": [
+    "kind",
+    "kpiId",
+    "title",
+    "currentValue",
+    "changeLabel",
+    "oneLineSummary",
+    "provenance"
+  ],
+  "properties": {
+    "kind": { "const": "signal_overview" },
+    "kpiId": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "currentValue": { "type": "string", "minLength": 1 },
+    "changePct": { "type": ["number", "null"] },
+    "changeLabel": { "type": "string" },
+    "oneLineSummary": { "type": "string", "minLength": 1 },
+    "recommended": { "type": "boolean" },
+    "provenance": { "$ref": "https://camin.local/schemas/provenance.json" }
+  },
+  "additionalProperties": false
+}

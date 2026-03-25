@@ -1,0 +1,10 @@
+Acceptance Criteria (user perspective) (for 25 Mar build):
+1. Surge & Sam can provide onboarding information to me (via a call). Which is saved, normalised, stored by the system (e.g. user onboarding files).
+2. Surge & Sam can view 3 requested signals via the signal preview web ui. No login required. On  my computer. With 3 key interactions: 1-Signal card overview. 2-Signal card expanded. 3-View different signal card.
+3. On the signal preview screen, I can toggle between Surge & Sam view
+4. Surge & Sam can view 3 recommended signals (with sufficient data). With 3 key interactions.1-Signal card overview. 2-Signal card expanded (including why it’s recommended). 3-View different signal card.
+5. Surge & Sam can view 3 recommended signals (with insufficient data). 1-Signal card overview. 2-Signal card expanded (why it’s recommended, what data is missing, tips for practically sourcing the data). 3-View different signal card.
+6 The data flow & architecture, from ingesting onboarding files and user data files, to agent processing, agent outputs, is explained clearly. Is designed in a modular way where it it easy to amend instructions in order to fine tune the data Surge & Sam sees
+7. Surge & Sam can view 1 requested signal (with insufficient data). When the signal card is expanded, it shows why this signal matters in context, what data is missing, and tips for practically sourcing the data.
+
+The goal of this set of acceptance criteria is meant to show the core data that delivers the core value prop of the Camino product. 

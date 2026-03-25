@@ -1,0 +1,111 @@
+{
+  "source": {
+    "type": "derived_from_interview_notes",
+    "document": "Interview & Research Notes (Locumate-Sam).pdf",
+    "derived_by": "assistant",
+    "derived_at": "2026-03-24"
+  },
+  "user": {
+    "user_id": "sam",
+    "name": "Sam",
+    "role": "Customer Success Manager",
+    "experience_summary": "2nd product startup; ~5 years in AM/CS/CSM"
+  },
+  "company_context": {
+    "company": "Locumate",
+    "industry": "Workforce tech for pharmacies/healthcare",
+    "business_model": null,
+    "stage": null,
+    "team_size": null
+  },
+  "decision_context": {
+    "primary_goals": [
+      "Show customer value using data (e.g., shifts, savings)",
+      "Improve customer trust for retention and upsell",
+      "Convert adoption insights into action points"
+    ],
+    "review_moments": [
+      "Morning checks",
+      "Before meetings"
+    ],
+    "decision_outcomes": [
+      "Prepare for meetings quickly",
+      "Justify decisions with evidence",
+      "Create data stories for retention and upsell"
+    ]
+  },
+  "owned_metrics": {
+    "current_top_metrics": [
+      "signups",
+      "shifts",
+      "jobs_posted",
+      "job_seekers"
+    ],
+    "additional_focus_metrics": [
+      "shift_utilisation",
+      "adoption_by_segment",
+      "inactive_pharmacies",
+      "unsubscribed_pharmacies",
+      "prospect_size",
+      "prospect_behaviour"
+    ]
+  },
+  "data_sources": {
+    "uses": [
+      "Admin CP reports (CSV exports)",
+      "Zoho CRM (early use)",
+      "Zoho Desk trends",
+      "Internal shifts database"
+    ],
+    "known_constraints": [
+      "Large CSVs (30+ columns) require manual filtering",
+      "Data timing misalignment across colleagues",
+      "Data hygiene concerns reduce trust in CRM outputs",
+      "Some needed reports are unavailable despite underlying data"
+    ]
+  },
+  "pain_points": [
+    "Manual reporting workflow is time-consuming",
+    "Reconciliation effort due to timing differences",
+    "Missing report filters for known business questions",
+    "Low trust without verification of figures and analysis"
+  ],
+  "trust_and_validation": {
+    "attitude_to_ai": "AI output can be a good trigger, but figures and analysis must be double-checked",
+    "required_transparency": [
+      "Clear metric definitions",
+      "Calculation traceability",
+      "Ability to verify against source data"
+    ]
+  },
+  "signal_preferences": {
+    "requested_signal_candidates": [
+      "signups",
+      "shifts",
+      "jobs_posted",
+      "job_seekers",
+      "shift_utilisation",
+      "adoption_by_segment"
+    ],
+    "recommended_signal_candidates": [
+      "inactive_pharmacy_rate",
+      "unsubscribed_pharmacy_rate",
+      "prospect_opportunity_size"
+    ]
+  },
+  "glossary": {
+    "shift": "Job placements pharmacies need filled",
+    "locums": "Temporary staff for pharmacies",
+    "groups": "A group of pharmacies under an umbrella brand"
+  },
+  "gaps_and_assumptions": {
+    "missing_structured_fields": [
+      "company_stage",
+      "business_model",
+      "team_size",
+      "decision_frequency_explicit",
+      "stakeholder_list"
+    ],
+    "note": "Values above are inferred from interview notes and should be confirmed by Sam in onboarding form."
+  }
+}

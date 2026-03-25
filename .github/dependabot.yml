@@ -1,0 +1,14 @@
+# Monthly dependency updates (PRs you review and merge).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: npm
+    directory: "/apps/qc-ui"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5

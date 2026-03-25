@@ -1,0 +1,41 @@
+# Deterministic checks only — no API keys, no LLM calls.
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build-and-qc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            apps/qc-ui/package-lock.json
+
+      - name: Install dependencies (root)
+        run: npm ci
+
+      - name: Install dependencies (qc-ui)
+        run: npm ci --prefix apps/qc-ui
+
+      - name: Typecheck & compile (root)
+        run: npm run build
+
+      - name: QC report (golden + schema checks)
+        run: npm run qc
+
+      - name: Build Nuxt app (qc-ui)
+        run: npm run build --prefix apps/qc-ui

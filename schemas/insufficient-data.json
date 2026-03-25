@@ -1,0 +1,26 @@
+{
+  "$id": "https://camin.local/schemas/insufficient-data.json",
+  "title": "SignalInsufficientData",
+  "type": "object",
+  "required": [
+    "kind",
+    "kpiId",
+    "title",
+    "missingData",
+    "whyItMatters",
+    "metricsWithheld"
+  ],
+  "properties": {
+    "kind": { "const": "insufficient_data" },
+    "kpiId": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "missingData": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    },
+    "whyItMatters": { "type": "string", "minLength": 1 },
+    "metricsWithheld": { "const": true }
+  },
+  "additionalProperties": false
+}

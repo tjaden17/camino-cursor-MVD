@@ -1,0 +1,53 @@
+{
+  "overview": {
+    "kind": "signal_overview",
+    "kpiId": "kpi.sales.win_rate",
+    "title": "Sales win rate",
+    "currentValue": "24%",
+    "changePct": -8,
+    "changeLabel": "Down 8% from last week",
+    "oneLineSummary": "Win rate declined to 24%, down from 32% last week as enterprise deals face longer cycles.",
+    "recommended": false,
+    "provenance": {
+      "sourceId": "zoho_crm_deals",
+      "sourcePath": "data/zoho/Zoho - CRM - Deals.csv",
+      "timeRange": {
+        "start": "2025-09-01",
+        "end": "2025-09-30",
+        "label": "Sep 2025"
+      },
+      "ruleId": "RULE_WIN_RATE_EXAMPLE",
+      "formulaDescription": "Illustrative fixture — replace with real SQL when wired to CRM.",
+      "sampleRows": [
+        { "Stage": "Closed Won", "Amount": "AUD 10,000" },
+        { "Stage": "Closed Lost", "Amount": "AUD 0" }
+      ]
+    }
+  },
+  "expanded": {
+    "kind": "signal_expanded",
+    "kpiId": "kpi.sales.win_rate",
+    "execSummary": "Win rate has decreased materially; competition and budget scrutiny are showing up in late-stage losses.",
+    "takeawayBreakdown": {
+      "directionGoodOrBad": "Directionally negative for revenue efficiency.",
+      "expectedOrUnexpected": "Partly expected given seasonal pressure; magnitude warrants attention."
+    },
+    "benchmarkComparison": "Below typical range for similar B2B SaaS at seed stage (illustrative benchmark).",
+    "rootCauseAnalysis": "Longer sales cycles and more stakeholders on enterprise deals; several late losses cited price and procurement delays.",
+    "rootCauseRationale": "1) Count wins/losses in period. 2) Segment enterprise vs SMB. 3) Review loss reasons in CRM notes sample.",
+    "provenance": {
+      "sourceId": "zoho_crm_deals",
+      "sourcePath": "data/zoho/Zoho - CRM - Deals.csv",
+      "timeRange": {
+        "start": "2025-09-01",
+        "end": "2025-09-30",
+        "label": "Sep 2025"
+      },
+      "ruleId": "RULE_WIN_RATE_EXAMPLE",
+      "formulaDescription": "Same as overview — narrative must align with provenance.",
+      "sampleRows": [
+        { "Stage": "Closed Won", "Amount": "AUD 10,000" }
+      ]
+    }
+  }
+}

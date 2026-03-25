@@ -1,0 +1,23 @@
+{
+  "$id": "https://camin.local/schemas/weekly-brief-row.json",
+  "title": "WeeklyBriefSignalRow",
+  "type": "object",
+  "required": [
+    "kpiName",
+    "currentValueAbsolute",
+    "deltaFromLastPeriod",
+    "deltaDisplay",
+    "statusBadge"
+  ],
+  "properties": {
+    "kpiName": { "type": "string", "minLength": 1 },
+    "currentValueAbsolute": { "type": "string", "minLength": 1 },
+    "deltaFromLastPeriod": { "type": ["number", "null"] },
+    "deltaDisplay": { "type": "string" },
+    "statusBadge": {
+      "type": "string",
+      "enum": ["improving", "stable", "watch", "alert"]
+    }
+  },
+  "additionalProperties": false
+}

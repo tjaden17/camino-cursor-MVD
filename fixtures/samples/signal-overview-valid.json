@@ -1,0 +1,23 @@
+{
+  "kind": "signal_overview",
+  "kpiId": "kpi.leads.total",
+  "title": "CRM leads (file snapshot)",
+  "currentValue": "53",
+  "changePct": null,
+  "changeLabel": "No prior period in fixture",
+  "oneLineSummary": "53 lead records in the current Zoho export.",
+  "provenance": {
+    "sourceId": "zoho_crm_leads",
+    "sourcePath": "data/zoho/Zoho - CRM - Leads.csv",
+    "timeRange": {
+      "start": "2024-07-15",
+      "end": "2025-10-21",
+      "label": "Snapshot file contents"
+    },
+    "ruleId": "RULE_LEADS_ROW_COUNT",
+    "formulaDescription": "COUNT(*) rows in parsed CSV.",
+    "sampleRows": [
+      { "Id": "85928000003842021", "Company": "TWC Sydenham" }
+    ]
+  }
+}

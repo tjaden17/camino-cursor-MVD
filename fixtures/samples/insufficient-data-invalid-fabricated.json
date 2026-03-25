@@ -1,0 +1,9 @@
+{
+  "kind": "insufficient_data",
+  "kpiId": "kpi.job_seekers_active",
+  "title": "Active job seekers (weekly)",
+  "missingData": ["Job seeker export"],
+  "whyItMatters": "Missing data.",
+  "metricsWithheld": true,
+  "currentValue": "1,240"
+}

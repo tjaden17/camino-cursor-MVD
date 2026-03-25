@@ -1,0 +1,602 @@
+﻿Instructions to build Minimum Viable Data
+
+
+Goal
+I want to test if AI can product the data I want. My main goal is the do the ‘Quality Check the dat provided by AI’
+
+
+Let’s call this release the ‘MVD -Minimum viable data’. Ultimately, I want to create a product (a data/decision intelligence tool) that helps surface insights from a company’s data. But for now, we don’t need to consider the user experience. I just want to see the quality of the data AI can produce.
+
+
+Description
+Test if AI can produce the data I want. The data the AI will ingest includes 1) user/company information (collected from onboarding) 2) the data from the company (provided by the users by csv, in future it’ll be API/integrations) 3) publicly available information (e.g. publicly available benchmark data).
+
+
+The processed data is to be saved to a database. And rendered visually for the user.
+
+
+The key actions for the user are scroll (scroll through different KPI overviews) and explore (user can explore in depth analysis and synthesis for a kpi) and receive weekly brief (get a weekly update on what’s important)
+
+
+Acceptance Criteria (user perspective) (for 25 Mar build)
+* Surge & Sam can provide onboarding information to me (via a call). Which is saved, normalised, stored by the system (e.g. user onboarding files).
+* Surge & Sam can view 3 requested signals via the signal preview web ui. No login required. On  my computer.. With 3 key interactions: 1-Signal card overview. 2-Signal card expanded. 3-View different signal card.
+* On the signal preview screen, I can toggle between Surge & Sam view
+* Surge & Sam can view 3 recommended signals (with sufficient data). With 3 key interactions.1-Signal card overview. 2-Signal card expanded (including why it’s recommended). 3-View different signal card.
+* Surge & Sam can view 3 recommended signals (with insufficient data). 1-Signal card overview. 2-Signal card expanded (why it’s recommended, what data is missing, tips for practically sourcing the date). 3-View different signal card.
+* The data flow & architecture, from ingesting onboarding files and user data files, to agent processing, agent outputs, is explained clearly. Is designed in a modular way where it it easy to amend instructions in order to fine tune the data Surge & Sam sees
+
+
+
+
+
+
+Checklist (for me)
+
+
+Define key use cases        2
+Show UI + Explain data requirements        7
+KPIs user has chosen, sufficient data        7
+KPIs user has not chosen, but relevant (as recommended by strategy agent, sufficient data)        11
+KPIs user has chosen, or we have recommended, but have, insufficient data        11
+Provide Input data to AI models        12
+Run AI Agents instructions to process data        12
+Quality Check the data provided by AI        14
+Draft Tech architecture        14
+Draft Critical Path / Overall workflow to create data        14
+
+
+
+
+
+
+Other tasks
+* Collect input data from customer
+* Show what the final UI should look like. 
+* Should what the key interactions will be. How system should respond.
+* Create agent instructions to process data
+* Create potential critical path/overall workflow to create the data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Define key use cases
+UC
+	Who 
+	Problem
+	Current solutions
+
+
+	Purpose/
+Intended outcome
+	Frequency
+	Proposed feature
+	Data required
+	Logic/
+Processing required
+	1
+	Admin/
+Exec/CSM
+	Customer has goals, KPIs. Some they know, some they don’t know. All of our customers (in our segment) are trying to get over the next ‘hump’, in the startup, business cycle. 
+
+
+Problem: What should we focus on? What goals, KPIs? Are we aligned?
+
+
+	Searching GPT for strategic advice
+
+
+Research for benchmark companies.
+
+
+Board, advisors.
+
+
+Asking professional peers
+	Having a better idea of what to focus on, helps prioritise time, energy, resources
+	Setting goals: Monthly
+
+
+Reporting on goal performance: Weekly, fortnightly, monthly
+	KPI recommendation via Strategy Consultant Agent
+	User context table. E.g. User role. User KPIs, upcoming ‘what’s important’
+
+
+Org context table. E.g. 
+Org goal, KPIs, business model, product category, org stage, product stage
+
+
+	Strategy Consultant Agent to determine what KPIs are relevant (leading), to achieve their goals (lagging).
+	2
+	CSM
+	Pulling data from tools takes time. Pulling data via engineers, data analysis is bottle neck.
+
+
+Problem: Difficult, slow to pull
+
+
+	Saving report from tools
+
+
+Asking devs for reports.
+	Instant access and ability to understand the data, with minimal friction.
+	Daily
+	Ingest - CSV + Integrations via Data Engineer Agent
+	API for Zoho Desk, CRM
+API for custom data
+	Data Engineer Agent helps with data pipelines, flow, normalisation etc.
+	3
+	CSM
+	Problem: Cleaning up the raw data, data hygiene.
+	User manually opens spreadsheets, cleans up columns, fields etc. 
+	Makes sure data is ready to be analysed, to give clean, accurate results.
+	Weekly
+	Data hygiene via Data Analyst Agent
+	All
+	Data Analyst Agent. E.g. identifies data quality issues, optimises database structure, designs data strategies
+	4
+	CSM
+	Problem: Making sure data is being calculated, anlaysed properly.
+	User manually creates formulas, calcs. Open to risk, wrong calcs.
+	Analyse the data, summarise the data.
+	Daily.
+	SQL calcs, analysis via Business Intelligence Agent
+	All
+	Business intellgenent Agent. E.g. validates formulas and calcs. Thinks through SQL.
+	5
+	CSM/Exec
+	Making sense of the data. What does it mean for my role, the business?
+
+
+Problem: Exec has no ‘so what’ from Manager - they bring raw(ish) data to exec updates. 
+	Saving report, uploading to LLM.
+
+
+Asking LLM some questions (that aren’t the right questions).
+
+
+Not sure if answer is correct. Loss of context.
+	Faster, better quality ‘so what’ from the data. 
+
+
+Leads toFaster and better decisions, by having better sense of what needs to be done.
+	Weekly
+	Signal Synthesis (each signal)
+
+
+Weekly brief
+(prioritised top 5 signals this week)
+
+
+All via Management Consultant Agent,
+	Data tables user has provided, E.g. Zoho CRM, Custom tables
+
+
+User context table
+
+
+Org context table
+	Management Consultant agent. Synthesises data to provide McKinsey style synthesis.
+	6
+	Exec
+	Exec wants a quick exec explore of key metrics, e.g. at beginning of the week, or before meetings. 
+
+
+Problem: Takes days, weeks, for team to collect, analyse data for exec to have a quick ‘get upto speed’ summary
+	Managers/CSM produces reports.
+
+
+Self-decides what’s important to discuss with exec.
+
+
+Shows exec
+	For exec to quickly identify priority parts of business to focus on. E.g. risks, issues bubbling up, fires to address (what to slow down)
+
+
+But also opportunities (what to speed up)
+	Daily
+Weekly
+	Signal Cards Scrolling
+	
+
+	Chief of Staff Agent - Decides what’s important and relevant to CEO, users.
+	7
+	Exec
+	Exec wants a quickly weekly overview, at the beginning of the week. 
+
+
+Problem: I have limited focus, where should I allocate my attention so that it has greatest impact on our goals?
+	Exec has a business coach.
+
+
+Exec has to manually decide, based on gut check.
+
+
+Exec does not smartly focus attention, focuses on the wrong things
+
+
+Exec spends time considering strategy, roadmap, intentionally finds information related to goals.
+	Increase time and focus exec spends on issues that matter - e.g. help achieve goals.
+
+
+Minimise time/restrictions on issues that don’t impact the goals.
+	Weekly
+
+
+Mid-week
+	Weekly brief
+	Signals-Analysis
+
+
+Signals-Synthesis
+	Chief of Staff agent, in collaboration with Management Consultant Agent. Helps CEO focus on priority matters. 
+	8
+	CSM
+	Problems come up. Need explore, verify, understand actual issue, gather more context.
+
+
+Problem: I’ve noticed something. need to understand more about what’s happening here
+	Exploring reports. 
+
+
+Talk to others.
+
+
+ Being behind the 8 ball in terms of identifying problems, opps.
+	People will want to validate, verify, develop a better understanding of an issue. Esp. when there’s low trust with AI.
+	Daily
+	
+
+	
+
+	
+
+	9
+	CSM/Exec
+	Users don’t have much trust with AI outputs. They have experienced hallucinations, wrong answers etc. in their personal and work interactions with LLM AIs
+
+
+Problem: AI outputs aren’t often trusted.
+	User another LLM to verify
+
+
+Verify against their own data.
+
+
+Check with colleagues,.
+	Verify what user is seeing, understanding. Make sure it’s ‘true’.
+	Onboarding
+
+
+When data is ingested
+
+
+When data is processed
+	Human-AI Trust Loop
+	User input data to confirm.
+
+
+E.g. when strategic agent identifies KPIs, user to confirm which are priority.
+
+
+E.g. When Management Consultant provides synth, user to provides feedback on whether it was useful
+	Feedback from user to update the agent. But also the data we store. 
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Show UI + Explain data requirements
+Note: Screens are for lo-fi prototypes. Final output can differ.
+KPIs user has chosen, sufficient data
+View
+	Screen
+	Description
+	Data requirements
+	1
+	  
+
+	Name: Signal-Overview
+
+
+User goal: Quick scroll of KPIs. ‘Metrics in my pocket’. Get upto speed in beginning of week, or before meetings.
+
+
+
+
+	KPI - E.g. win/loss
+Current value - E.g. 24%
+Change - E.g. Down 8% from last week
+1 line summary - E.g. Sales win rate declined to 24%, down from 8% last week. 
+
+
+
+
+	2
+	  
+
+	Name: Signal-So what
+
+
+User goal (exec): Exec can understand, or at least have some ideas, about what they should do with this new information
+
+
+User goal (manager): User can start to understand how to develop a ‘so what’, so that they can perform their own so what, and discuss with exec
+	1.  1 line exec summary — What the data shows
+E.g. Win rate has decreased significantly due to increased competition and longer sales cycles. Enterprise deals facing more scrutiny and budget constraints.
+
+
+  2. Takeaway Breakdown — Was change directionally good or bad? Was change expected or unexpected?
+
+
+  3. Benchmark Comparison — How it compares to norms (and specifics about who informed those norms, e.g. product category, business stage, company name)
+
+
+  4. Root Cause Analysis — Why it happened? Deeper drivers.
+
+
+4.1 Root cause analysis rational - Chain of though, steps of the aI logic of how it came to this conclusion
+
+
+5. Relationship with other metrics - 
+* Signal relationships - Other KPIs that have a high probability of being correlated, including cross-source.
+* Causal chain analysis -  maps signal relationships: Identifies which signals influence others, Traces sequences of cause-and-effect (e.g., "churn up → NPS down → revenue at risk")
+* Detects leading indicators (signals that typically precede others,  summarises causal networks for complex multi-source scenarios
+
+
+  6. Implications on User/Org KPIs (Predictive signals):  Potential Impact on user KPIs, if change continues. Impact on Business KPIs if change continues
+
+
+7. 
+
+
+	3.
+	  
+
+	Name: Signal-What we found
+
+
+User goal: Check the ‘provenance’ of the KPI. Verify it matches data from source, what other user’s see in the source. ‘Can I trust this data, this analysis?’
+	Data origin tool: What was dats source? E.g. Zoho CRM
+
+
+How was this KPI calculated? Show calcs, including fields for normalised and calculations. User needs to be able to understand and agree.
+
+
+Sample data: Show a sample of the data that was used, including column name and data field
+	4
+	  
+
+	Name: Weekly Brief
+
+
+User goal: Given 1min at beginning of the week, what does a CEO need to care about?
+	Section 1: Signals this week
+
+
+**Each row contains:**
+- KPI name
+- Current value (absolute)
+- Delta from last period (arrow + number)
+- Status badge: `improving` / `stable` / `watch` / `alert`
+
+
+**Status badge rules:**
+| Badge | Condition |
+|---|---|
+| `improving` | Delta > threshold in positive direction |
+| `stable` | Delta within ±threshold |
+| `watch` | Delta > threshold in negative direction, not yet critical |
+| `alert` | Delta > 2x threshold in negative direction, or threshold crossed |
+
+
+Section 2: Top 3 issues this week
+
+
+The top 3 most important signal this week gets one paragraph of interpretation each.
+**Rules:**
+- Maximum 5 sentences
+- Must reference the trend (not just this week's number)
+- Must give one forward-looking statement ("watch whether X")
+- Must not recommend an action — that's the exec's job
+
+
+
+
+  
+
+
+
+
+
+	
+
+
+
+
+
+KPIs user has not chosen, but relevant (as recommended by strategy agent, sufficient data)
+View
+	Screen
+	Description
+	Data requirements
+	5
+	  
+
+	Name: Signal-Overview (recommended)
+
+
+User goal: Learn and understand what KPIs they should be considering.
+
+
+User can filter ‘recommended signals’ on and off
+
+
+
+
+	These are exactly the same as all other signal cards, except it has a tag for ‘recommended’, so that user can only show signals they’ve explicitly chosen, or see recommended signals as well.
+
+
+
+
+	KPIs user has chosen, or we have recommended, but have, insufficient data
+View
+	Screen
+	Description
+	Data requirements
+	6
+	  
+
+	Name: Signal-Insufficient data
+
+
+User goal: Know what KPIs are important AND what additional data they need to calculate and analyze the signal., 
+	An agent needs to analyse the KPI, and current data, to determine what data is missing. 
+
+
+Then provide suggestions of what data they need to sufficiently calculate/analyse the signal.
+
+
+Explain why that data is important to collect. 
+	Provide Input data to AI models
+* Exec user’s file (see attached)
+* Manager user’s file (see attached)
+* Zoho CRM data
+* Zoho Desk data
+* User’s custom data file
+
+
+Run AI Agents instructions to process data
+
+
+Strategy Consultant
+Expertise: Metric prioritization (for a particular function/role), business strategy, decision frameworks
+How they help:
+* Recommends the metrics a user should check weekly (e.g. CEO, CSM)
+* Connects each metric to a specific business decision
+* Considers industry, stage, team size, and priorities
+* Filters out vanity metrics in favor of actionable ones
+* Thinks in terms of what drives business outcomes
+
+
+Data Engineer agent
+Expertise: Data pipelines, ETL, schema mapping, data contracts, integration
+How they help:
+* Checks column mappings are correct
+* Validates data types and parsing logic
+* Identifies edge cases in source data
+* Designs robust data contracts
+* Ensures schema validation
+* Thinks in terms of data flow and transformation
+
+
+Data analyst agent
+Expertise: Data modeling, SQL optimization, analytics, metrics, reporting
+How they help
+* Optimizes database structure
+* Writes efficient SQL queries
+* Identifies data quality issues
+* Suggests meaningful metrics
+* Designs aggregation strategies
+
+
+
+
+Business intelligence agent
+Expertise: Business intelligence, metric calculations, SQL, data validation
+How they help:
+* Validates formulas and calculations
+* Thinks through SQL logic and edge cases
+* Identifies missing filters or wrong assumptions
+* Checks date range handling
+* Ensures nulls and duplicates are handled correctly
+* Always asks to see raw data before confirming numbers
+
+
+Management Consultant Agent
+Expertise: SMB operations, metric prioritization, business strategy, decision frameworks
+How they help:
+* Recommends the 5 metrics a CEO should check weekly
+* Connects each metric to a specific business decision
+* Considers industry, stage, team size, and priorities
+* Filters out vanity metrics in favor of actionable ones
+* Thinks in terms of what drives business outcomes
+
+
+
+
+
+
+
+
+Quality Check the data provided by AI
+* How does it look on a signal card - overview?
+* How does it look on a signal card - expanded?
+* Are signal calcs, changes correct? Verified?
+* Is signal analysis useful, relevant, believable, able to be quality checked?
+* How does a signal card - insufficient data, look?
+
+
+
+
+Draft Tech architecture
+
+
+Goal: For now, I just want to see if AI can produce the data I want. In future, we will need to consider UX, UI, scalability, AI costs etc. I want to test the AI data, with the least amount of complexity.
+
+
+Front end: Vue & Nuxt
+Backend: NodeJS
+Database: ?
+AI: Gemini or Open AI or Claude
+
+
+Draft Critical Path / Overall workflow to create data
+* User 1 (exec user) provides their information via onboarding. Saved to ‘Exec user file’.
+* User 2 (manager user) provides their information via onboarding. Saved to ‘CSM user file’
+* User 2/Admin connects their data. Data files saved to system. 
+* AI agents work, in parallel, or in succession, in to save data to database, enough to produce data required in main use cases and key user views.
+* At certain steps, e.g. after data is ingested for the first time for a data shape, there ia a Human in the loop. E.g. Where a user verifies normalised columns names. So that user can trust the data hygiene, normalisation.
+* Data is rendered visually to create signal cards, so that user can scroll (in scroll view) and deep dive (when they explore a signal card)
+* Human in the loop - User can provide feedback on usefulness of the processed data, i.e. data in the signal cards, manually via a call.
