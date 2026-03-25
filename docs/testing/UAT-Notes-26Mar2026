@@ -1,0 +1,35 @@
+ Overall feedback
+
+ #1 Signal calcs are all wrong.
+
+KPI 1: Total leads
+ If user gives 'meh' metric, like total leads. We should recommended better metrics. 
+ Like leads per mnonth. Refine instructions to AI call.
+
+
+Total leads is correct.
+Why does it say illustrative?
+
+Lead conversion should be a metric
+
+Analysis should be per month. 
+Should identify interesting sub trends. Like leads each month.
+
+Who the leads came from? Area? (only if data shows it)
+
+How is good/bad takeaway decided. Why neutral?
+
+Need benchmark
+
+Root cause: how to give interesting root case, when it's neutral?
+
+In provenance, why overview and expanded?
+
+KPI 2: sales win rationale
+KPI calc is wrong.
+
+
+Your goal/KPI is to improve 'signal card value', from the user's point of view. I will provide feedback, you will provide suggestions of how to improve signal value. 
+
+First, let's define signal value:
+- the kpi calcs are correct. this includes the right date range, for the data. e.g. if leads total, user probably wants leads per month as well. this should be an additional kpi
