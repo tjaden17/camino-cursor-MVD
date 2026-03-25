@@ -12,7 +12,7 @@
     "qc": "tsx src/cli.ts",
     "qc:build": "npm run build && node dist/cli.js",
     "serve:debug": "tsx src/serve-debug.ts",
-    "qc-ui:dev": "npm run build && npm run dev --prefix apps/qc-ui",
+    "qc-ui:dev": "npm run qc-ui:build && PORT=3050 node apps/qc-ui/.output/server/index.mjs",
     "qc-ui:build": "npm run build && npm run build --prefix apps/qc-ui"
   },
   "devDependencies": {

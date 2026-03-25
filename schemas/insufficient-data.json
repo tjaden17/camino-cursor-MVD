@@ -20,6 +20,11 @@
       "minItems": 1
     },
     "whyItMatters": { "type": "string", "minLength": 1 },
+    "sourcingTips": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    },
     "metricsWithheld": { "const": true }
   },
   "additionalProperties": false

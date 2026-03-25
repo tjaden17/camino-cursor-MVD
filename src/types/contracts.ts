@@ -83,6 +83,11 @@ export interface SignalInsufficientData {
   /** Fields or datasets still required */
   missingData: string[];
   whyItMatters: string;
+  /**
+   * Optional operational guidance: where/how to obtain the missing datasets.
+   * Used by the UI to improve practical value even when we withhold numbers.
+   */
+  sourcingTips?: string[];
   /** Explicitly no fabricated metrics */
   metricsWithheld: true;
 }

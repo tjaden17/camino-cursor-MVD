@@ -8,6 +8,9 @@ Minimum Viable Data — quality-check tooling for AI-produced KPIs and narrative
 - `npm run qc` — run golden replay/diff, JSON Schema checks, insufficient-data validation; writes `out/qc-report.json` and `out/qc-report.html`
 - `npm run serve:debug` — serve `out/` at http://127.0.0.1:3847/ (run `npm run qc` first)
 - `npm run build` — compile TypeScript to `dist/` (required before the QC UI can load shared logic)
+- `npm run ci` — same checks as GitHub Actions: build, QC, Nuxt build (run before push)
+
+**Cursor delivery commands** (see [`.cursor/commands/`](.cursor/commands/)): `/commit` — frequent commits; `/pr-ready` — run `npm run ci` before PR; `/release` — release notes and smoke pointers. Concept: [`explainers/save-git-and-prod-explainer.md`](explainers/save-git-and-prod-explainer.md).
 
 ## QC UI (Nuxt, Plan 2)
 
