@@ -10,6 +10,14 @@ export default defineEventHandler(async () => {
   const root = String(config.mvdRepoRoot || "");
   process.env.MVD_REPO_ROOT = root;
   const href = pathToFileURL(join(root, "dist/qc/run-report.js")).href;
-  const mod = await import(href);
-  return mod.runQcReport();
+  try {
+    const mod = await import(href);
+    return mod.runQcReport();
+  } catch {
+    throw createError({
+      statusCode: 503,
+      statusMessage:
+        "QC module not available. Run npm run build at the Camino-MVD repo root so dist/ exists.",
+    });
+  }
 });

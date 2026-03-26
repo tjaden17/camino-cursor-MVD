@@ -80,20 +80,35 @@ const validateSchema = ref("signal_overview");
 const validateText = ref('{\n  "kind": "signal_overview",\n  "kpiId": "kpi.test"\n}');
 const validateResult = ref<{ ok: boolean; errors?: string[] } | null>(null);
 
+function validateFetchErrorMessage(e: unknown): string {
+  if (e && typeof e === "object") {
+    const o = e as { statusMessage?: string; message?: string; data?: { message?: string } };
+    if (typeof o.statusMessage === "string" && o.statusMessage.trim()) return o.statusMessage;
+    if (typeof o.data?.message === "string" && o.data.message.trim()) return o.data.message;
+    if (typeof o.message === "string" && o.message.trim()) return o.message;
+  }
+  if (e instanceof Error && e.message.trim()) return e.message;
+  return "Request failed";
+}
+
 async function runValidate() {
   validateResult.value = null;
   let payload: unknown;
   try {
     payload = JSON.parse(validateText.value || "{}");
-  } catch (e) {
+  } catch {
     validateResult.value = { ok: false, errors: ["Invalid JSON"] };
     return;
   }
-  const res = await $fetch<{ ok: boolean; errors: string[] }>("/api/qc/validate", {
-    method: "POST",
-    body: { schemaId: validateSchema.value, payload },
-  });
-  validateResult.value = res;
+  try {
+    const res = await $fetch<{ ok: boolean; errors: string[] }>("/api/qc/validate", {
+      method: "POST",
+      body: { schemaId: validateSchema.value, payload },
+    });
+    validateResult.value = res;
+  } catch (e) {
+    validateResult.value = { ok: false, errors: [validateFetchErrorMessage(e)] };
+  }
 }
 </script>
 

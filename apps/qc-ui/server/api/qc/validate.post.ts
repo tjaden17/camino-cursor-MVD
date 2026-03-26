@@ -31,8 +31,23 @@ export default defineEventHandler(async (event) => {
   process.env.MVD_REPO_ROOT = root;
 
   const href = pathToFileURL(join(root, "dist/validate/ajv.js")).href;
-  const { createMvdValidator } = await import(href);
-  const ajv = createMvdValidator();
+  let mod: {
+    createMvdValidator: () => {
+      getSchema: (id: string) => ((data: unknown) => boolean) | undefined;
+      errorsText: () => string;
+    };
+  };
+  try {
+    mod = await import(href);
+  } catch {
+    return {
+      ok: false,
+      errors: [
+        "Validator module not available. Run npm run build at the Camino-MVD repo root so dist/ exists.",
+      ],
+    };
+  }
+  const ajv = mod.createMvdValidator();
   const v = ajv.getSchema(schemaUri[schemaId]);
   if (!v) {
     return { ok: false, errors: ["Schema not registered"] };

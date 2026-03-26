@@ -8,41 +8,69 @@
     <section class="controls">
       <label class="block">
         User perspective
-        <select v-model="userId" class="input" @change="onPerspectiveChange">
+        <select class="input" :value="userFromRoute" @change="onUserSelect($event)">
           <option value="surge">Surge</option>
           <option value="sam">Sam</option>
         </select>
       </label>
+      <p class="muted small">
+        Or jump directly:
+        <a
+          class="inline-link"
+          :href="buildHref('surge', 0)"
+          @click.prevent="goTo('surge', 0)"
+        >Surge</a>
+        ·
+        <a
+          class="inline-link"
+          :href="buildHref('sam', 0)"
+          @click.prevent="goTo('sam', 0)"
+        >Sam</a>
+      </p>
 
       <div class="nav">
-        <button type="button" class="btn" :disabled="cardIndex <= 0" @click="prevCard">
+        <a
+          v-if="cardIdx > 0"
+          class="btn"
+          :href="buildHref(userFromRoute, cardIdx - 1)"
+          @click.prevent="goTo(userFromRoute, cardIdx - 1)"
+        >
           Prev
-        </button>
+        </a>
+        <span v-else class="btn btn-disabled" aria-disabled="true">Prev</span>
         <span class="muted small">
-          Card {{ cardIndex + 1 }} / {{ cardCount }}
+          Card {{ cardIdx + 1 }} / {{ cardCount }}
           <span v-if="payload?.source">· {{ payload.source }}</span>
         </span>
-        <button
-          type="button"
+        <a
+          v-if="cardIdx < cardCount - 1"
           class="btn"
-          :disabled="cardIndex >= cardCount - 1"
-          @click="nextCard"
+          :href="buildHref(userFromRoute, cardIdx + 1)"
+          @click.prevent="goTo(userFromRoute, cardIdx + 1)"
         >
           Next
-        </button>
+        </a>
+        <span v-else class="btn btn-disabled" aria-disabled="true">Next</span>
       </div>
 
       <div class="dots">
-        <button
+        <a
           v-for="i in cardCount"
           :key="i - 1"
-          type="button"
           class="dot"
-          :class="{ active: i - 1 === cardIndex }"
-          @click="goToDot(i - 1)"
+          :class="{ active: i - 1 === cardIdx }"
+          :href="buildHref(userFromRoute, i - 1)"
           :aria-label="`Go to card ${i}`"
+          :aria-current="i - 1 === cardIdx ? 'true' : undefined"
+          @click.prevent="goTo(userFromRoute, i - 1)"
         />
       </div>
+
+      <p v-if="cardCount <= 1" class="muted small hint">
+        <strong>Only one card</strong> is available from the current data source. If you expected multiple cards,
+        <code>out/processed-signals.json</code> may be taking priority (including a single-card pipeline run). Remove or rename it to use the multi-card stub
+        <code>fixtures/samples/signal-preview-stub-users.json</code>, or re-run the pipeline with a full deck.
+      </p>
     </section>
 
     <p v-if="error" class="err">{{ error }}</p>
@@ -138,79 +166,53 @@
 </template>
 
 <script setup lang="ts">
-interface Overview {
-  kpiId: string;
-  title: string;
-  currentValue: string;
-  changePct: number | null;
-  changeLabel: string;
-  oneLineSummary: string;
-  provenance: Record<string, unknown>;
-}
+import type { SignalPreviewPayload } from "~/types/signal-preview";
 
-interface Expanded {
-  execSummary: string;
-  takeawayBreakdown: { directionGoodOrBad: string; expectedOrUnexpected: string };
-  benchmarkComparison?: string;
-  rootCauseAnalysis?: string;
-  rootCauseRationale?: string;
-  provenance: Record<string, unknown>;
-}
+const route = useRoute();
 
-interface Insufficient {
-  whyItMatters: string;
-  missingData: string[];
-  sourcingTips?: string[];
-}
+/** Single source of truth: URL query (works with production Nitro + SSR; no fragile client refresh). */
+const userFromRoute = computed(() => {
+  const u = String(route.query.userId ?? "surge").toLowerCase();
+  return u === "sam" ? "sam" : "surge";
+});
 
-interface Payload {
-  source?: string;
-  userId?: string;
-  cardIndex?: number;
-  cardCount?: number;
-  requestType?: string;
-  dataSufficiency?: string;
-  recommendationRationale?: string;
-  overview: Overview;
-  expanded?: Expanded;
-  insufficient?: Insufficient;
-}
+const cardIdx = computed(() => {
+  const n = Number(route.query.card);
+  if (!Number.isFinite(n) || n < 0) return 0;
+  return Math.floor(n);
+});
 
-const userId = ref("surge");
-const cardIndex = ref(0);
-
-// Production Nitro: explicit `refresh()` after changing refs — reliable after SSR hydration.
-const { data: payload, error, refresh: refreshSignal } = await useAsyncData(
-  "preview-signal",
+const { data: payload, error } = await useAsyncData(
+  () => `preview-signal:${route.fullPath}`,
   () =>
-    $fetch<Payload>("/api/preview/signal", {
+    $fetch<SignalPreviewPayload>("/api/preview/signal", {
       query: {
-        userId: userId.value,
-        card: cardIndex.value,
+        userId: userFromRoute.value,
+        card: cardIdx.value,
       },
     }),
 );
 
 const cardCount = computed(() => Math.max(1, payload.value?.cardCount ?? 1));
 
-async function onPerspectiveChange() {
-  cardIndex.value = 0;
-  await refreshSignal();
+function buildHref(userId: string, card: number): string {
+  const u = userId === "sam" ? "sam" : "surge";
+  const c = Math.max(0, Math.floor(card));
+  const qs = new URLSearchParams({ userId: u, card: String(c) });
+  return `${route.path}?${qs.toString()}`;
 }
 
-async function prevCard() {
-  cardIndex.value = Math.max(0, cardIndex.value - 1);
-  await refreshSignal();
+/** Full navigation (not SPA) so card changes always reload data — matches user dropdown behaviour. */
+function goTo(userId: string, card: number) {
+  if (import.meta.client) {
+    window.location.assign(buildHref(userId, card));
+  }
 }
 
-async function nextCard() {
-  cardIndex.value = Math.min(cardCount.value - 1, cardIndex.value + 1);
-  await refreshSignal();
-}
-
-async function goToDot(i: number) {
-  cardIndex.value = i;
-  await refreshSignal();
+function onUserSelect(ev: Event) {
+  const v = (ev.target as HTMLSelectElement).value;
+  const userId = v === "sam" ? "sam" : "surge";
+  goTo(userId, 0);
 }
 
 const meta = computed(() => ({
@@ -265,10 +267,37 @@ const badgeClassData = computed(() =>
 .btn {
   padding: 0.35rem 0.7rem;
   cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid #a1a1aa;
+  border-radius: 6px;
+  background: #fafafa;
+  font: inherit;
+  display: inline-block;
+  box-sizing: border-box;
+}
+a.btn:hover {
+  background: #f4f4f5;
 }
 .btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+.btn-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.inline-link {
+  color: #3730a3;
+}
+.inline-link:hover {
+  text-decoration: underline;
+}
+.hint {
+  margin-top: 0.75rem;
+  max-width: 42rem;
+  line-height: 1.45;
 }
 .block {
   display: block;
@@ -293,6 +322,13 @@ const badgeClassData = computed(() =>
   border: 1px solid #a1a1aa;
   background: #fff;
   cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+a.dot:hover {
+  border-color: #52525b;
 }
 .dot.active {
   background: #166534;

@@ -1,0 +1,290 @@
+{
+  "users": [
+    {
+      "userId": "surge",
+      "cards": [
+        {
+          "requestType": "requested",
+          "dataSufficiency": "sufficient",
+          "overview": {
+            "kind": "signal_overview",
+            "kpiId": "kpi.pipeline.leads_total",
+            "title": "Total leads",
+            "currentValue": "53",
+            "changePct": 0,
+            "changeLabel": "Vs prior period (illustrative)",
+            "oneLineSummary": "Total leads for Surge (stub deck card 1 — no pipeline output on this machine).",
+            "provenance": {
+              "sourceId": "stub_preview",
+              "sourcePath": "fixtures/samples/signal-preview-stub-users.json",
+              "timeRange": {
+                "start": "2024-01-01",
+                "end": "2026-01-01",
+                "label": "Stub preview"
+              },
+              "ruleId": "STUB_PREVIEW",
+              "formulaDescription": "Offline fixture when out/processed-signals.json is missing.",
+              "sampleRows": [{ "Note": "Use Next to see card 2" }]
+            }
+          },
+          "expanded": {
+            "kind": "signal_expanded",
+            "kpiId": "kpi.pipeline.leads_total",
+            "execSummary": "This is stub card 1 of 3 for Surge. Pipeline output would replace this deck.",
+            "takeawayBreakdown": {
+              "directionGoodOrBad": "Neutral in the stub narrative.",
+              "expectedOrUnexpected": "Expected for local QC without CRM replay."
+            },
+            "benchmarkComparison": "Illustrative only.",
+            "rootCauseAnalysis": "Stub content — not computed from your files.",
+            "rootCauseRationale": "1) Run pipeline to generate out/processed-signals.json. 2) Rebuild QC UI.",
+            "provenance": {
+              "sourceId": "stub_preview",
+              "sourcePath": "fixtures/samples/signal-preview-stub-users.json",
+              "timeRange": {
+                "start": "2024-01-01",
+                "end": "2026-01-01",
+                "label": "Stub preview"
+              },
+              "ruleId": "STUB_PREVIEW",
+              "formulaDescription": "Same stub as overview.",
+              "sampleRows": [{ "Note": "stub" }]
+            }
+          }
+        },
+        {
+          "requestType": "requested",
+          "dataSufficiency": "sufficient",
+          "overview": {
+            "kind": "signal_overview",
+            "kpiId": "kpi.sales.win_rate",
+            "title": "Win rate",
+            "currentValue": "24%",
+            "changePct": -8,
+            "changeLabel": "Down vs prior week (illustrative)",
+            "oneLineSummary": "Win rate for Surge (stub deck card 2).",
+            "provenance": {
+              "sourceId": "stub_preview",
+              "sourcePath": "fixtures/samples/signal-preview-stub-users.json",
+              "timeRange": {
+                "start": "2025-09-01",
+                "end": "2025-09-30",
+                "label": "Sep 2025"
+              },
+              "ruleId": "STUB_PREVIEW_WIN_RATE",
+              "formulaDescription": "Illustrative fixture.",
+              "sampleRows": [{ "Stage": "Closed Won", "Amount": "AUD 10,000" }]
+            }
+          },
+          "expanded": {
+            "kind": "signal_expanded",
+            "kpiId": "kpi.sales.win_rate",
+            "execSummary": "Stub card 2: different KPI so you can confirm Next / dots work.",
+            "takeawayBreakdown": {
+              "directionGoodOrBad": "Directionally negative in this illustration.",
+              "expectedOrUnexpected": "Illustrative only."
+            },
+            "benchmarkComparison": "Below typical range (illustrative).",
+            "rootCauseAnalysis": "Longer cycles in the story — not your live data.",
+            "rootCauseRationale": "Stub narrative for UAT.",
+            "provenance": {
+              "sourceId": "stub_preview",
+              "sourcePath": "fixtures/samples/signal-preview-stub-users.json",
+              "timeRange": {
+                "start": "2025-09-01",
+                "end": "2025-09-30",
+                "label": "Sep 2025"
+              },
+              "ruleId": "STUB_PREVIEW_WIN_RATE",
+              "formulaDescription": "Same as overview.",
+              "sampleRows": [{ "Stage": "Closed Won" }]
+            }
+          }
+        },
+        {
+          "requestType": "requested",
+          "dataSufficiency": "insufficient",
+          "overview": {
+            "kind": "signal_overview",
+            "kpiId": "kpi.finance.forecast",
+            "title": "Forecast accuracy",
+            "currentValue": "—",
+            "changePct": null,
+            "changeLabel": "Insufficient data for a numeric delta",
+            "oneLineSummary": "Forecast for Surge (stub deck card 3 — insufficient path).",
+            "provenance": {
+              "sourceId": "stub_preview",
+              "sourcePath": "fixtures/samples/signal-preview-stub-users.json",
+              "timeRange": {
+                "start": "2024-01-01",
+                "end": "2026-01-01",
+                "label": "Stub preview"
+              },
+              "ruleId": "STUB_PREVIEW_INSUFFICIENT",
+              "formulaDescription": "No number published by design.",
+              "sampleRows": []
+            }
+          },
+          "insufficient": {
+            "kind": "insufficient_data",
+            "kpiId": "kpi.finance.forecast",
+            "title": "Forecast accuracy",
+            "missingData": [
+              "Board-approved targets for the quarter",
+              "Finance actuals for the prior period"
+            ],
+            "whyItMatters": "Surge uses forecast accuracy to pace hiring and marketing.",
+            "sourcingTips": [
+              "Export the latest board forecast from your finance workspace.",
+              "Confirm which quarter is in scope with your CFO."
+            ],
+            "metricsWithheld": true
+          }
+        }
+      ]
+    },
+    {
+      "userId": "sam",
+      "cards": [
+        {
+          "requestType": "requested",
+          "dataSufficiency": "sufficient",
+          "overview": {
+            "kind": "signal_overview",
+            "kpiId": "kpi.pipeline.leads_total",
+            "title": "Total leads",
+            "currentValue": "53",
+            "changePct": 0,
+            "changeLabel": "Vs prior period (illustrative)",
+            "oneLineSummary": "Total leads for Sam (stub deck card 1 — different user copy).",
+            "provenance": {
+              "sourceId": "stub_preview",
+              "sourcePath": "fixtures/samples/signal-preview-stub-users.json",
+              "timeRange": {
+                "start": "2024-01-01",
+                "end": "2026-01-01",
+                "label": "Stub preview"
+              },
+              "ruleId": "STUB_PREVIEW",
+              "formulaDescription": "Offline fixture when out/processed-signals.json is missing.",
+              "sampleRows": [{ "Note": "Sam perspective" }]
+            }
+          },
+          "expanded": {
+            "kind": "signal_expanded",
+            "kpiId": "kpi.pipeline.leads_total",
+            "execSummary": "Stub card 1 of 3 for Sam — if this still says Surge, the user switch did not apply.",
+            "takeawayBreakdown": {
+              "directionGoodOrBad": "Neutral in the stub narrative.",
+              "expectedOrUnexpected": "Sam-specific copy for UAT."
+            },
+            "benchmarkComparison": "Illustrative only.",
+            "rootCauseAnalysis": "Stub content for Sam.",
+            "rootCauseRationale": "1) Check URL has userId=sam. 2) Run pipeline for live data.",
+            "provenance": {
+              "sourceId": "stub_preview",
+              "sourcePath": "fixtures/samples/signal-preview-stub-users.json",
+              "timeRange": {
+                "start": "2024-01-01",
+                "end": "2026-01-01",
+                "label": "Stub preview"
+              },
+              "ruleId": "STUB_PREVIEW",
+              "formulaDescription": "Same stub as overview.",
+              "sampleRows": [{ "Note": "stub" }]
+            }
+          }
+        },
+        {
+          "requestType": "requested",
+          "dataSufficiency": "sufficient",
+          "overview": {
+            "kind": "signal_overview",
+            "kpiId": "kpi.sales.win_rate",
+            "title": "Win rate",
+            "currentValue": "24%",
+            "changePct": -8,
+            "changeLabel": "Down vs prior week (illustrative)",
+            "oneLineSummary": "Win rate for Sam (stub deck card 2).",
+            "provenance": {
+              "sourceId": "stub_preview",
+              "sourcePath": "fixtures/samples/signal-preview-stub-users.json",
+              "timeRange": {
+                "start": "2025-09-01",
+                "end": "2025-09-30",
+                "label": "Sep 2025"
+              },
+              "ruleId": "STUB_PREVIEW_WIN_RATE",
+              "formulaDescription": "Illustrative fixture.",
+              "sampleRows": [{ "Stage": "Closed Won" }]
+            }
+          },
+          "expanded": {
+            "kind": "signal_expanded",
+            "kpiId": "kpi.sales.win_rate",
+            "execSummary": "Sam stub card 2 — confirms pagination across users.",
+            "takeawayBreakdown": {
+              "directionGoodOrBad": "Directionally negative in this illustration.",
+              "expectedOrUnexpected": "Illustrative only."
+            },
+            "benchmarkComparison": "Below typical range (illustrative).",
+            "rootCauseAnalysis": "Stub — Sam narrative.",
+            "rootCauseRationale": "Stub narrative for UAT.",
+            "provenance": {
+              "sourceId": "stub_preview",
+              "sourcePath": "fixtures/samples/signal-preview-stub-users.json",
+              "timeRange": {
+                "start": "2025-09-01",
+                "end": "2025-09-30",
+                "label": "Sep 2025"
+              },
+              "ruleId": "STUB_PREVIEW_WIN_RATE",
+              "formulaDescription": "Same as overview.",
+              "sampleRows": [{ "Stage": "Closed Won" }]
+            }
+          }
+        },
+        {
+          "requestType": "requested",
+          "dataSufficiency": "insufficient",
+          "overview": {
+            "kind": "signal_overview",
+            "kpiId": "kpi.finance.forecast",
+            "title": "Forecast accuracy",
+            "currentValue": "—",
+            "changePct": null,
+            "changeLabel": "Insufficient data for a numeric delta",
+            "oneLineSummary": "Forecast for Sam (stub deck card 3 — insufficient path).",
+            "provenance": {
+              "sourceId": "stub_preview",
+              "sourcePath": "fixtures/samples/signal-preview-stub-users.json",
+              "timeRange": {
+                "start": "2024-01-01",
+                "end": "2026-01-01",
+                "label": "Stub preview"
+              },
+              "ruleId": "STUB_PREVIEW_INSUFFICIENT",
+              "formulaDescription": "No number published by design.",
+              "sampleRows": []
+            }
+          },
+          "insufficient": {
+            "kind": "insufficient_data",
+            "kpiId": "kpi.finance.forecast",
+            "title": "Forecast accuracy",
+            "missingData": [
+              "Board-approved targets for the quarter",
+              "Finance actuals for the prior period"
+            ],
+            "whyItMatters": "Sam uses forecast accuracy to align clinic staffing with demand.",
+            "sourcingTips": [
+              "Pull the latest ops forecast Sam approved with finance.",
+              "Confirm the reporting period with your ops lead."
+            ],
+            "metricsWithheld": true
+          }
+        }
+      ]
+    }
+  ]
+}
