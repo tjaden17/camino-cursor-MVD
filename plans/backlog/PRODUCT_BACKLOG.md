@@ -54,6 +54,11 @@
 | DATA-1 | **Public / benchmark data** ingestion | Future enrichment. | TBD |
 | REL-1 | **MVD 1.1** — demo + recording with **real Claude API** | CI strategy separate from PRs. | TBD — suggest `IMPLEMENTATION_PLAN_MVD_1_1.md` when started |
 | QC-1 | **AC ↔ card index** mapping in QC report or dashboard | Full sign-off tooling; lightweight demo checklist shipped in [`docs/gapanalysis/DEMO_CHECKLIST_25_MAR.md`](../../docs/gapanalysis/DEMO_CHECKLIST_25_MAR.md). | TBD |
+| SIG-1 | **Signal card "rightness" uplift (umbrella)** | Parent issue: [`backlog/issue-SIG-1-signal-card-rightness-llm-and-transparency.md`](../../backlog/issue-SIG-1-signal-card-rightness-llm-and-transparency.md). Tracked by child issues SIG-1.1/SIG-1.2/SIG-1.3 below. Review-updated 2026-03-27 using [`docs/signal-review-2026-03-27.md`](../../docs/signal-review-2026-03-27.md). | TBD — suggest `IMPLEMENTATION_PLAN_SIGNAL_CARD_RIGHTNESS.md` |
+| SIG-1.1 | **LLM prompt iteration loop for signal quality** | Child issue: [`backlog/issue-SIG-1.1-llm-prompt-iteration-loop.md`](../../backlog/issue-SIG-1.1-llm-prompt-iteration-loop.md). Fast tweak -> rerun -> compare workflow. Review-updated 2026-03-27. | TBD |
+| SIG-1.2 | **User KPI recommendation transparency page** | Child issue: [`backlog/issue-SIG-1.2-user-kpi-recommendation-transparency-page.md`](../../backlog/issue-SIG-1.2-user-kpi-recommendation-transparency-page.md). Show requested vs recommended KPI sets per user. Review-updated 2026-03-27. | TBD |
+| SIG-1.3 | **KPI calculation dictionary page (org-level)** | Child issue: [`backlog/issue-SIG-1.3-kpi-calculation-dictionary-page.md`](../../backlog/issue-SIG-1.3-kpi-calculation-dictionary-page.md). Show normalized formulas + replay mapping. Review-updated 2026-03-27. | TBD |
+| SIG-1.4 | **Post-review hardening follow-ups (27 Mar)** | Address review findings: stronger personalization gate semantics, structured CLI logging, safer transparency API parse errors, KPI deep-link traceability from dictionary to preview, and add `/preview/signal` tab navigation to `transparency/recommendations` and `transparency/kpi-dictionary`. | [`IMPLEMENTATION_PLAN_SIG_REVIEW_FIXES_27_MAR.md`](../implementation/IMPLEMENTATION_PLAN_SIG_REVIEW_FIXES_27_MAR.md) |
 
 ---
 
