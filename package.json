@@ -11,17 +11,26 @@
     "test": "vitest run",
     "validate:onboarding": "tsx src/validate-onboarding.ts",
     "pipeline": "tsx src/pipeline/cli.ts",
-    "ci": "npm run build && npm run validate:onboarding && npm run qc && npm run build --prefix apps/qc-ui",
+    "lint": "eslint src",
+    "format": "prettier --write . --ignore-path .gitignore",
+    "format:check": "prettier --check . --ignore-path .gitignore",
+    "ci": "npm run build && npm run validate:onboarding && npm run test && npm run lint && npm run qc && npm run build --prefix apps/qc-ui",
     "qc": "tsx src/cli.ts",
+    "review:gates": "tsx src/review/cli.ts",
     "qc:build": "npm run build && node dist/cli.js",
     "serve:debug": "tsx src/serve-debug.ts",
     "qc-ui:dev": "npm run qc-ui:build && PORT=3050 node apps/qc-ui/.output/server/index.mjs",
     "qc-ui:build": "npm run build && npm run build --prefix apps/qc-ui"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@types/node": "^22.10.0",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
+    "typescript-eslint": "^8.57.2",
     "vitest": "^2.1.9"
   },
   "dependencies": {

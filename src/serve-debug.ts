@@ -13,7 +13,9 @@ const PORT = 3847;
 
 const server = createServer((req, res) => {
   const url = req.url?.split("?")[0] ?? "/";
-  const safe = normalize(url).replace(/^(\.\.[\/\\])+/, "");
+  // Remove leading "../" segments after normalization (path traversal guard).
+  // In a character class, "/" does not need escaping (eslint: no-useless-escape).
+  const safe = normalize(url).replace(/^(\.\.[/\\])+/, "");
   const file = safe === "/" || safe === "" ? "qc-report.html" : safe.replace(/^\//, "");
   const abs = join(root, file);
   if (!abs.startsWith(root) || !existsSync(abs)) {

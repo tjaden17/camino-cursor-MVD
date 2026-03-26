@@ -31,11 +31,5 @@ jobs:
       - name: Install dependencies (qc-ui)
         run: npm ci --prefix apps/qc-ui
 
-      - name: Typecheck & compile (root)
-        run: npm run build
-
-      - name: QC report (golden + schema checks)
-        run: npm run qc
-
-      - name: Build Nuxt app (qc-ui)
-        run: npm run build --prefix apps/qc-ui
+      - name: Full CI quality bar
+        run: npm run ci

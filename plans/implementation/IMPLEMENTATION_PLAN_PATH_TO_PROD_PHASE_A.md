@@ -1,12 +1,12 @@
 # Implementation Plan — Path to Prod: Phase A (harden the repo)
 
-**Overall Progress:** `80%`
+**Overall Progress:** `85%`
 
 Parent roadmap: [`IMPLEMENTATION_PLAN_PATH_TO_PROD.md`](IMPLEMENTATION_PLAN_PATH_TO_PROD.md) (Phase A = harden the repo, **no hosting yet**). CI details: [`RELEASE_SIGNOFF_AND_CI.md`](RELEASE_SIGNOFF_AND_CI.md).
 
 ## TLDR
 
-Strengthen **repo hygiene** before any deploy work: protected `main`, **Dependabot** for npm, **onboarding JSON** validated in CI, then **lightweight** tests and **ESLint + Prettier** for maintainability—matching the order in the release doc.
+Strengthen **repo hygiene** before any deploy work: GitHub branch protection (manual), **Dependabot** for npm, **onboarding JSON validation** available via local `npm run ci`, then **lightweight** tests and **ESLint + Prettier** baseline for maintainability—matching the order in the release doc.
 
 ## Critical Decisions
 
@@ -24,22 +24,22 @@ Strengthen **repo hygiene** before any deploy work: protected `main`, **Dependab
 
 - [x] 🟩 **Step 2: Dependabot for npm**
   - [x] 🟩 Add **Dependabot** config for npm (root + `apps/qc-ui`) in `.github/dependabot.yml`.
-  - [ ] 🟥 Confirm Dependabot opens PRs against `main` (enable in GitHub **Settings → Code security** if needed).
+  - [ ] 🟥 Wait for the first scheduled Dependabot PRs (this repo config runs monthly per `.github/dependabot.yml`; the first PR may take some time).
 
 - [x] 🟩 **Step 3: Onboarding JSON validation in CI**
   - [x] 🟩 Add `src/validate-onboarding.ts` + `npm run validate:onboarding`.
-  - [x] 🟩 Wired into `npm run ci` / `.github/workflows/ci.yml`.
+  - [x] 🟩 Wired into CI by having GitHub Actions run `npm run ci` (local `npm run ci` quality bar now includes onboarding validation).
 
 - [x] 🟩 **Step 4: Tests for pure functions**
   - [x] 🟩 **Vitest** at repo root (`vitest.config.ts`, `npm run test`).
   - [x] 🟩 Initial tests for `src/dates`, `src/qc` (`*.test.ts`).
-  - [x] 🟩 Run tests in CI (`npm run ci`).
+  - [x] 🟩 Wired into CI (via `npm run ci`, which now runs `npm run test`).
 
 - [x] 🟩 **Step 5: ESLint + Prettier baseline**
-  - [x] 🟩 ESLint for TypeScript in `src/` (`eslint.config.js`, `npm run lint`).
-  - [x] 🟩 Prettier (`.prettierrc`, `npm run format`).
-  - [x] 🟩 Lint runs in CI (`npm run ci`). Vue in `apps/qc-ui` not in ESLint scope yet.
+  - [x] 🟩 Add ESLint baseline config (`eslint.config.js`) for TypeScript in `src/` (tooling baseline).
+  - [x] 🟩 Add Prettier config (`.prettierrc`) (formatting baseline).
+  - [x] 🟩 Added `npm run lint` and kept formatting as an optional local baseline. CI enforces `eslint` (but does not fail PRs on full-repo Prettier diffs yet).
 
 ## Completion
 
-When all steps above are 🟩, mark **Phase A complete** in [`IMPLEMENTATION_PLAN_PATH_TO_PROD.md`](IMPLEMENTATION_PLAN_PATH_TO_PROD.md) § Progress.
+When the repo has: (1) branch protection enabled on GitHub, (2) the GitHub Actions workflow enforces the same quality bar as local `npm run ci` (including onboarding validation and unit tests), and (3) lint/format enforcement policy is decided, mark **Phase A complete** in [`IMPLEMENTATION_PLAN_PATH_TO_PROD.md`](IMPLEMENTATION_PLAN_PATH_TO_PROD.md) § Progress.
