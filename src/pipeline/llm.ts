@@ -137,7 +137,7 @@ export async function runLlmStages(params: {
           requestType: c.requestType,
           dataSufficiency: c.dataSufficiency,
         })),
-      )}\n\n## User context\nName: ${ctx.displayName}\nLeads (sample): ${ctx.leadsTotal}`;
+      )}\n\n## User context\nName: ${ctx.displayName}\nLeads (sample): ${ctx.leadsTotal}\n\n## Onboarding context JSON\n${JSON.stringify(profile.raw)}`;
       const res2 = await client.messages.create({
         model,
         max_tokens: 8192,
@@ -156,6 +156,8 @@ export async function runLlmStages(params: {
         benchmarkComparison?: string;
         rootCauseAnalysis?: string;
         rootCauseRationale?: string;
+        recommendationRationale?: string;
+        sourcingTips?: string[];
       }>;
     };
     const merged = mergeNarrativesIntoCards(stubCards, nar.narratives ?? []);
@@ -165,7 +167,7 @@ export async function runLlmStages(params: {
   return { agentUsers, cardsByUser };
 }
 
-function mergeNarrativesIntoCards(
+export function mergeNarrativesIntoCards(
   cards: ProcessedCard[],
   narratives: Array<{
     kpiId: string;
@@ -175,14 +177,34 @@ function mergeNarrativesIntoCards(
     benchmarkComparison?: string;
     rootCauseAnalysis?: string;
     rootCauseRationale?: string;
+    recommendationRationale?: string;
+    sourcingTips?: string[];
   }>,
 ): ProcessedCard[] {
   const byKpi = new Map(narratives.map((n) => [n.kpiId, n]));
   return cards.map((c) => {
     const n = byKpi.get(c.kpiId);
-    if (!n || !c.expanded) return c;
+    if (!n) return { ...c, narrativeSource: "fallback" };
+    if (!c.expanded) {
+      return {
+        ...c,
+        narrativeSource: "llm",
+        recommendationRationale: n.recommendationRationale ?? c.recommendationRationale,
+        insufficient: c.insufficient
+          ? {
+              ...c.insufficient,
+              sourcingTips:
+                c.dataSufficiency === "insufficient"
+                  ? n.sourcingTips ?? c.insufficient.sourcingTips
+                  : c.insufficient.sourcingTips,
+            }
+          : c.insufficient,
+      };
+    }
     return {
       ...c,
+      narrativeSource: "llm",
+      recommendationRationale: n.recommendationRationale ?? c.recommendationRationale,
       expanded: {
         ...c.expanded,
         execSummary: n.execSummary ?? c.expanded.execSummary,
@@ -192,10 +214,18 @@ function mergeNarrativesIntoCards(
           expectedOrUnexpected:
             n.expectedOrUnexpected ?? c.expanded.takeawayBreakdown.expectedOrUnexpected,
         },
-        benchmarkComparison: n.benchmarkComparison ?? c.expanded.benchmarkComparison,
+        benchmarkComparison: benchmarkIfCited(n.benchmarkComparison ?? c.expanded.benchmarkComparison),
         rootCauseAnalysis: n.rootCauseAnalysis ?? c.expanded.rootCauseAnalysis,
         rootCauseRationale: n.rootCauseRationale ?? c.expanded.rootCauseRationale,
       },
     };
   });
+}
+
+function benchmarkIfCited(text: string | undefined): string | undefined {
+  const t = text?.trim();
+  if (!t) return undefined;
+  const hasCitation = /https?:\/\//i.test(t);
+  const hasCaveat = /(illustrative|directional|caveat|not directly comparable)/i.test(t);
+  return hasCitation && hasCaveat ? t : undefined;
 }

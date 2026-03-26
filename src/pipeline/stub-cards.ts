@@ -83,20 +83,21 @@ export function buildStubCards(ctx: UserKpiContext): ProcessedCard[] {
 function buildOneCard(ctx: UserKpiContext, row: RowSpec): ProcessedCard {
   const prov = ctx.leadsProvenance;
   const recommended = row.requestType === "recommended";
+  const valueSpec = stubValueSpec(row.kpiId, ctx.leadsTotal);
 
   const overview: SignalOverview = {
     kind: "signal_overview",
     kpiId: row.kpiId,
     title: row.title,
-    currentValue: row.dataSufficiency === "sufficient" ? String(ctx.leadsTotal) : "—",
-    changePct: row.dataSufficiency === "sufficient" ? 0 : null,
+    currentValue: row.dataSufficiency === "sufficient" ? valueSpec.currentValue : "—",
+    changePct: row.dataSufficiency === "sufficient" ? valueSpec.changePct : null,
     changeLabel:
       row.dataSufficiency === "sufficient"
         ? "Vs prior period (illustrative)"
         : "Insufficient data for a numeric delta",
     oneLineSummary:
       row.dataSufficiency === "sufficient"
-        ? `${row.title} for ${ctx.displayName} aligns with current CRM extract (${ctx.leadsTotal} leads in sample period).`
+        ? `${row.title} for ${ctx.displayName} aligns with the current replay context (${valueSpec.currentValue} in sample period).`
         : `${row.title} needs additional datasets before we publish a number — see expanded.`,
     recommended,
     provenance: prov,
@@ -124,6 +125,7 @@ function buildOneCard(ctx: UserKpiContext, row: RowSpec): ProcessedCard {
       kpiId: row.kpiId,
       requestType: row.requestType,
       dataSufficiency: "insufficient",
+      narrativeSource: "fallback",
       recommendationRationale,
       overview,
       insufficient,
@@ -138,7 +140,8 @@ function buildOneCard(ctx: UserKpiContext, row: RowSpec): ProcessedCard {
       directionGoodOrBad: "Directionally neutral — no red flag from the sample extract.",
       expectedOrUnexpected: "Consistent with a seed-stage B2B operating rhythm.",
     },
-    benchmarkComparison: "Illustrative benchmark — compare to your board plan, not a public index.",
+    // Omit benchmark in fallback copy unless citation+caveat quality gate is satisfied.
+    benchmarkComparison: undefined,
     rootCauseAnalysis:
       "Volume and timing effects from the current CRM slice; validate with your RevOps owner.",
     rootCauseRationale:
@@ -155,10 +158,23 @@ function buildOneCard(ctx: UserKpiContext, row: RowSpec): ProcessedCard {
     kpiId: row.kpiId,
     requestType: row.requestType,
     dataSufficiency: "sufficient",
+    narrativeSource: "fallback",
     recommendationRationale,
     overview,
     expanded,
   };
+}
+
+function stubValueSpec(kpiId: string, leadsTotal: number): { currentValue: string; changePct: number } {
+  const specs: Record<string, { currentValue: string; changePct: number }> = {
+    "kpi.pipeline.leads_total": { currentValue: String(leadsTotal), changePct: 0 },
+    "kpi.sales.velocity": { currentValue: "12.4", changePct: 3.2 },
+    "kpi.support.sla": { currentValue: "91%", changePct: -1.4 },
+    "kpi.sales.win_rate": { currentValue: "27%", changePct: 2.1 },
+    "kpi.revenue.arpu": { currentValue: "$420", changePct: 1.1 },
+    "kpi.product.adoption": { currentValue: "68%", changePct: 4.6 },
+  };
+  return specs[kpiId] ?? { currentValue: String(leadsTotal), changePct: 0 };
 }
 
 /** Deterministic sourcing tips per KPI id (insufficient cards only). */

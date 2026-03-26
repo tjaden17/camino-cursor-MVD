@@ -26,6 +26,114 @@ export interface ReplayResult {
   sourcePath: string;
 }
 
+export type KpiStatus = "replayed" | "proxy" | "illustrative";
+
+export interface KpiDictionaryEntry {
+  kpiId: string;
+  title: string;
+  unitHint: string;
+  ruleId: string;
+  sourceId: DatasetId;
+  formulaSummary: string;
+  status: KpiStatus;
+}
+
+/**
+ * Canonical KPI metadata used by transparency dictionary (CTO decision: status ownership in rules metadata).
+ */
+export const KPI_DICTIONARY: KpiDictionaryEntry[] = [
+  {
+    kpiId: "kpi.pipeline.leads_total",
+    title: "Total leads",
+    unitHint: "count",
+    ruleId: "RULE_LEADS_ROW_COUNT",
+    sourceId: "zoho_crm_leads",
+    formulaSummary: "COUNT(*) of rows in Zoho CRM leads extract.",
+    status: "replayed",
+  },
+  {
+    kpiId: "kpi.sales.velocity",
+    title: "Sales velocity",
+    unitHint: "index",
+    ruleId: "RULE_LEADS_ROW_COUNT",
+    sourceId: "zoho_crm_leads",
+    formulaSummary: "Proxy placeholder based on current CRM replay while dedicated formula is pending.",
+    status: "proxy",
+  },
+  {
+    kpiId: "kpi.support.sla",
+    title: "Support SLA",
+    unitHint: "%",
+    ruleId: "RULE_LEADS_ROW_COUNT",
+    sourceId: "zoho_crm_leads",
+    formulaSummary: "Illustrative placeholder for MVD until SLA-specific replay is implemented.",
+    status: "illustrative",
+  },
+  {
+    kpiId: "kpi.finance.forecast",
+    title: "Forecast accuracy",
+    unitHint: "%",
+    ruleId: "RULE_LEADS_ROW_COUNT",
+    sourceId: "zoho_crm_leads",
+    formulaSummary: "Illustrative placeholder shown only when finance source data is incomplete.",
+    status: "illustrative",
+  },
+  {
+    kpiId: "kpi.sales.win_rate",
+    title: "Win rate",
+    unitHint: "%",
+    ruleId: "RULE_LEADS_ROW_COUNT",
+    sourceId: "zoho_crm_leads",
+    formulaSummary: "Proxy placeholder tied to CRM replay while stage-level denominator is not wired.",
+    status: "proxy",
+  },
+  {
+    kpiId: "kpi.revenue.arpu",
+    title: "ARPU",
+    unitHint: "$",
+    ruleId: "RULE_LEADS_ROW_COUNT",
+    sourceId: "zoho_crm_leads",
+    formulaSummary: "Illustrative placeholder until billing and account joins are available.",
+    status: "illustrative",
+  },
+  {
+    kpiId: "kpi.product.adoption",
+    title: "Product adoption",
+    unitHint: "%",
+    ruleId: "RULE_LEADS_ROW_COUNT",
+    sourceId: "zoho_crm_leads",
+    formulaSummary: "Illustrative placeholder pending product usage telemetry integration.",
+    status: "illustrative",
+  },
+  {
+    kpiId: "kpi.market.expansion",
+    title: "Market expansion",
+    unitHint: "count",
+    ruleId: "RULE_LEADS_ROW_COUNT",
+    sourceId: "zoho_crm_leads",
+    formulaSummary: "Illustrative placeholder used when segmentation and territory feeds are missing.",
+    status: "illustrative",
+  },
+  {
+    kpiId: "kpi.churn.risk",
+    title: "Churn risk",
+    unitHint: "index",
+    ruleId: "RULE_LEADS_ROW_COUNT",
+    sourceId: "zoho_crm_leads",
+    formulaSummary: "Illustrative placeholder pending renewal + support linkage.",
+    status: "illustrative",
+  },
+  {
+    kpiId: "kpi.partners.pipeline",
+    title: "Partner pipeline",
+    unitHint: "count",
+    ruleId: "RULE_LEADS_ROW_COUNT",
+    sourceId: "zoho_crm_leads",
+    formulaSummary: "Illustrative placeholder pending partner-source pipeline extract.",
+    status: "illustrative",
+  },
+];
+
 /** Count all lead rows in the Zoho leads export (MVD baseline). */
 export function replayLeadsTotalCount(ctx: ReplayContext = {}): ReplayResult {
   const sourcePath = ctx.datasetPath ?? resolveDataPath(DATASET_PATHS.zoho_crm_leads);

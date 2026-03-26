@@ -1,5 +1,18 @@
 <template>
   <div>
+    <nav class="tabs" aria-label="Preview navigation">
+      <NuxtLink to="/preview/signal" class="tab" active-class="active">Signal preview</NuxtLink>
+      <NuxtLink
+        to="/transparency/recommendations"
+        class="tab"
+        active-class="active"
+      >User context</NuxtLink>
+      <NuxtLink
+        to="/transparency/kpi-dictionary"
+        class="tab"
+        active-class="active"
+      >KPI calcs</NuxtLink>
+    </nav>
     <h1>Signal preview</h1>
     <p class="muted">
       Wireframe UX to support UAT: switch user, browse cards, and validate provenance.
@@ -80,6 +93,7 @@
         <div class="badges">
           <span class="badge" :class="badgeClassRequest">{{ requestLabel }}</span>
           <span class="badge" :class="badgeClassData">{{ dataLabel }}</span>
+          <span class="badge" :class="badgeClassNarrative">Narrative: {{ narrativeLabel }}</span>
         </div>
 
         <p class="kpi-id">{{ payload.overview.kpiId }}</p>
@@ -219,6 +233,7 @@ const meta = computed(() => ({
   requestType: payload.value?.requestType ?? "requested",
   dataSufficiency: payload.value?.dataSufficiency ?? "sufficient",
   recommendationRationale: payload.value?.recommendationRationale ?? "",
+  narrativeSource: payload.value?.narrativeSource ?? "fallback",
 }));
 
 const requestLabel = computed(() =>
@@ -236,9 +251,37 @@ const badgeClassRequest = computed(() =>
 const badgeClassData = computed(() =>
   meta.value.dataSufficiency === "sufficient" ? "ok" : "bad",
 );
+
+const narrativeLabel = computed(() =>
+  meta.value.narrativeSource === "llm" ? "LLM" : "Stub/Fallback",
+);
+
+const badgeClassNarrative = computed(() =>
+  meta.value.narrativeSource === "llm" ? "info" : "bad",
+);
 </script>
 
 <style scoped>
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 0.25rem 0 1rem;
+}
+.tab {
+  padding: 0.35rem 0.7rem;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid #a1a1aa;
+  border-radius: 999px;
+  background: #fafafa;
+  box-sizing: border-box;
+}
+.tab.active {
+  background: #166534;
+  border-color: #166534;
+  color: #fff;
+}
 .muted {
   color: #71717a;
   font-size: 0.9rem;

@@ -8,6 +8,12 @@
     <button type="button" class="btn" :disabled="pending" @click="refresh">
       {{ pending ? "Running…" : "Run QC" }}
     </button>
+    <p class="muted small">
+      Transparency pages:
+      <a href="/transparency/recommendations">user KPI recommendations</a>
+      ·
+      <a href="/transparency/kpi-dictionary">KPI dictionary</a>
+    </p>
     <p v-if="error" class="err">{{ error }}</p>
 
     <section v-if="data" class="section">

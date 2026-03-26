@@ -36,6 +36,7 @@ export interface SignalPreviewPayload {
   cardCount?: number;
   requestType?: string;
   dataSufficiency?: string;
+  narrativeSource?: "llm" | "fallback";
   recommendationRationale?: string;
   overview: SignalPreviewOverview;
   expanded?: SignalPreviewExpanded;
@@ -49,6 +50,7 @@ export interface ProcessedSignalsFile {
     cards: Array<{
       requestType?: string;
       dataSufficiency?: string;
+      narrativeSource?: "llm" | "fallback";
       recommendationRationale?: string;
       overview: Record<string, unknown>;
       expanded?: Record<string, unknown>;
