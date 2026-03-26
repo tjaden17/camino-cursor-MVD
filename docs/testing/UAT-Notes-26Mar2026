@@ -1,6 +1,14 @@
  Overall feedback
 
- #1 Signal calcs are all wrong.
+ Key feedback: Signal calcs are all wrong. For instance, sales velocity is not 53. Support SLA is not 53 either.
+
+
+ TW-01 good
+ Tw-02 Don't need 2 options for perspective. Confusing
+ TW-03 Can see analysis block, but it's wrong. For insufficient data, 'how to source it'is not in friendly language, or takes user context in account. Just whats missing, and examples of how it could look. For requested, insufficient data card, 
+ TW-04 Content is visible, but wrong .All cards show 53. Why it's recommended is not particulrly easy to understand. It needs to answer 'why should i care about this?'. Expanded anlysis is visible, but, again, it's wrong, not relevant to the KPI. I can scroll between cards though.
+ TW-05 'Why it's recommended' should be in the tone of 'why we're recommending it for surge, in his context', not my context. The missing data is not relevant/useful either. 
+ TW-06 With Sam, she has the same cards as Surge. They should be different, as she has context, role, requested KPIs, recommended KPIS
 
 KPI 1: Total leads
  If user gives 'meh' metric, like total leads. We should recommended better metrics. 

@@ -44,15 +44,15 @@ Each explainer below is written so you can read it once in about five minutes an
 
 **What you are learning:** Where “trust” is actually checked in this repo, not just “we hope the AI is good.”
 
-**1. JSON schemas.** Files under `schemas/` (e.g. `signal-overview.json`, `insufficient-data.json`) define the shape of payloads. If the JSON is valid but wrong shape, the validator fails. That stops silent drift between what the UI expects and what the pipeline emits.
+1. JSON schemas. Files under `schemas/` (e.g. `signal-overview.json`, `insufficient-data.json`) define the shape of payloads. If the JSON is valid but wrong shape, the validator fails. That stops silent drift between what the UI expects and what the pipeline emits.
 
-**2. Golden replay.** `src/kpi/rules.ts` recomputes numbers from the same CSV extracts every time. `fixtures/golden/` holds “claimed” numbers; QC compares replay to claimed within tolerance. So the **business metric** is not “whatever the model said”; it is “what we get when we run the same rule on the same file.”
+2. Golden replay. `src/kpi/rules.ts` recomputes numbers from the same CSV extracts every time. `fixtures/golden/` holds “claimed” numbers; QC compares replay to claimed within tolerance. So the **business metric** is not “whatever the model said”; it is “what we get when we run the same rule on the same file.”
 
-**3. Insufficient-data guardrails.** `src/qc/insufficient.ts` checks that insufficient cards do not carry fake KPI numbers (e.g. no `currentValue` on an insufficient payload). That is a product rule: **no number without a defensible data path.**
+3. Insufficient-data guardrails. `src/qc/insufficient.ts` checks that insufficient cards do not carry fake KPI numbers (e.g. no `currentValue` on an insufficient payload). That is a product rule: **no number without a defensible data path.**
 
-**4. QC report.** `npm run qc` bundles golden replay, schema checks on samples, and insufficient checks into `out/qc-report.json`. Passing QC means those gates agreed at that moment.
+4. QC report. `npm run qc` bundles golden replay, schema checks on samples, and insufficient checks into `out/qc-report.json`. Passing QC means those gates agreed at that moment.
 
-**Takeaway:** Trust is layered: schema (structure), replay (numbers), insufficient rules (honesty when data is missing), QC (one place to see pass/fail).
+Takeaway: Trust is layered: schema (structure), replay (numbers), insufficient rules (honesty when data is missing), QC (one place to see pass/fail).
 
 ---
 
@@ -60,7 +60,7 @@ Each explainer below is written so you can read it once in about five minutes an
 
 **What you are learning:** What runs in order, what can break, and what gets written where.
 
-**Rough order** (`src/pipeline/run-pipeline.ts`):
+Rough order (`src/pipeline/run-pipeline.ts`):
 
 1. **Normalize / load:** Read `*-onboarding-derived.json` from the onboarding directory, validate against the onboarding schema. Bad file → run fails early.
 2. **Quality:** Light checks (e.g. warnings if `gaps_and_assumptions` is missing).
@@ -69,9 +69,9 @@ Each explainer below is written so you can read it once in about five minutes an
 5. **Repair / validate mix:** Card counts and AC mix are checked; repair hook exists for future tightening.
 6. **Write artifacts:** e.g. `agent-signals.json`, `processed-signals.json`, manifest, diagnostics.
 
-**Failure scenarios:** Invalid onboarding JSON → throw before useful output. Missing CSV → replay fails. Missing key → pipeline still completes with stub path (good for CI and demos).
+Failure scenarios: Invalid onboarding JSON → throw before useful output. Missing CSV → replay fails. Missing key → pipeline still completes with stub path (good for CI and demos).
 
-**Takeaway:** The pipeline is a **sequenced factory line**: each stage assumes the previous one left the world in a known state.
+Takeaway: The pipeline is a **sequenced factory line**: each stage assumes the previous one left the world in a known state.
 
 ---
 
@@ -79,13 +79,13 @@ Each explainer below is written so you can read it once in about five minutes an
 
 **What you are learning:** Why we do not “just let Claude do the KPIs.”
 
-**Deterministic layer** answers: *What is the number, from which file, with which rule, and a sample of rows?* That is **auditable and repeatable**. Same inputs → same replay output (modulo intentional data updates).
+Deterministic layer answers: *What is the number, from which file, with which rule, and a sample of rows?* That is **auditable and repeatable**. Same inputs → same replay output (modulo intentional data updates).
 
-**LLM layer** (when enabled) answers: *How do we phrase selection rationale and narrative for this user?* It merges into stub-shaped cards so structure stays fixed while wording can flex. Prompts live under `prompts/`; responses can be cached under `.cache/mvd/` to save cost and stabilize runs.
+LLM layer (when enabled) answers: *How do we phrase selection rationale and narrative for this user?* It merges into stub-shaped cards so structure stays fixed while wording can flex. Prompts live under `prompts/`; responses can be cached under `.cache/mvd/` to save cost and stabilize runs.
 
-**Why both:** If the model were the only source of truth for numbers, you would get **variance, hallucination, and no single replay button**. If you only had spreadsheets, you would have **no personalized narrative at scale**. The hybrid keeps **numbers on rails** and **language in a bounded lane**.
+Why both: If the model were the only source of truth for numbers, you would get **variance, hallucination, and no single replay button**. If you only had spreadsheets, you would have **no personalized narrative at scale**. The hybrid keeps **numbers on rails** and **language in a bounded lane**.
 
-**Takeaway:** Deterministic = truth path for metrics; LLM = assistive layer on top of a fixed card contract.
+Takeaway: Deterministic = truth path for metrics; LLM = assistive layer on top of a fixed card contract.
 
 ---
 
@@ -93,19 +93,19 @@ Each explainer below is written so you can read it once in about five minutes an
 
 **What you are learning:** The human path that matches the code path.
 
-**1. Call:** Capture structured notes; align on what KPIs matter and what data exists.
+1. Call: Capture structured notes; align on what KPIs matter and what data exists.
 
-**2. Template:** Produce `*-onboarding-derived.json` (and avoid duplicate `user_id` across `data/onboarding/` and `data/user-onboarding/`).
+2. Template: Produce `*-onboarding-derived.json` (and avoid duplicate `user_id` across `data/onboarding/` and `data/user-onboarding/`).
 
-**3. Validate:** `npm run validate:onboarding` — schema + duplicate IDs.
+3. Validate: `npm run validate:onboarding` — schema + duplicate IDs.
 
-**4. Pipeline:** `npm run pipeline` (often `--skip-llm` in CI) — writes `out/processed-signals.json` and related files.
+4. Pipeline: `npm run pipeline` (often `--skip-llm` in CI) — writes `out/processed-signals.json` and related files.
 
-**5. QC:** `npm run qc` — gates before you treat the run as “good.”
+5. QC: `npm run qc` — gates before you treat the run as “good.”
 
-**6. Preview:** `apps/qc-ui` — `/` for QC dashboard, `/preview/signal` to flip through cards per user.
+6. Preview: `apps/qc-ui` — `/` for QC dashboard, `/preview/signal` to flip through cards per user.
 
-**Takeaway:** The operator is not “prompting ChatGPT”; they are **running a pipeline** with inputs, artifacts, and a preview that match the runbook.
+Takeaway: The operator is not “prompting ChatGPT”; they are **running a pipeline** with inputs, artifacts, and a preview that match the runbook.
 
 ---
 
@@ -133,7 +133,7 @@ Use these to check your own answers; the notes in italics reflect your draft thi
 
 **Your angle:** Valid = file can be read, cleaned, normalized? Trustworthy = AI analysed it and insights can be reviewed?
 
-**Tighten:**
+Tighten:
 
 - **Valid (in this codebase):** Usually means **passes JSON Schema** (and onboarding rules like duplicate `user_id`). It is **structural correctness**, not “this KPI is true.”
 - **Trustworthy:** Stronger: **numbers tie back to replay** (or are honestly absent), **narrative fits the contract**, and **QC gates pass** where you rely on them. “The AI read it” is not enough; **reviewable provenance** (source, rule, sample rows) is what makes a metric defensible.
@@ -152,9 +152,9 @@ Use these to check your own answers; the notes in italics reflect your draft thi
 
 **Your angle:** `processed-signals` — because it has the KPI log and related data.
 
-**Tighten:** **Start with `processed-signals.json`** for **what the user-facing cards actually contain** — each card includes overview (and expanded or insufficient) plus **provenance** on the overview (and expanded when present). That is the best “show me the signal and the receipts” bundle.
+Tighten: **Start with `processed-signals.json`** for **what the user-facing cards actually contain** — each card includes overview (and expanded or insufficient) plus **provenance** on the overview (and expanded when present). That is the best “show me the signal and the receipts” bundle.
 
-**Also know:**
+Also know:
 
 - **`agent-signals.json`** — selection rationale and requested vs recommended KPI ids; good for “why these KPIs,” lighter on full card proof.
 - **`out/qc-report.json`** — **gate-level proof** that golden replay, schema samples, and insufficient checks passed at report time. An auditor might want **both**: QC report for “what we verified,” processed signals for “what we shipped.”
