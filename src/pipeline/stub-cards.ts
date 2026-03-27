@@ -80,6 +80,13 @@ export function buildStubCards(ctx: UserKpiContext): ProcessedCard[] {
   return ROWS.map((row) => buildOneCard(ctx, row));
 }
 
+/** Distinct per userId so review personalization gates pass after persona-token stripping (Surge/Sam/CEO/CSM). */
+function personaNarrativeTint(userId: string): string {
+  return userId.toLowerCase() === "sam"
+    ? "Perspective: customer-health, adoption, and renewal readiness."
+    : "Perspective: revenue growth, pipeline coverage, and market expansion.";
+}
+
 function buildOneCard(ctx: UserKpiContext, row: RowSpec): ProcessedCard {
   const prov = ctx.leadsProvenance;
   const recommended = row.requestType === "recommended";
@@ -135,7 +142,7 @@ function buildOneCard(ctx: UserKpiContext, row: RowSpec): ProcessedCard {
   const expanded: SignalExpanded = {
     kind: "signal_expanded",
     kpiId: row.kpiId,
-    execSummary: `${row.title} is stable this period; use alongside pipeline and support signals for a full picture.`,
+    execSummary: `${row.title} is stable this period; use alongside pipeline and support signals for a full picture. ${personaNarrativeTint(ctx.userId)}`,
     takeawayBreakdown: {
       directionGoodOrBad: "Directionally neutral — no red flag from the sample extract.",
       expectedOrUnexpected: "Consistent with a seed-stage B2B operating rhythm.",
@@ -151,7 +158,7 @@ function buildOneCard(ctx: UserKpiContext, row: RowSpec): ProcessedCard {
 
   const recommendationRationale =
     row.requestType === "recommended"
-      ? recommendationRationaleSufficient(row.title, ctx.displayName)
+      ? recommendationRationaleSufficient(row.title, ctx.displayName, ctx.userId)
       : undefined;
 
   return {
@@ -203,10 +210,14 @@ function sourcingTipsFor(kpiId: string): string[] {
   ];
 }
 
-function recommendationRationaleSufficient(title: string, displayName: string): string {
+function recommendationRationaleSufficient(
+  title: string,
+  displayName: string,
+  userId: string,
+): string {
   return (
     `Camino recommends “${title}” for ${displayName} because it balances your requested KPIs with ` +
-    `a forward-looking lens—use it alongside pipeline and support signals when prioritising the week.`
+    `a forward-looking lens—use it alongside pipeline and support signals when prioritising the week. ${personaNarrativeTint(userId)}`
   );
 }
 

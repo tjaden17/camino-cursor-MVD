@@ -12,6 +12,8 @@
       Transparency pages:
       <a href="/transparency/recommendations">user KPI recommendations</a>
       ·
+      <a href="/transparency/org-context">org context &amp; strategy (12+6)</a>
+      ·
       <a href="/transparency/kpi-dictionary">KPI dictionary</a>
     </p>
     <p v-if="error" class="err">{{ error }}</p>

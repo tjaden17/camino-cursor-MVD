@@ -2,7 +2,9 @@
  * CLI: `npm run pipeline -- [options]`
  * Options: `--out <dir>`, `--onboarding <dir>`, `--skip-llm`, `--no-cache`
  */
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
+import { logError, logInfo } from "../logging/logger.js";
+import { assertPathUnderRepo } from "../path-safety.js";
 import { getRepoRoot } from "../repo-root.js";
 import { runPipeline } from "./run-pipeline.js";
 
@@ -36,21 +38,29 @@ async function main(): Promise<void> {
   const { outDir, onboardingDir, skipLlm, noCache } = parseArgs(process.argv.slice(2));
 
   const resolvedOut = outDir
-    ? outDir.startsWith("/")
+    ? isAbsolute(outDir)
       ? outDir
       : join(repoRoot, outDir)
     : join(repoRoot, "out");
   const resolvedOnboarding = onboardingDir
-    ? onboardingDir.startsWith("/")
+    ? isAbsolute(onboardingDir)
       ? onboardingDir
       : join(repoRoot, onboardingDir)
     : undefined;
+
+  assertPathUnderRepo(repoRoot, resolvedOut, "--out");
+  if (resolvedOnboarding !== undefined) {
+    assertPathUnderRepo(repoRoot, resolvedOnboarding, "--onboarding");
+  }
 
   let skip = skipLlm;
   if (!process.env.ANTHROPIC_API_KEY?.trim()) {
     skip = true;
     if (!skipLlm) {
-      console.warn("ANTHROPIC_API_KEY not set — running with --skip-llm (deterministic stub).");
+      logInfo({
+        event: "pipeline_skip_llm_no_api_key",
+        message: "ANTHROPIC_API_KEY not set — running with --skip-llm (deterministic stub).",
+      });
     }
   }
 
@@ -61,10 +71,15 @@ async function main(): Promise<void> {
     noCache,
   });
 
-  console.log(`Pipeline ${result.ok ? "completed" : "failed"}. Artifacts under ${result.outDir}`);
+  logInfo({
+    event: "pipeline_cli_done",
+    ok: result.ok,
+    outDir: result.outDir,
+  });
 }
 
 main().catch((e) => {
-  console.error(e);
+  const msg = e instanceof Error ? e.message : String(e);
+  logError({ event: "pipeline_cli_failed", error: msg });
   process.exitCode = 1;
 });

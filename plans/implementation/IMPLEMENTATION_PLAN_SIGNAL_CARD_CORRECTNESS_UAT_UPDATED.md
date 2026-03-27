@@ -1,5 +1,7 @@
 # Implementation Plan
 
+> **Superseded for release scope:** Product acceptance for **MVD v1.1** is defined in [`IMPLEMENTATION_PLAN_MVD_V1_1.md`](IMPLEMENTATION_PLAN_MVD_V1_1.md) (source: `docs/decisions/Release_ Minimum Viable Data v1.1.pdf`). This document remains useful as a **technical deep-dive** on signal-card correctness (facts-only KPIs, prompts, transparency).
+
 **Overall Progress:** `0%`
 
 ## TLDR

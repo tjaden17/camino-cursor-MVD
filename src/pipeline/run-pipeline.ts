@@ -2,11 +2,16 @@
  * Orchestrates MVD pipeline stages and writes `out/*.json` artifacts (fail-fast).
  */
 import { randomUUID } from "node:crypto";
-import { writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { validateKpiSpec } from "../kpi-spec/validate-kpi-spec.js";
+import { mergeOrgContext } from "../org/merge-org.js";
 import { getRepoRoot } from "../repo-root.js";
 import { emptyDiagnostics, writeDiagnostics } from "./diagnostics.js";
-import { loadAndValidateProfiles } from "./load-onboarding.js";
+import {
+  defaultOnboardingDirPaths,
+  loadAndValidateProfilesFromDirs,
+} from "./load-onboarding.js";
 import { buildUserKpiContexts } from "./bi-stage.js";
 import { runLlmStages } from "./llm.js";
 import {
@@ -18,10 +23,15 @@ import {
   writeManifest,
 } from "./run-manifest.js";
 import { repairCardsIfNeeded, validateAcMix } from "./repair-cards.js";
+import { buildStubStrategyCatalogue } from "./strategy-catalogue.js";
+import { buildUserStrategyMirror } from "./strategy-mirror.js";
 import type { AgentSignalsFile, PipelineRunFile, ProcessedSignalsFile } from "./types.js";
 
 export interface RunPipelineOptions {
-  /** Default: `data/onboarding` under repo root */
+  /**
+   * Single onboarding directory (legacy). If omitted, loads `data/onboarding` and
+   * `data/user-onboarding` (deduped by `user_id`).
+   */
   onboardingDir?: string;
   /** Default: `out` under repo root */
   outDir?: string;
@@ -33,17 +43,20 @@ export async function runPipeline(
   opts: RunPipelineOptions,
 ): Promise<{ ok: boolean; outDir: string }> {
   const repoRoot = getRepoRoot();
-  const onboardingDir = opts.onboardingDir ?? join(repoRoot, "data", "onboarding");
+  const onboardingDirs = opts.onboardingDir
+    ? [opts.onboardingDir]
+    : defaultOnboardingDirPaths(repoRoot);
+  const onboardingDirLabel = onboardingDirs.join(", ");
   const outDir = opts.outDir ?? join(repoRoot, "out");
   mkdirOut(outDir);
 
   const runId = randomUUID();
-  const profiles = loadAndValidateProfiles(onboardingDir);
+  const profiles = loadAndValidateProfilesFromDirs(onboardingDirs);
   const onboardingFiles = profiles.map((p) => p.path);
 
   const run: PipelineRunFile = createInitialRun({
     runId,
-    onboardingDir,
+    onboardingDir: onboardingDirLabel,
     onboardingFiles,
     skipLlm: opts.skipLlm,
     noCache: opts.noCache,
@@ -58,6 +71,65 @@ export async function runPipeline(
       id: "normalize",
       status: "ok",
       startedAt: run.startedAt,
+      finishedAt: new Date().toISOString(),
+    });
+    writeManifest(manifestPath(outDir), run);
+    writeDiagnostics(outDir, diag);
+
+    // KPI spec contract (Decision 13)
+    const kpiSpecPath = join(repoRoot, "data", "kpi-spec", "kpi-spec-v1.json");
+    if (!existsSync(kpiSpecPath)) {
+      throw new Error(`Missing KPI spec: ${kpiSpecPath}`);
+    }
+    const kpiSpecRaw = JSON.parse(readFileSync(kpiSpecPath, "utf8")) as unknown;
+    const kpiCheck = validateKpiSpec(kpiSpecRaw);
+    if (!kpiCheck.ok) {
+      throw new Error(`KPI spec validation failed: ${kpiCheck.errors.join("; ")}`);
+    }
+    diag.normalization.push({ message: "KPI spec contract validated (kpi-spec-v1.json)." });
+    appendStage(run, {
+      id: "kpi_spec",
+      status: "ok",
+      startedAt: new Date().toISOString(),
+      finishedAt: new Date().toISOString(),
+    });
+    writeManifest(manifestPath(outDir), run);
+    writeDiagnostics(outDir, diag);
+
+    // Org merge + v1.1 strategy catalogue (Decision 6, 12)
+    const org = mergeOrgContext(profiles);
+    const strategyCatalogue = buildStubStrategyCatalogue(runId, org, profiles);
+    writeFileSync(join(outDir, "org-context.json"), JSON.stringify(org, null, 2), "utf8");
+    writeFileSync(
+      join(outDir, "strategy-catalogue.json"),
+      JSON.stringify(strategyCatalogue, null, 2),
+      "utf8",
+    );
+    const orgDir = join(repoRoot, "data", "org");
+    mkdirSync(orgDir, { recursive: true });
+    const orgWithStrategy = { ...org, strategyCatalogue };
+    writeFileSync(
+      join(orgDir, `${org.orgId}.json`),
+      JSON.stringify(orgWithStrategy, null, 2),
+      "utf8",
+    );
+    const mirrorDir = join(repoRoot, "data", "onboarding");
+    mkdirSync(mirrorDir, { recursive: true });
+    for (const p of profiles) {
+      const mirror = buildUserStrategyMirror(strategyCatalogue, p.userId);
+      writeFileSync(
+        join(mirrorDir, `${p.userId}-strategy-mirror.json`),
+        JSON.stringify(mirror, null, 2),
+        "utf8",
+      );
+    }
+    diag.normalization.push({
+      message: `Org + strategy: ${org.orgName} (${org.orgId}); mirrors under data/org and data/onboarding/*-strategy-mirror.json.`,
+    });
+    appendStage(run, {
+      id: "org_strategy",
+      status: "ok",
+      startedAt: new Date().toISOString(),
       finishedAt: new Date().toISOString(),
     });
     writeManifest(manifestPath(outDir), run);

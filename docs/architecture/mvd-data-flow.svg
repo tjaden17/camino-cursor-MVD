@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 340" width="1000" height="340" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 360" width="1000" height="360" role="img" aria-labelledby="title desc">
   <title id="title">MVD data flow</title>
   <desc id="desc">From onboarding and user data files through pipeline stages (including two Claude calls) to JSON artifacts and the signal preview UI.</desc>
   <defs>
@@ -86,5 +86,6 @@
 
   <line class="arrow" x1="818" y1="220" x2="818" y2="246"/>
 
-  <text class="lbl-sm" x="500" y="330" text-anchor="middle">Surge / Sam: same artifacts, filtered by userId (e.g. surge, sam)</text>
+  <text class="lbl-sm" x="500" y="328" text-anchor="middle">Surge / Sam: same artifacts, filtered by userId (e.g. surge, sam)</text>
+  <text class="lbl-sm" x="500" y="348" text-anchor="middle">v1.1 also: out/org-context.json, out/strategy-catalogue.json (12+6); QC /transparency/org-context</text>
 </svg>

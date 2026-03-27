@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "kpis": [
+    {
+      "kpiId": "kpi.pipeline.leads_total",
+      "title": "Total leads",
+      "unitHint": "count",
+      "defaultRuleId": "RULE_LEADS_ROW_COUNT",
+      "notes": "Product-defined; replay from Zoho CRM leads export."
+    },
+    {
+      "kpiId": "kpi.sales.velocity",
+      "title": "Sales velocity",
+      "unitHint": "index",
+      "defaultRuleId": "RULE_LEADS_ROW_COUNT",
+      "notes": "Placeholder mapping until dedicated velocity replay ships."
+    },
+    {
+      "kpiId": "kpi.support.sla",
+      "title": "Support SLA",
+      "unitHint": "%",
+      "defaultRuleId": "RULE_LEADS_ROW_COUNT",
+      "notes": "Placeholder until Desk SLA replay ships."
+    },
+    {
+      "kpiId": "kpi.finance.forecast",
+      "title": "Forecast accuracy",
+      "unitHint": "%",
+      "defaultRuleId": "RULE_LEADS_ROW_COUNT",
+      "notes": "Often insufficient until finance workbook is linked."
+    },
+    {
+      "kpiId": "kpi.sales.win_rate",
+      "title": "Win rate",
+      "unitHint": "%",
+      "defaultRuleId": "RULE_LEADS_ROW_COUNT",
+      "notes": "Placeholder denominator until opportunity history is wired."
+    },
+    {
+      "kpiId": "kpi.revenue.arpu",
+      "title": "ARPU",
+      "unitHint": "$",
+      "defaultRuleId": "RULE_LEADS_ROW_COUNT",
+      "notes": "Placeholder until billing join is available."
+    },
+    {
+      "kpiId": "kpi.product.adoption",
+      "title": "Product adoption",
+      "unitHint": "%",
+      "defaultRuleId": "RULE_LEADS_ROW_COUNT",
+      "notes": "Placeholder until product telemetry is linked."
+    },
+    {
+      "kpiId": "kpi.market.expansion",
+      "title": "Market expansion",
+      "unitHint": "count",
+      "defaultRuleId": "RULE_LEADS_ROW_COUNT",
+      "notes": "Often insufficient until territory/segment feeds exist."
+    },
+    {
+      "kpiId": "kpi.churn.risk",
+      "title": "Churn risk",
+      "unitHint": "index",
+      "defaultRuleId": "RULE_LEADS_ROW_COUNT",
+      "notes": "Placeholder until renewal + support linkage exists."
+    },
+    {
+      "kpiId": "kpi.partners.pipeline",
+      "title": "Partner pipeline",
+      "unitHint": "count",
+      "defaultRuleId": "RULE_LEADS_ROW_COUNT",
+      "notes": "Often insufficient until PRM/partner export exists."
+    }
+  ]
+}

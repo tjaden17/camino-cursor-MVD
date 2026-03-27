@@ -10,6 +10,8 @@ import type {
 
 export type StageId =
   | "normalize"
+  | "kpi_spec"
+  | "org_strategy"
   | "quality"
   | "bi"
   | "claude_selection"

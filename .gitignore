@@ -1,6 +1,9 @@
 node_modules/
 dist/
 out/
+# Pipeline-generated v1.1 org/mirrors (optional; remove from gitignore to commit)
+data/org/
+data/onboarding/*-strategy-mirror.json
 apps/qc-ui/.nuxt/
 apps/qc-ui/.output/
 *.log

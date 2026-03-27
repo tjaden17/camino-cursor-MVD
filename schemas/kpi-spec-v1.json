@@ -1,0 +1,26 @@
+{
+  "$id": "https://camin.local/schemas/kpi-spec-v1.json",
+  "title": "KpiSpecV1",
+  "type": "object",
+  "required": ["version", "kpis"],
+  "properties": {
+    "version": { "type": "integer", "const": 1 },
+    "kpis": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["kpiId", "title", "unitHint"],
+        "properties": {
+          "kpiId": { "type": "string", "minLength": 1 },
+          "title": { "type": "string", "minLength": 1 },
+          "unitHint": { "type": "string" },
+          "defaultRuleId": { "type": "string" },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

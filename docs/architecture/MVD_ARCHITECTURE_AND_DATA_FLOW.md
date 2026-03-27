@@ -106,6 +106,12 @@ flowchart LR
 
 **Convention to aim for:** one folder (e.g. `prompts/`) with one file per stage or per concern (`normalize.md`, `strategy.md`, `signal-copy.md`), versioned with git alongside code.
 
+## v1.1 addendum (28 Mar 2026)
+
+- **KPI spec:** Product-defined contract in `data/kpi-spec/kpi-spec-v1.json`, validated in pipeline (`kpi_spec` stage) and via `npm run validate:kpi-spec`.
+- **Org + strategy:** Merged org context (`out/org-context.json`) and canonical **12 KPIs + 6 decisions** (`out/strategy-catalogue.json`); optional mirrors under `data/org/` and `data/onboarding/*-strategy-mirror.json` (see `docs/implementation/MVD_V1_1_ARTIFACTS.md`).
+- **QC UI:** Full catalogue is visible on **`/transparency/org-context`**; the signal preview deck remains the primary card UX (hybrid model).
+
 ## Related implementation plan
 
-See `plans/implementation/IMPLEMENTATION_PLAN_3.md` for task breakdown, artifact filenames, **locked decisions** (manifest merge, two Claude calls, `userId`, caching, repair), and preview integration. **Production hosting and deploy** are tracked in `plans/implementation/IMPLEMENTATION_PLAN_PATH_TO_PROD.md`.
+See `plans/implementation/IMPLEMENTATION_PLAN_3.md` for task breakdown, artifact filenames, **locked decisions** (manifest merge, two Claude calls, `userId`, caching, repair), and preview integration. **Production hosting and deploy** are tracked in `plans/implementation/IMPLEMENTATION_PLAN_PATH_TO_PROD.md`. **MVD v1.1** phases and AC are in `plans/implementation/IMPLEMENTATION_PLAN_MVD_V1_1.md`.
