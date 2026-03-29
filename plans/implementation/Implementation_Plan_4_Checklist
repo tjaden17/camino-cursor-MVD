@@ -1,0 +1,26 @@
+This is the evaluation criteria for the Implementation Plan Rag Enhanced Signal Intelligence Plan
+
+Ingest
+- Surge, Sam and onboarding context saved
+- We build up an org file, to have a complete view of sam, surge, the org
+- Datasets ingested appropriately, e.g. zoho desk, zoho crm, product usage Datasets
+- Datasets cleaned up appropriately, to give quality data
+- If necessary, datasets to be normalised
+
+KPI engine
+- Our system understands what KPIs should be useful for surge, sam, their organisation. It ingests whatever is necessary to perform that recommendation.
+- Our system  can explain what each kpi means, how it's calculated, generally (e.g. with normalised data)
+
+Verify needs
+- Users can see their context info, e.g. see their profile, requested kpis, recommended KPIs
+- User feels like system understands their needs
+
+Signal card
+- Users can view a signal card, relevant to them. e.g. requested or recommended 
+Signl card Includes
+-  kpi (relevant to that particular user)
+- kpi absolute value (that is appropriate for the KPI)
+- KPI trend (that is appropriate for that KPI)
+- Explanation of how the KPI was calculated, e.g. provenance, where data came from etc.
+- drivers for the KPI, and the logic for that driver
+- so what, for that kpi, and the logic for that so what

@@ -1,0 +1,158 @@
+# Camino — Weekly Brief Specification
+
+**Version:** 1.0
+
+
+---
+
+## What It Is
+
+The Weekly Brief is the primary delivery mechanism for Camino's intelligence. It is a single-page, exec-grade summary sent every Monday morning before the working week begins. It gives Surge a complete picture of business health in under 90 seconds — without him having to open a dashboard, pull a report, or ask anyone.
+
+It is not a newsletter. It is not a data dump. It is not a link to a chart. It is a self-contained, opinionated summary that tells the exec what is happening, why it matters, and what deserves attention this week.
+
+---
+
+## The Core Principle
+
+> One signal per line. One insight per section. One action per brief.
+
+Everything in the brief earns its place by answering: "Would Surge make a different decision this week if he knew this?" If the answer is no, it doesn't belong in the brief.
+
+---
+
+## Format — The Brief Structure
+
+The brief is a single scrollable page. On mobile, it reads top to bottom in under 90 seconds. On desktop, it can be printed on one A4 page.
+
+---
+
+### Section 1: The Headline (3 lines)
+
+The most important thing happening in the business this week. Written as a single sentence. Opinionated. Not hedged.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  CAMINO — WEEKLY BRIEF                                  │
+│  Week of 24 March 2026  |  Locumate                     │
+│                                                         │
+│  "Win rate has recovered to 38% — pipeline is healthy   │
+│   but agency usage is approaching your concern          │
+│   threshold. This week: watch agency."                  │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Rules:**
+- One sentence only
+- Must reference a real number from this week's data
+- Must name what to watch or what is going well
+- Written by AI, reviewed by no one — it must be good enough to stand alone
+
+---
+
+### Section 2: Signal Scorecard (the KPI table)
+
+Every active KPI for this customer, shown as a row. Status at a glance.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  YOUR SIGNALS THIS WEEK                                 │
+│                                                         │
+│  Pipeline Value       $1.24M     → flat      stable    │
+│  Win Rate             38%        ↑ +6pts     improving │
+│  Closed Revenue       $142K      ↓ -$18K     watch     │
+│  Avg Sales Cycle      47 days    → flat      stable    │
+│  Ticket Volume        84         ↑ +12       watch     │
+│  Avg Resolution       6.2 hrs    ↓ -1.1 hrs  improving │
+│  Lead Conversion      14%        → flat      stable    │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Each row contains:**
+- KPI name
+- Current value (absolute)
+- Delta from last period (arrow + number)
+- Status badge: `improving` / `stable` / `watch` / `alert`
+
+**Status badge rules:**
+| Badge | Condition |
+|---|---|
+| `improving` | Delta > threshold in positive direction |
+| `stable` | Delta within ±threshold |
+| `watch` | Delta > threshold in negative direction, not yet critical |
+| `alert` | Delta > 2x threshold in negative direction, or threshold crossed |
+
+Thresholds are set per KPI per customer in `customer_kpi_status`.
+
+**What it does not show:**
+- Charts (too much for a brief — charts live on the signal card)
+- Historical trend (one sentence in Section 3 handles this)
+- Raw data rows
+
+---
+
+### Section 3: The Focus Signal (one KPI, expanded)
+
+The single most important signal this week gets one paragraph of interpretation. Not five paragraphs. One.
+
+The AI selects the focus signal based on:
+1. Highest urgency status (`alert` first, then `watch`)
+2. If tied: the signal most relevant to the exec's stated 90-day priority
+3. If still tied: the signal with the largest delta as a percentage of its historical range
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  THIS WEEK'S FOCUS                                      │
+│                                                         │
+│  Ticket Volume — 84 tickets (+12 from last week)        │
+│                                                         │
+│  Volume has been rising for three consecutive weeks:    │
+│  60 → 72 → 84. At this rate it will cross 100 tickets   │
+│  per week by mid-April. The increase correlates with    │
+│  the onboarding of three new pharmacy groups in         │
+│  late February. Resolution time has not yet been        │
+│  affected (6.2 hrs, within target). Watch whether       │
+│  resolution time follows volume up in coming weeks.     │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Rules:**
+- Maximum 5 sentences
+- Must reference the trend (not just this week's number)
+- Must give one forward-looking statement ("watch whether X")
+- Must not recommend an action — that's the exec's job
+- If no signal is at `watch` or `alert`: the focus section becomes "What's going well" — the best-performing signal this week
+
+---
+
+### Section 4: One Action (optional, flagged by exec)
+
+If Surge flagged something last week as needing follow-up, it appears here as a single line.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  OPEN ITEM                                              │
+│                                                         │
+│  You flagged: Agency Usage crossed 30% (Mar 17)         │
+│  Status: Not yet resolved — no update from Sam          │
+│                                                         │
+│  [View signal]                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**MSS scope:** This section is only shown if the exec has previously flagged a signal. In the MSS, flagging happens outside the product (Slack/email to Sam). This section is pre-populated manually by the founder for the MSS. In MVP (Level 2 operator layer), it is auto-populated from the signal thread status.
+
+---
+
+### Section 5: Footer
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Data as of: 23 March 2026                              │
+│  Next brief: Monday 30 March 2026                       │
+│                                                         │
+│  [Open full dashboard →]    [Something wrong? Tell us]  │
+└─────────────────────────────────────────────────────────┘
+```
+
+---

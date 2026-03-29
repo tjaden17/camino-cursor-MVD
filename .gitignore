@@ -8,3 +8,4 @@ apps/qc-ui/.nuxt/
 apps/qc-ui/.output/
 *.log
 .DS_Store
+.cache/

@@ -1,8 +1,10 @@
 # UAT Plan: MVD v1.1
 
-Purpose: give product owners and reviewers a **manual** checklist to validate that the MVD v1.1 experience matches the unified acceptance criteria in `plans/implementation/IMPLEMENTATION_PLAN_MVD_V1_1.md`.
+Purpose: give product owners and reviewers a **manual** checklist to validate that the MVD v1.1 experience matches the unified acceptance criteria in [`IMPLEMENTATION_PLAN_MVD_V1_1.md`](../../plans/implementation/IMPLEMENTATION_PLAN_MVD_V1_1.md).
 
 **Artefact map (paths, owners):** [`docs/implementation/MVD_V1_1_ARTIFACTS.md`](../implementation/MVD_V1_1_ARTIFACTS.md)
+
+**Signal trust (provenance + sufficiency):** Honest **per-KPI** provenance, **computed sufficient vs insufficient** data, and **no fabricated headline numbers** are tracked in [`IMPLEMENTATION_PLAN_PER_KPI_SIGNAL_PROVENANCE.md`](../../plans/implementation/IMPLEMENTATION_PLAN_PER_KPI_SIGNAL_PROVENANCE.md). That work **extends** v1.1 UAT and mainly affects **M-7, M-8, M-9** (and linked sub-UATs—see conditions below).
 
 ## Release bar vs this document
 
@@ -10,29 +12,67 @@ Per **Decision 14** in the implementation plan, **v1.1 “done”** is satisfied
 
 ## Quick links (local QC UI, port 3050)
 
-| What | URL |
-|------|-----|
-| Signal preview (primary user UX — representative deck) | `http://127.0.0.1:3050/preview/signal` |
-| User KPI transparency (requested/recommended, persona context) | `http://127.0.0.1:3050/transparency/recommendations` |
-| **Org context + full 12 KPIs + 6 decisions** (secondary validation) | `http://127.0.0.1:3050/transparency/org-context` |
-| KPI calculation dictionary | `http://127.0.0.1:3050/transparency/kpi-dictionary` |
+
+| What                                                                | URL                                                  |
+| ------------------------------------------------------------------- | ---------------------------------------------------- |
+| Signal preview (primary user UX — representative deck)              | `http://127.0.0.1:3050/preview/signal`               |
+| User KPI transparency (requested/recommended, persona context)      | `http://127.0.0.1:3050/transparency/recommendations` |
+| **Org context + full 12 KPIs + 6 decisions** (secondary validation) | `http://127.0.0.1:3050/transparency/org-context`     |
+| KPI calculation dictionary                                          | `http://127.0.0.1:3050/transparency/kpi-dictionary`  |
+
 
 **Operator path (generate `out/` before UI):** [`docs/runbooks/AC1_OPERATOR_RUNBOOK.md`](../runbooks/AC1_OPERATOR_RUNBOOK.md)
 
 ## Preconditions
 
-From repo root (typical demo / UAT prep):
+Common setup (from repo root):
 
 ```bash
 npm install
 npm run validate:onboarding
 npm run validate:kpi-spec
-npm run pipeline -- --skip-llm
 npm run build
+```
+
+### Pipeline: two options (pick one)
+
+
+| Goal                                                                                  | Command                          | Notes                                                                                                            |
+| ------------------------------------------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **A — Deterministic / reproducible** (matches CI, same `out/` every time, no API key) | `npm run pipeline -- --skip-llm` | Best for comparing runs, screenshots, and automated gates without drift.                                         |
+| **B — Real LLM copy** (judge Claude narrative quality)                                | `npm run pipeline`               | Omit `--skip-llm`. Requires **ANTHROPIC_API_KEY** in your environment. Outputs can vary slightly between runs. |
+
+
+After the pipeline finishes, start the UI:
+
+```bash
 npm run qc-ui:dev
 ```
 
-Optional sanity (matches CI-style bar):
+**Which should I use for UAT?** Use **A** if you care about repeatability and gate stability. Use **B** if your goal is to **review real LLM signal copy** (tone, specificity, “why now”) — then open the preview and transparency pages as usual.
+
+### Anthropic API key (for option B)
+
+1. **Where it comes from:** Create or obtain a key from **Anthropic** — typically [Anthropic Console](https://console.anthropic.com/) (sign in → **API keys** → create a key). If your company uses Claude through IT, ask for a **project or service API key** from your admin instead of sharing personal keys.
+2. **How to use it locally:** Set the environment variable the pipeline expects (name is fixed in this repo):
+  ```bash
+   export ANTHROPIC_API_KEY="sk-ant-api03-..."   # example shape; use your real key
+   npm run pipeline    # no --skip-llm
+  ```
+   On macOS you can add `export ANTHROPIC_API_KEY=...` to your shell profile, or use a local `.env` **only if** your tooling loads it — **never commit** keys or paste them into the repo.
+3. **Safety:** Treat the key like a password. Rotate it if it leaks. CI in this project stays **without** live LLM by design (`--skip-llm`).
+4. **If you see `not_found_error` (JSON log with `type: "not_found_error"`):** the API accepted your key but **rejected the model name** the pipeline sends (default in code: `ANTHROPIC_MODEL` or `claude-3-5-sonnet-20241022`). Model IDs change over time; older strings may return 404 for new keys.
+  - Open [Anthropic model docs](https://docs.anthropic.com/en/docs/about-claude/models) or your [Console](https://console.anthropic.com/) and copy an **exact** model id your account can use.
+  - Run with that id, for example:
+    ```bash
+    export ANTHROPIC_API_KEY="…"
+    export ANTHROPIC_MODEL="paste-exact-model-id-here"
+    npm run pipeline
+    ```
+  - If you need to unblock UAT without fixing the model string, use **option A**: `npm run pipeline -- --skip-llm`.
+5. **Node `punycode` deprecation warning:** harmless noise from dependencies; it does not mean the pipeline failed.
+
+Optional sanity after `out/` exists (matches CI-style bar; run after either pipeline option):
 
 ```bash
 npm run review:gates
@@ -40,21 +80,25 @@ npm run review:v11
 npm run qc
 ```
 
+**What these do (plain-language explainer):** [`docs/explainers/optional-npm-sanity-checks-explainer.md`](../explainers/optional-npm-sanity-checks-explainer.md)
+
 ---
 
 ## Unified AC coverage (manual UAT map)
 
-| AC area (plan §) | Covered by tests below |
-|------------------|-------------------------|
-| A — Product intent / defensible data | M-10, M-11 |
-| B — Onboarding & org (CSV, org file, two personas) | M-1, M-2, M-5 |
-| C — Data ingestion (Zoho/custom) | M-3 |
-| D — Pipeline, KPI spec, strategy 12+6 | M-4, M-6 |
-| E — Signal preview UI | M-7 (+ linked docs) |
-| F — Calcs, gaps, verification | M-8, M-10 |
-| G — Signal analysis, copy, provenance | M-9, M-11 |
-| H — User/org visibility | M-5, M-6 |
-| I — DoD (docs, phases) | M-12 |
+
+| AC area (plan §)                                   | Covered by tests below |
+| -------------------------------------------------- | ---------------------- |
+| A — Product intent / defensible data               | M-10, M-11             |
+| B — Onboarding & org (CSV, org file, two personas) | M-1, M-2, M-5          |
+| C — Data ingestion (Zoho/custom)                   | M-3                    |
+| D — Pipeline, KPI spec, strategy 12+6              | M-4, M-6               |
+| E — Signal preview UI                              | M-7 (+ linked docs + per-KPI provenance plan) |
+| F — Calcs, gaps, verification                      | M-8, M-10              |
+| G — Signal analysis, copy, provenance              | M-9, M-11              |
+| H — User/org visibility                            | M-5, M-6               |
+| I — DoD (docs, phases)                             | M-12                   |
+
 
 ---
 
@@ -68,9 +112,9 @@ npm run qc
 
 1. Confirm CSV drop / conversion path is documented: `data/onboarding/*.csv` → derived JSON (see `MVD_V1_1_ARTIFACTS.md`).
 2. If you have a sample CSV, run (adjust paths as needed):
-   ```bash
+  ```bash
    npm run onboarding:csv -- --in data/onboarding/<file>.csv --out-dir data/onboarding
-   ```
+  ```
 3. Run `npm run validate:onboarding` and confirm **no errors** for derived JSON.
 
 **Pass**
@@ -143,6 +187,11 @@ npm run qc
 
 - A reviewer can understand per-user KPI intent without opening raw JSON first.
 
+**Note — two different concerns**
+
+- **Per-KPI signal honesty** (same formula/provenance for the same KPI everywhere) is covered by [`IMPLEMENTATION_PLAN_PER_KPI_SIGNAL_PROVENANCE.md`](../../plans/implementation/IMPLEMENTATION_PLAN_PER_KPI_SIGNAL_PROVENANCE.md) and **M-7**.
+- **Different Surge vs Sam KPI lists** driven by **onboarding and strategy selection** is a separate product/pipeline concern. The implementation plan’s **E13** rule is: for the **same `kpiId`**, numeric facts and provenance match across users (wording may differ). If you expect **different KPI sets** per persona, validate that against **strategy / onboarding** outputs—not only the provenance plan.
+
 ---
 
 ### M-6: Secondary surface — full 12 KPIs + 6 decisions (Org context)
@@ -155,8 +204,8 @@ npm run qc
 2. Read the intro copy: it should state this is the **secondary** surface for the **full catalogue**, not the preview deck.
 3. Confirm **Strategy catalogue** JSON is present (or an explicit empty state if pipeline not run).
 4. In the JSON, spot-check:
-   - structure suggests **12 KPI** slots and **6 decision** slots (now / near / far as designed);
-   - sample **3+3** calc labelling if present in artefact (per Decision 8 — clearly distinguish sample vs production rollup).
+  - structure suggests **12 KPI** slots and **6 decision** slots (now / near / far as designed);
+  - sample **3+3** calc labelling if present in artefact (per Decision 8 — clearly distinguish sample vs production rollup).
 
 **Pass**
 
@@ -168,14 +217,22 @@ npm run qc
 
 **Maps to:** E (preview deck), F/G (trust).
 
+**Implementation track:** [`IMPLEMENTATION_PLAN_PER_KPI_SIGNAL_PROVENANCE.md`](../../plans/implementation/IMPLEMENTATION_PLAN_PER_KPI_SIGNAL_PROVENANCE.md) (per-KPI provenance, honest sufficient vs insufficient, no fabricated headline values).
+
 **Steps**
 
-- Run the **TW-01 … TW-06** script: [`signal-preview-uat.md`](signal-preview-uat.md) (requested/recommended, sufficient/insufficient, Surge/Sam, no login).
-- For **signal-card correctness** (KPI semantics, Surge vs Sam, benchmarks, dictionary traceability): [`signal-card-correctness-uat.md`](signal-card-correctness-uat.md).
+1. **Core checks (after that plan is implemented)**  
+   - Open several cards (different **KPI IDs**). Expand **What we found (provenance)** on each.  
+   - Confirm **provenance is not identical** across unrelated KPIs: **`ruleId`**, **`formula` / formula text**, and **`sourceId`** (or path) should match **that** KPI, not a single shared “leads” bundle.  
+   - Confirm **headline numbers** appear only where the card is **sufficient** and the pipeline can **honestly** replay or compute the metric; otherwise the card should behave as **insufficient** (no made-up `%` or reused lead counts for non-leads KPIs).
+
+2. **Linked manual scripts (conditional)**  
+   - [`signal-preview-uat.md`](signal-preview-uat.md) (**TW-01 … TW-06**): navigation, requested/recommended, sufficient/insufficient, Surge/Sam, no login. **Apply only steps that match the current deck**—once sufficiency is data-driven, you may have **few or zero** “sufficient” cards; skip steps that assume a fixed 3+3 sufficient mix.  
+   - [`signal-card-correctness-uat.md`](signal-card-correctness-uat.md): KPI semantics, Surge vs Sam, benchmarks, dictionary traceability. **Skip or adapt** cases that require **sufficient** non-leads cards if the current run has none.
 
 **Pass**
 
-- Both documents’ definition-of-done satisfied for your test cycle.
+- Provenance and sufficiency behave as in the per-KPI plan; linked sub-UATs are satisfied **where applicable** for the deck produced by your pipeline run.
 
 ---
 
@@ -187,10 +244,11 @@ npm run qc
 
 1. On preview, open at least one **Insufficient data** card (requested or recommended).
 2. Confirm: **why it matters**, **missing data** list, **how to source** tips (wording may match UI labels).
+3. Where [`IMPLEMENTATION_PLAN_PER_KPI_SIGNAL_PROVENANCE.md`](../../plans/implementation/IMPLEMENTATION_PLAN_PER_KPI_SIGNAL_PROVENANCE.md) is implemented: **missing data** and tips should be **specific to that KPI** (not the same generic list on every card unless the gap is truly identical).
 
 **Pass**
 
-- User can explain what to do next without engineering help.
+- User can explain what to do next without engineering help; per-KPI gaps read as distinct when the implementation provides distinct content.
 
 ---
 
@@ -200,14 +258,14 @@ npm run qc
 
 **Steps**
 
-1. On preview, open an **expanded** card with analysis (not only insufficient stub).
-2. Confirm presence of narrative depth appropriate to build (e.g. takeaway, root cause / chain fields where data supports — may be stubbed).
-3. Open `http://127.0.0.1:3050/transparency/kpi-dictionary`; use **open preview** links to confirm KPI id alignment (see `signal-card-correctness-uat.md` UAT-5).
-4. Expand **What we found (provenance)** on a card and confirm **formula/source** style metadata is readable.
+1. **If the deck includes at least one sufficient card:** open it and confirm **Analysis & synthesis** (expanded) shows narrative depth appropriate to the build (e.g. takeaway, root cause / chain where supported — may be stubbed or LLM).
+2. **If all cards are insufficient:** there is no expanded analysis block — confirm **insufficient** sections and **provenance** still tell a coherent story (formula + source intent for what would be computed).
+3. Open `http://127.0.0.1:3050/transparency/kpi-dictionary`; use **open preview** links to confirm KPI id alignment (see [`signal-card-correctness-uat.md`](signal-card-correctness-uat.md) UAT-5).
+4. On **multiple** cards, expand **What we found (provenance)** and confirm **formula** (and related metadata) is **readable** and **varies by KPI** where implementation supports it.
 
 **Pass**
 
-- Reviewer can trace “what this number is” toward dictionary + provenance.
+- Reviewer can trace “what this number is” (or **would** be) toward dictionary + provenance; expanded narrative checked when sufficient cards exist.
 
 ---
 
@@ -258,18 +316,32 @@ npm run qc
 
 ## Feedback capture
 
-Use the same pattern as [`signal-card-correctness-uat.md`](signal-card-correctness-uat.md): copy the **Feedback entry** template under each test, or add rows:
+Use the same pattern as `[signal-card-correctness-uat.md](signal-card-correctness-uat.md)`: copy the **Feedback entry** template under each test, or add rows below.
 
-| Test ID | User / surface | Result | Severity | What you saw | What you expected | Evidence | Suggested fix |
-|---------|----------------|--------|----------|--------------|-------------------|----------|---------------|
-| M-1 |  |  |  |  |  |  |  |
-| … |  |  |  |  |  |  |  |
+
+| Test ID | User / surface                                        | Result | Severity | What you saw                                                                                                                                                                                                                                                                                                                                                                                                          | What you expected                                                                                                                                               | Evidence | Suggested fix                                                                                                                                                               |
+| ------- | ----------------------------------------------------- | ------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M-1     | onboarding CSV → JSON                                 |        |          |                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                                                                                                                                 |          |                                                                                                                                                                             |
+| M-2     | `out/org-context.json`, org merge UI                  |        |          |                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                                                                                                                                 |          |                                                                                                                                                                             |
+| M-3     | `data/zoho/`, `data/custom/`                          |        |          |                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                                                                                                                                 |          |                                                                                                                                                                             |
+| M-4     | `data/kpi-spec/kpi-spec-v1.json`, `validate:kpi-spec` |        |          | Feedback: Default rule ID wrong for all of them. There needs to be some kind of vadliation, externally, where a Business Intelligence Agent verifies the calc rules.                                                                                                                                                                                                                                                  |                                                                                                                                                                 |          |                                                                                                                                                                             |
+| M-5     | `transparency/recommendations`                        |        |          | 1. Sam's requested KPIs are wrong. This is what I saw- `kpi.finance.forecast`shared- `kpi.pipeline.leads_total`shared- `kpi.sales.velocity`shared- `kpi.support.sla` 2. Also, Surge's requested and recommended KPIs are the same as Sam. They should be different, based on user needs. 3. Also, where does 'shared KPIs' come from? We need to understand each user's KPIs, before we understand the shared one. | In the interview research notes with Sam, she mentioned: Zoho Desk trends, Zoho CRM trends, Shifts data and trends — signups, shifts, jobs posted, job seekers. |          | We need a human in the loop for someone (e.g. me or the user) to verify which KPIs they want, because wording can be ambiguous. We may need to help clarify what they mean. |
+| M-6     | `transparency/org-context`                            |        |          | Screen is difficult to read (dense JSON).                                                                                                                                                                                                                                                                                                                                                                             | Readable org + strategy catalogue for validation.                                                                                                               |          | Clean up UI.                                                                                                                                                                |
+| M-7     | preview + linked UAT docs                             |        |          | The signal provenance shows the same for all cards. this is a critical issue.                                                                                                                                                                                                                                                                                                                                         | Every signal should have a different formula.                                                                                                                   |          | [`IMPLEMENTATION_PLAN_PER_KPI_SIGNAL_PROVENANCE.md`](../../plans/implementation/IMPLEMENTATION_PLAN_PER_KPI_SIGNAL_PROVENANCE.md)                                                                                                                      |
+| M-8     | preview (insufficient-data cards)                     |        |          | the 'Missing data ' is the same for all cards. they should bne different, based on what data is missing for that kpi, based on what the user actually has given us.                                                                                                                                                                                                                                                   |                                                                                                                                                                 |          |                                                                                                                                                                             |
+| M-9     | preview + `transparency/kpi-dictionary`               |        |          |                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                                                                                                                                 |          |                                                                                                                                                                             |
+| M-10    | `review:gates`, `review:v11`, `qc`                    |        |          |                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                                                                                                                                 |          |                                                                                                                                                                             |
+| M-11    | preview (copy tone, Surge/Sam)                        |        |          |                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                                                                                                                                 |          |                                                                                                                                                                             |
+| M-12    | architecture docs + implementation plan               |        |          |                                                                                                                                                                                                                                                                                                                                                                                                                       |                                                                                                                                                                 |          |                                                                                                                                                                             |
+
 
 ---
 
 ## Related
 
-- [`plans/implementation/IMPLEMENTATION_PLAN_MVD_V1_1.md`](../../plans/implementation/IMPLEMENTATION_PLAN_MVD_V1_1.md) — unified AC and decisions
+- [`IMPLEMENTATION_PLAN_MVD_V1_1.md`](../../plans/implementation/IMPLEMENTATION_PLAN_MVD_V1_1.md) — unified AC and decisions
+- [`IMPLEMENTATION_PLAN_PER_KPI_SIGNAL_PROVENANCE.md`](../../plans/implementation/IMPLEMENTATION_PLAN_PER_KPI_SIGNAL_PROVENANCE.md) — per-KPI provenance, honest sufficiency, no fabricated headline values
 - [`signal-preview-uat.md`](signal-preview-uat.md) — preview TW-01…TW-06
 - [`signal-card-correctness-uat.md`](signal-card-correctness-uat.md) — trust / semantics UAT
-- [`docs/testing/signal-copy-compare-workflow.md`](signal-copy-compare-workflow.md) — before/after prompt comparison
+- [`signal-copy-compare-workflow.md`](signal-copy-compare-workflow.md) — before/after prompt comparison
+

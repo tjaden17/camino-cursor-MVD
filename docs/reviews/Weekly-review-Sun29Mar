@@ -1,0 +1,33 @@
+Purpose of doc: Review what was done, prioritise action steps for next week
+
+What was our goal for this week:
+- Test if AI can create the data we want. 
+
+What was our approach last week:
+- Test #1.
+- Created requirements via this doc /Users/nhattran/Work/Camino/Cursor/Camino-cursor-MVD/docs/decisions/Instructions to build MVD v1.1 (w AC).txt
+- Used only Cursor, no other tools
+- Workspace is local hd, but saving to repo
+- Slowly building up better practices to go live with prod /Users/nhattran/Work/Camino/Cursor/Camino-cursor-MVD/plans/implementation/IMPLEMENTATION_PLAN_PATH_TO_PROD.md
+
+What were our outputs:
+- /Users/nhattran/Work/Camino/Cursor/Camino-cursor-MVD/docs/architecture/MVD_ARCHITECTURE_AND_DATA_FLOW.md
+- /Users/nhattran/Work/Camino/Cursor/Camino-cursor-MVD/docs/architecture/mvd-data-flow.svg
+- /Users/nhattran/Work/Camino/Cursor/Camino-cursor-MVD/docs/explainers/pipeline-data-flow-explainer.md
+- http://127.0.0.1:3050/preview/signal
+
+
+What is our review:
+- We are not seeing the data that we need
+- Default rule ID wrong for most of signal s
+- Sam's requested KPIs look wrong, unexpected
+- The signal provenance shows the same for all cards. this is a critical issue.
+- the 'Missing data ' is the same for all cards. they should bne different, based on what data is missing for that kpi, based on what the user actually has given us.
+
+What is our 1 liner exec summary:
+- Data is not what I want, and presumably whay user (sam or surge) want
+- I need to understand what data we can product, after consulting with a data expert
+- I need to uplift my understanding of data, pipelines etc, in the same way i need to uplift my techinical knowledge. probably need dto build a data knowledge roadmap. 
+- I may need to revise the signal card/product/experience requirements, to reduce the complexity of the product
+- Shipping something that works, but is imperfect, by the end of next week, is better than researching for too long.
+- Lots of issues to untangle. The signal kpi finder/calc.analysis is the biggest one. 'what is useful for a user to scroll, but also doable, given user and our constraints'?
