@@ -1,0 +1,68 @@
+The purpose of this document is to know how correct outputs should look. It also documents a potental manual workflow, without using Camino, to arrive at the correct result.
+
+Test outout: Win Rate
+
+1A Onboarding
+User, e.g. Surge, provides information to fill out an onboarding file
+
+This is not a complete, or end state view of the user needs, but it's a start. Constrained by a 30min onboarding call. In future, it's likely a combination of onboarding call and user providing preferences within the product
+
+The key data to ascertain from the user is 
+- what is their business goal and how will they measure it (e.g. get to next stage of growth, measured in revenue)
+- what are their top 3 kpis they currently measure & manage. i.e. win/rate, leads/month
+- business context, e.g. business stage, product stage, role
+- this information is added to user onboarding
+- Camino creates a user profile, with data from /Users/nhattran/Work/Camino/Cursor/Camino-cursor-MVD/data/onboarding/User profile-Surge.csv
+
+
+1B: KPI discovery
+- We, as Camino, then understand what KPIs the user should be focused on, in order to drive their business goal/kpi. 
+- We, as Camino, build a issue/KPI tree, to understand the org system of KPIs that are relevant to them. In simlar what that a management consultant/Mckinsey does. So that we have a holistic view of metrics/levers.
+- Understand how to explain why the KPI is relevant to the org, how it's normally calculated (generally, tool-agnostic, normalised columns)
+- Understand which KPIs, that are relevant (requested + recommended) to them, can be calculated, given the data they've provided
+- Understand which KPIs, that are relevant (requested + recommended) to them, can't be calculated. But explain what data they do need. 
+- Output: At least 1 requested KPI (e.g win/rate), 1 recommended KPI, based on the issue tree, what they don't have, and what's a high leverage KPI, as determined (probably detrmined by AI)
+
+2: Data ingestion, normalisation, cleanup
+- The user, e.g. Surge, then provides data they've exported from their tools. see. e.g. /Users/nhattran/Work/Camino/Cursor/Camino-cursor-MVD/data/zoho/Zoho - CRM - Deals.csv
+- The data file is cleaned up, according to general best practices. E.g o no duplicates etc. To give accurate calcs later
+- The columns of the files are 'made sense of', to see which ones relate to the KPIs are relevant to the user (recommended + requested)
+
+3. Calculations
+- A KPI, i.e win/rate, is double checked to make sure we have the right calculation, in general terms. E.g. how many total deals, how many won, what time period.
+- The KPI calculation is performed, if column headings are semantically sinilar, e.g. deal vs deals, data sheet may not have a count for number of deals, may need to be summed from total row
+- Where columns are ambigious, e.g. stage or forecast type, check with user to see which column should be used.
+- Manuual calc: 13 closed won, 34 total deals
+- Other column dimensions are considered, e.g. time range, to give expected data block. e.g. win rate, overall is 38.23%, win/rate per month (check for most recent win, and what was the rate for that month, e.g 26/12/2025, 1 win, 5 deals, 20% for most recent month, Dec 2025)
+
+3. Data Insuffient
+- For KPIs that are recommended by us, e.g. csat, but has insufficent data
+- We double check how the KPI is normalyl measured, with agnostic-normalised columns, and what calculations are normally
+- We figure out what data we do have, that'll fit into the calculations, and what data we don't have
+- We identify the data we don't have, e.g. what column name
+- We help user understand hoow to source it. What tools give this data, what the column fields could be called. 
+- The goal is for the user, or their appointee, to have an understanding of what kPIs are important, but can't be calculated. Then we explain what their data gaps are.
+
+4. Create Block fields (i.e via compute, rag, or llm)
+- KPI trend: (Compute) What was KPI change, from last period? I.e. win rate for dec was 20%. Win rate for Nov was 100%. trend is down 80%. 
+- Is trend good or bad? LLM call to answer this. 
+- Is trend expected or unexpected? LLM call to answer this, factoring in KB for context of the KPI. E.g. factor in month, seasons, product category. I.e. negative trend, but low sample size (only 1 deal in nov), actually more deals in Dec. 
+- Main drivers? LLM call to ingest all provided data sets, to see if a strong hypotheesis of what drove this. E.g. low call volime previous months, and RAG or LLM to give general explainer of what drives win rate, in general. 
+- Benchmark comparison - RAG to give a benchmark of what win rate, is the bencmarket, for similar context, e.g, product type (saas), business stage (early stage), market (pharmacy, locums), if not exact, then generanl benchmark figures for similar context.
+- Relationships with other metrics - LLM call to show 
+-- elevant relatinshops with other metrics we have, e.g. when support tickets spike 3 months earlier, win rate goes down (example only). 
+-- leading indicators - What changes, in our data, that likely leads to win rate change?
+-- Causal chain - (LLM generated) If win rate changes (e.g. goes up), what KPI (relevant to us) are liekly to change in futre? I.e when win rate goes up,  revenue per month is liekly to change positively.
+- Implications for business goals (LLM generated).Given the KPI is X, and business goals are Y, the KPI is insufficient in order to achieve business goals
+- Benchmark levers - Other companies, in a similar position, addressing similar challenges, have tried...(refer to RAG)
+
+5. LLM to create narrative blocks
+- LLM to create '1 line takeaway' block for each KPI , given all of the information from above, from compute, llm calls, rag 
+
+(Future)
+- Weekly brief blocks
+
+
+
+
+

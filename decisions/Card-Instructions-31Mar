@@ -1,0 +1,32 @@
+What the user sees on one card (QC SignalCardBody + v2 mapper)
+
+For a sufficient KPI, the UI is built to show, in order:
+
+Badges — Requested vs Recommended, Sufficient data, Narrative: LLM vs Stub/Fallback (from narrativeSource on the card), Synthesis A or B when applicable.
+Header — kpiId, title, data freshness line, headline value, trend (% + label), one-line summary (from analysis/synthesis/provenance text).
+
+NT: This should just be a 1 linent narrative of he header info. Not from anlaysis/synthesis.
+
+“Why it’s recommended” — only if recommendedRationale is set (recommended KPIs); multi-paragraph text (why it matters / leading indicator / lever style from the pipeline).
+
+NT: Why it matters (get rid of it if problematic)
+
+Analysis — short lead “What the data shows”, conclusion, then bullet chain-of-thought.
+
+NT: LLM output is wrong. 
+ E.g. [Stub analysis for win_rate] The metric has been computed from source data. See breakdowns for detail.
+ E.g [Stub synthesis — Personal] This metric connects to your specific goals. - **prospects** - **calls_per_week** - **win_rate** - **support_issue_volume** - **churn_leading_indicator** - **bug_impact**
+
+Synthesis — “So what / benchmarks”, conclusion, benchmarks block, bullet chain-of-thought.
+Sources used for this card — capped list of RAG rows (kb, path, heading) + hint to out/step-4-llm-calls.json for full prompts.
+“What we found (provenance)” (collapsed) — Data quality list if there are qualityNotes, then raw JSON (formula, full retrievedSources, qualityNotes, etc.).
+For an insufficient KPI, the same component shows the gap story: what’s missing, how to source, unlock/decision links, and RAG context lines when present — not the analysis/synthesis blocks.
+
+What the pipeline contract says is on each v2 card (data model)
+From card-schema.ts, a sufficient card must carry at least:
+
+Identity: kpiId, title, requestType, cardVersion (A/B), narrativeSource.
+Numbers: currentValue, trend, dataFreshness, provenance / provenanceSummary.
+Narrative: analysis + synthesis (each with conclusion, chain-of-thought, and synthesis has citedBenchmarks).
+Trust / links: crossSignalReferences, retrievedSources, qualityNotes, optional breakdowns, optional recommendedRationale.
+Not on the card object (but in the same JSON file): triggeredDecisionRecommendations lives on the root of pipeline-v2-output.json, not inside each card — so the wireframe doesn’t show “decision triggers” per card unless you add UI or use another page.

@@ -60,7 +60,8 @@ CI is defined in [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) an
 | Step | Command | What it checks |
 |------|---------|----------------|
 | Onboarding | `npm run validate:onboarding` | Derived onboarding JSON in `data/onboarding/` and `data/user-onboarding/`. |
-| Pipeline (no LLM) | `npm run pipeline -- --skip-llm` | End-to-end pipeline without Claude; writes `out/pipeline-run.json`, `out/processed-signals.json`, etc. |
+| Pipeline (no LLM) | `npm run pipeline -- --skip-llm` | End-to-end v1 pipeline without Claude; writes `out/pipeline-run.json`, `out/processed-signals.json`, etc. |
+| Pipeline v2 (RAG + optional Claude) | `npm run pipeline:v2` | v2 cards; real LLM when `ANTHROPIC_API_KEY` is set. `npm run pipeline:v2 -- --skip-llm` for stubs. Default `--out` is `out/`. |
 | Compile | `npm run build` | TypeScript → `dist/`. |
 | Unit tests | `npm run test` | Vitest: `src/**/*.test.ts`. |
 | Lint | `npm run lint` | ESLint on `src/`. |

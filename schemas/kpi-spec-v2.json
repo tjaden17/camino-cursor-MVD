@@ -1,0 +1,99 @@
+{
+  "$id": "https://camin.local/schemas/kpi-spec-v2.json",
+  "title": "KpiSpecV2",
+  "type": "object",
+  "required": ["version", "dataSources", "kpis", "userMappings"],
+  "properties": {
+    "version": { "type": "integer", "const": 2 },
+    "dataSources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["sourceId", "label", "status", "filePath"],
+        "properties": {
+          "sourceId": { "type": "string", "minLength": 1 },
+          "label": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["connected", "expected", "wishlist"] },
+          "filePath": { "type": "string" },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "kpis": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["kpiId", "title", "unitHint", "formula", "sourceIds", "sufficiencyThreshold"],
+        "properties": {
+          "kpiId": { "type": "string", "minLength": 1 },
+          "title": { "type": "string", "minLength": 1 },
+          "unitHint": { "type": "string" },
+          "formula": { "type": "string", "minLength": 1 },
+          "ruleId": { "type": "string" },
+          "sourceIds": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "sufficiencyThreshold": { "type": "string", "minLength": 1 },
+          "breakdowns": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "userMappings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["userId", "sufficientKpis", "insufficientKpis"],
+        "properties": {
+          "userId": { "type": "string", "minLength": 1 },
+          "sufficientKpis": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "insufficientKpis": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "recommendedWithinSufficientKpis": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "recommendedOrgWideKpis": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "unlockTable": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["priority", "sourceId", "unlocksKpis"],
+        "properties": {
+          "priority": { "type": "integer" },
+          "sourceId": { "type": "string" },
+          "unlocksKpis": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "strengthensDecisions": { "type": "string" },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

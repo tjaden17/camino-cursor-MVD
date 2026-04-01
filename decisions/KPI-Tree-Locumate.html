@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Locumate — Universal KPI Tree</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --muted: #64748b;
+    --light-muted: #94a3b8;
+
+    --vol: #7c3aed;
+    --vol-light: #f5f3ff;
+    --vol-border: #c4b5fd;
+
+    --val: #0369a1;
+    --val-light: #f0f9ff;
+    --val-border: #7dd3fc;
+
+    --ret: #059669;
+    --ret-light: #ecfdf5;
+    --ret-border: #6ee7b7;
+
+    --cap: #d97706;
+    --cap-light: #fffbeb;
+    --cap-border: #fcd34d;
+
+    --measured: #059669;
+    --measured-bg: #ecfdf5;
+    --partial: #d97706;
+    --partial-bg: #fffbeb;
+    --gap: #dc2626;
+    --gap-bg: #fef2f2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    padding: 2rem;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  header { text-align: center; margin-bottom: 2rem; }
+
+  header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.2rem;
+  }
+
+  header .sub { color: var(--muted); font-size: 0.9rem; }
+
+  .root {
+    max-width: 560px;
+    margin: 0 auto 0.75rem;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: #fff;
+    padding: 1.25rem 1.5rem;
+    border-radius: 14px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+    box-shadow: 0 6px 20px rgba(15,23,42,0.18);
+  }
+
+  .root .metric {
+    font-size: 0.82rem;
+    font-weight: 400;
+    opacity: 0.7;
+    margin-top: 0.3rem;
+  }
+
+  .vline { width: 2px; height: 24px; background: #cbd5e1; margin: 0 auto; }
+
+  .formula {
+    max-width: 700px;
+    margin: 0 auto 0.75rem;
+    text-align: center;
+    font-size: 0.88rem;
+    color: var(--muted);
+    padding: 0.65rem 1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .formula strong { color: var(--text); }
+  .formula .sep { margin: 0 0.15rem; opacity: 0.5; }
+
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.78rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+
+  .legend-dot.m { background: var(--measured); }
+  .legend-dot.p { background: var(--partial); }
+  .legend-dot.g { background: var(--gap); }
+
+  /* ---- BRANCHES ---- */
+  .branches {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .branch { display: flex; flex-direction: column; }
+
+  .bhead {
+    padding: 0.9rem 1rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: 2px solid;
+    position: relative;
+  }
+
+  .bhead:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+
+  .bhead .label { font-size: 0.7rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.6; display: block; margin-bottom: 0.1rem; }
+  .bhead .owner { display: block; font-size: 0.72rem; font-weight: 400; margin-top: 0.25rem; opacity: 0.7; }
+
+  .bhead.vol { background: var(--vol-light); color: var(--vol); border-color: var(--vol-border); }
+  .bhead.val { background: var(--val-light); color: var(--val); border-color: var(--val-border); }
+  .bhead.ret { background: var(--ret-light); color: var(--ret); border-color: var(--ret-border); }
+  .bhead.cap { background: var(--cap-light); color: var(--cap); border-color: var(--cap-border); }
+
+  .bhead .arrow {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.65rem;
+    transition: transform 0.2s;
+  }
+
+  .branch.open .bhead .arrow { transform: translateY(-50%) rotate(90deg); }
+
+  .subnodes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+
+  .branch.open .subnodes { max-height: 4000px; }
+
+  /* ---- SUB-ISSUE CARD ---- */
+  .sub {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 0.85rem;
+    cursor: pointer;
+    transition: box-shadow 0.15s;
+    font-size: 0.82rem;
+  }
+
+  .sub:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
+  .sub-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .sub-title { font-weight: 600; flex: 1; font-size: 0.82rem; }
+  .sub-toggle { font-size: 0.65rem; color: var(--light-muted); transition: transform 0.2s; margin-top: 2px; }
+  .sub.open .sub-toggle { transform: rotate(90deg); }
+
+  .sub-body {
+    display: none;
+    margin-top: 0.6rem;
+  }
+
+  .sub.open .sub-body { display: block; }
+
+  /* KPI row */
+  .kpi-row {
+    padding: 0.55rem 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .kpi-row:first-child { border-top: none; padding-top: 0; }
+
+  .kpi-name {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.15rem;
+  }
+
+  .kpi-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .status {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.12rem 0.45rem;
+    border-radius: 4px;
+    margin-right: 0.3rem;
+  }
+
+  .status.measured { background: var(--measured-bg); color: var(--measured); }
+  .status.partial { background: var(--partial-bg); color: var(--partial); }
+  .status.gap { background: var(--gap-bg); color: var(--gap); }
+
+  .kpi-note {
+    font-size: 0.76rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+    line-height: 1.5;
+  }
+
+  .kpi-note strong { color: var(--text); }
+
+  /* ---- SCORECARD ---- */
+  .scorecard {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .scorecard h3 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .sc-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+    text-align: center;
+    margin-bottom: 1.25rem;
+  }
+
+  .sc-cell {
+    padding: 0.7rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+  }
+
+  .sc-cell.header { font-weight: 600; background: #f1f5f9; }
+  .sc-cell .big { font-size: 1.3rem; font-weight: 700; display: block; }
+
+  .sc-insight {
+    padding: 0.9rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    border-left: 3px solid;
+  }
+
+  .sc-insight.alert { background: var(--gap-bg); border-color: var(--gap); }
+  .sc-insight.positive { background: var(--measured-bg); border-color: var(--measured); }
+  .sc-insight.neutral { background: #f0f9ff; border-color: var(--val); }
+
+  .sc-insights { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  /* ---- CARD MAP ---- */
+  .cardmap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .cardmap h3 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .cm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .cm-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    background: #f8fafc;
+  }
+
+  .cm-item .cm-card { font-weight: 600; }
+  .cm-item .cm-arrow { color: var(--light-muted); font-size: 0.7rem; }
+  .cm-item .cm-node { color: var(--muted); }
+
+  footer { text-align: center; margin-top: 2rem; color: var(--light-muted); font-size: 0.75rem; }
+
+  @media (max-width: 950px) {
+    .branches { grid-template-columns: 1fr 1fr; }
+    .sc-grid { grid-template-columns: repeat(5, 1fr); font-size: 0.7rem; }
+  }
+
+  @media (max-width: 550px) {
+    .branches { grid-template-columns: 1fr; }
+    body { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Locumate KPI Tree</h1>
+  <div class="sub">Universal framework (Volume x Value x Retention + Capacity) &mdash; populated with real data, Apr 2026</div>
+</header>
+
+<div class="root">
+  How does Locumate reach its next stage of growth?
+  <div class="metric">$914K closed-won &bull; ~$100K real active pipeline &bull; 13 won deals &bull; 2,381 shifts</div>
+</div>
+
+<div class="vline"></div>
+
+<div class="formula">
+  <strong>Revenue</strong> =
+  <span style="color:var(--vol);">Volume</span>
+  <span class="sep">&times;</span>
+  <span style="color:var(--val);">Value</span>
+  <span class="sep">&times;</span>
+  <span style="color:var(--ret);">Retention</span>
+  &nbsp;+&nbsp;
+  <span style="color:var(--cap);">Capacity</span> to scale
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot m"></div> Measured</div>
+  <div class="legend-item"><div class="legend-dot p"></div> Partial</div>
+  <div class="legend-item"><div class="legend-dot g"></div> Data Gap</div>
+</div>
+
+<!-- ==== FOUR BRANCHES ==== -->
+<div class="branches" id="tree">
+
+<!-- ======================= BRANCH 1: VOLUME ======================= -->
+<div class="branch open" onclick="tb(event,this)">
+  <div class="bhead vol">
+    <span class="label">Branch 1</span>
+    Volume &mdash; Get More Customers
+    <span class="owner">Owner: Surge (CEO / Sales)</span>
+    <span class="arrow">&#9654;</span>
+  </div>
+  <div class="subnodes">
+
+    <div class="sub" onclick="tc(event,this)">
+      <div class="sub-header">
+        <div class="sub-title">1.1 Demand Generation</div>
+        <div class="sub-toggle">&#9654;</div>
+      </div>
+      <div class="sub-body">
+        <div class="kpi-row">
+          <div class="kpi-name">Leads per Month</div>
+          <div class="kpi-value">~3 / month</div>
+          <span class="status partial">PARTIAL</span>
+          <div class="kpi-note">52 leads total. 3 added in most recent month. But <strong>Lead Source is empty for all 52</strong> &mdash; can't tell which channel generates leads. Lead Status also empty &mdash; no funnel visibility.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub" onclick="tc(event,this)">
+      <div class="sub-header">
+        <div class="sub-title">1.2 Demand Conversion</div>
+        <div class="sub-toggle">&#9654;</div>
+      </div>
+      <div class="sub-body">
+        <div class="kpi-row">
+          <div class="kpi-name">Lead-to-Deal Conversion Rate</div>
+          <div class="kpi-value">10%</div>
+          <span class="status measured">MEASURED</span>
+          <div class="kpi-note">5 of 52 leads converted. No lead qualification process visible in CRM. All leads assigned to Surge or Tiani.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub" onclick="tc(event,this)">
+      <div class="sub-header">
+        <div class="sub-title">1.3 Closing</div>
+        <div class="sub-toggle">&#9654;</div>
+      </div>
+      <div class="sub-body">
+        <div class="kpi-row">
+          <div class="kpi-name">Win Rate (by count)</div>
+          <div class="kpi-value">41%</div>
+          <span class="status measured">MEASURED</span>
+          <div class="kpi-note">13 won / 32 total deals.</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-name">Win Rate (by $ value)</div>
+          <div class="kpi-value">29%</div>
+          <span class="status measured">MEASURED</span>
+          <div class="kpi-note">$914K won / $3.2M total. Lost 2.5x more by $ than won. "No Budget" used for all 8 losses &mdash; real reasons unclear. Every deal above $300K lost except Healthshifts.</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-name">Sales Cycle Length</div>
+          <div class="kpi-value">22&ndash;235 days</div>
+          <span class="status measured">MEASURED</span>
+          <div class="kpi-note">Under $10K: 22&ndash;25 days. Above $100K: 94&ndash;235 days.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======================= BRANCH 2: VALUE ======================= -->
+<div class="branch" onclick="tb(event,this)">
+  <div class="bhead val">
+    <span class="label">Branch 2</span>
+    Value &mdash; Get More per Customer
+    <span class="owner">Owner: Surge + Sam</span>
+    <span class="arrow">&#9654;</span>
+  </div>
+  <div class="subnodes">
+
+    <div class="sub" onclick="tc(event,this)">
+      <div class="sub-header">
+        <div class="sub-title">2.1 Initial Deal Value</div>
+        <div class="sub-toggle">&#9654;</div>
+      </div>
+      <div class="sub-body">
+        <div class="kpi-row">
+          <div class="kpi-name">Average Deal Size</div>
+          <div class="kpi-value">$76K headline / $32K real</div>
+          <span class="status partial">PARTIAL</span>
+          <div class="kpi-note">$76K includes Healthshifts ($500K) and Wesfarmers ($120K). Excluding top 2, real average is $32K. Most recent win: <strong>$1.2K</strong> (smallest ever &mdash; trend is down). 4 won deals have no Amount recorded.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub" onclick="tc(event,this)">
+      <div class="sub-header">
+        <div class="sub-title">2.2 Expansion Revenue</div>
+        <div class="sub-toggle">&#9654;</div>
+      </div>
+      <div class="sub-body">
+        <div class="kpi-row">
+          <div class="kpi-name">Expansion Deals per Account</div>
+          <div class="kpi-value">1 visible</div>
+          <span class="status measured">MEASURED</span>
+          <div class="kpi-note">Wesfarmers: $120K subscription &rarr; $19.5K add-on at 80% probability. This is the proven expansion playbook. Can it be replicated?</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-name">Net Revenue Retention (NRR)</div>
+          <div class="kpi-value">&mdash;</div>
+          <span class="status gap">DATA GAP</span>
+          <div class="kpi-note">Cannot calculate. No recurring revenue or renewal data in current CRM export. <strong>Need:</strong> subscription renewal dates and amounts.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub" onclick="tc(event,this)">
+      <div class="sub-header">
+        <div class="sub-title">2.3 Pricing Alignment</div>
+        <div class="sub-toggle">&#9654;</div>
+      </div>
+      <div class="sub-body">
+        <div class="kpi-row">
+          <div class="kpi-name">Willingness to Pay by Segment</div>
+          <div class="kpi-value">&mdash;</div>
+          <span class="status gap">DATA GAP</span>
+          <div class="kpi-note">No pricing tier or discount data. But deal patterns reveal a sweet spot: <strong>$10K&ndash;$230K</strong> domestic deals convert. Above $300K &rarr; almost always fail.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======================= BRANCH 3: RETENTION ======================= -->
+<div class="branch" onclick="tb(event,this)">
+  <div class="bhead ret">
+    <span class="label">Branch 3</span>
+    Retention &mdash; Keep Customers Longer
+    <span class="owner">Owner: Sam (CSM)</span>
+    <span class="arrow">&#9654;</span>
+  </div>
+  <div class="subnodes">
+
+    <div class="sub" onclick="tc(event,this)">
+      <div class="sub-header">
+        <div class="sub-title">3.1 Value Delivery</div>
+        <div class="sub-toggle">&#9654;</div>
+      </div>
+      <div class="sub-body">
+        <div class="kpi-row">
+          <div class="kpi-name">Platform Adoption (shifts posted)</div>
+          <div class="kpi-value">2,381 shifts / 60+ pharmacies</div>
+          <span class="status measured">MEASURED</span>
+          <div class="kpi-note">Platform used for standard workday coverage (8.5hr and 3hr shifts), not emergency fills. Suggests genuine operational integration.</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-name">Activation Rate (% won deals using platform)</div>
+          <div class="kpi-value">&mdash;</div>
+          <span class="status gap">DATA GAP</span>
+          <div class="kpi-note">Cannot calculate. No link between CRM deals and shift activity by account. <strong>Need:</strong> an account ID that connects Deals and Shifts data.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub" onclick="tc(event,this)">
+      <div class="sub-header">
+        <div class="sub-title">3.2 Customer Health</div>
+        <div class="sub-toggle">&#9654;</div>
+      </div>
+      <div class="sub-body">
+        <div class="kpi-row">
+          <div class="kpi-name">Customer Satisfaction (pharmacy ratings)</div>
+          <div class="kpi-value">~5/5 where recorded</div>
+          <span class="status partial">PARTIAL</span>
+          <div class="kpi-note">Most recorded ratings are 5/5. But feedback is sparse. Locum-side fields (Communication, Interpersonal, Problem Solving, Organisation) exist but mostly empty.</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-name">Churn Rate</div>
+          <div class="kpi-value">&mdash;</div>
+          <span class="status gap">DATA GAP</span>
+          <div class="kpi-note">Cannot calculate. No churn or cancellation data in exports. <strong>Need:</strong> subscription status or cancellation dates.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub" onclick="tc(event,this)">
+      <div class="sub-header">
+        <div class="sub-title">3.3 Churn Prevention</div>
+        <div class="sub-toggle">&#9654;</div>
+      </div>
+      <div class="sub-body">
+        <div class="kpi-row">
+          <div class="kpi-name">Revenue Concentration Risk</div>
+          <div class="kpi-value">68% in 2 customers</div>
+          <span class="status measured">MEASURED</span>
+          <div class="kpi-note">Healthshifts ($500K) + Wesfarmers ($120K) = 68% of all revenue. Losing either would be catastrophic.</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-name">Account Health Score</div>
+          <div class="kpi-value">&mdash;</div>
+          <span class="status gap">DATA GAP</span>
+          <div class="kpi-note">No composite scoring. But TWC has $230K won revenue <strong>and</strong> 14 unfilled shifts at Kirwan &mdash; an early warning signal Sam should investigate.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub" onclick="tc(event,this)">
+      <div class="sub-header">
+        <div class="sub-title">3.4 Service Reliability</div>
+        <div class="sub-toggle">&#9654;</div>
+      </div>
+      <div class="sub-body">
+        <div class="kpi-row">
+          <div class="kpi-name">Shift Fill Rate</div>
+          <div class="kpi-value">~99% overall</div>
+          <span class="status measured">MEASURED</span>
+          <div class="kpi-note">But 28 unfilled shifts concentrated at TWC Kirwan (14) and a few other pharmacies. Regional QLD has a supply gap.</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-name">Supply Concentration</div>
+          <div class="kpi-value">1 locum = 100% of shifts</div>
+          <span class="status measured">MEASURED</span>
+          <div class="kpi-note">Shortis &amp; Timmins: 22 shifts in September, all filled by Kim Le (419km travel each way). Zero demonstrated backup. How many other pharmacies have this pattern?</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======================= BRANCH 4: CAPACITY ======================= -->
+<div class="branch" onclick="tb(event,this)">
+  <div class="bhead cap">
+    <span class="label">Branch 4</span>
+    Capacity &mdash; Scale the Above Three
+    <span class="owner">Owner: Shared (Surge + Sam)</span>
+    <span class="arrow">&#9654;</span>
+  </div>
+  <div class="subnodes">
+
+    <div class="sub" onclick="tc(event,this)">
+      <div class="sub-header">
+        <div class="sub-title">4.1 People Capacity</div>
+        <div class="sub-toggle">&#9654;</div>
+      </div>
+      <div class="sub-body">
+        <div class="kpi-row">
+          <div class="kpi-name">Deals per Sales Rep</div>
+          <div class="kpi-value">32 deals / 1 person</div>
+          <span class="status measured">MEASURED</span>
+          <div class="kpi-note">Surge owns 100% of all 32 deals. Team of 17, but no one else owns deals. Clayton Dunn (Head of Sales) hired Aug 2024, disabled Oct 2025, zero deals attributed.</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-name">CS-Sourced Pipeline</div>
+          <div class="kpi-value">$0</div>
+          <span class="status measured">MEASURED</span>
+          <div class="kpi-note">Sam's team (Sam, Edge, Tiani) owns zero deals in CRM. No CS-driven expansion is tracked.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub" onclick="tc(event,this)">
+      <div class="sub-header">
+        <div class="sub-title">4.2 Product / Service Capacity</div>
+        <div class="sub-toggle">&#9654;</div>
+      </div>
+      <div class="sub-body">
+        <div class="kpi-row">
+          <div class="kpi-name">Roadmap Data Signals</div>
+          <div class="kpi-value">3 product signals from data</div>
+          <span class="status partial">PARTIAL</span>
+          <div class="kpi-note">Shift data reveals opportunities: <strong>(1)</strong> regional matching / travel cost optimisation ($300&ndash;$400 travel per shift), <strong>(2)</strong> supply-side features (28 unfilled shifts), <strong>(3)</strong> feedback loops (fields exist but adoption is low). Surge's upcoming decisions: prioritise roadmap, assess build vs buy.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub" onclick="tc(event,this)">
+      <div class="sub-header">
+        <div class="sub-title">4.3 Data &amp; Decision-Making</div>
+        <div class="sub-toggle">&#9654;</div>
+      </div>
+      <div class="sub-body">
+        <div class="kpi-row">
+          <div class="kpi-name">CRM Field Completion Rate</div>
+          <div class="kpi-value">See breakdown below</div>
+          <span class="status measured">MEASURED</span>
+          <div class="kpi-note">
+            <strong>Lead Source:</strong> 0/52 (0%) &mdash; can't track channels<br>
+            <strong>Lead Status:</strong> 0/52 (0%) &mdash; can't build funnel<br>
+            <strong>Industry:</strong> 0/52 (0%)<br>
+            <strong>Deal Amount:</strong> 28/32 (88%)<br>
+            <strong>Deal Lead Source:</strong> 6/32 (19%)<br>
+            <strong>Loss Reason:</strong> 1 value for all ("No Budget")<br><br>
+            This is the single cheapest fix. A 30-minute CRM cleanup would unlock channel attribution and funnel analysis.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub" onclick="tc(event,this)">
+      <div class="sub-header">
+        <div class="sub-title">4.4 Market Knowledge</div>
+        <div class="sub-toggle">&#9654;</div>
+      </div>
+      <div class="sub-body">
+        <div class="kpi-row">
+          <div class="kpi-name">Win Rate by Segment</div>
+          <div class="kpi-value">Domestic subs win; international fails</div>
+          <span class="status partial">PARTIAL</span>
+          <div class="kpi-note">8 of 13 won deals are subscriptions. International deals ($579K across HSS NZ + Latvia Nexus) both lost. All domestic deals above $40K have closed successfully. Segment analysis limited because Lead Source and Industry are empty.</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-name">Geographic Coverage (Shifts)</div>
+          <div class="kpi-value">VIC + NSW strong; QLD gap</div>
+          <span class="status measured">MEASURED</span>
+          <div class="kpi-note">Shifts concentrated in VIC and NSW. Regional QLD (TWC Kirwan) has 14 unfilled shifts. SA and WA have minimal representation.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /branches -->
+
+<!-- ==== SCORECARD ==== -->
+<div class="scorecard">
+  <h3>Data Coverage Scorecard</h3>
+
+  <div class="sc-grid">
+    <div class="sc-cell header">Branch</div>
+    <div class="sc-cell header" style="color:var(--measured);">Measured</div>
+    <div class="sc-cell header" style="color:var(--partial);">Partial</div>
+    <div class="sc-cell header" style="color:var(--gap);">Data Gap</div>
+    <div class="sc-cell header">Total KPIs</div>
+
+    <div class="sc-cell" style="font-weight:600;color:var(--vol);">Volume</div>
+    <div class="sc-cell"><span class="big">4</span></div>
+    <div class="sc-cell"><span class="big">1</span></div>
+    <div class="sc-cell"><span class="big">0</span></div>
+    <div class="sc-cell"><span class="big">5</span></div>
+
+    <div class="sc-cell" style="font-weight:600;color:var(--val);">Value</div>
+    <div class="sc-cell"><span class="big">1</span></div>
+    <div class="sc-cell"><span class="big">1</span></div>
+    <div class="sc-cell"><span class="big">2</span></div>
+    <div class="sc-cell"><span class="big">4</span></div>
+
+    <div class="sc-cell" style="font-weight:600;color:var(--ret);">Retention</div>
+    <div class="sc-cell"><span class="big">3</span></div>
+    <div class="sc-cell"><span class="big">1</span></div>
+    <div class="sc-cell"><span class="big">3</span></div>
+    <div class="sc-cell"><span class="big">7</span></div>
+
+    <div class="sc-cell" style="font-weight:600;color:var(--cap);">Capacity</div>
+    <div class="sc-cell"><span class="big">4</span></div>
+    <div class="sc-cell"><span class="big">2</span></div>
+    <div class="sc-cell"><span class="big">0</span></div>
+    <div class="sc-cell"><span class="big">6</span></div>
+
+    <div class="sc-cell header">Total</div>
+    <div class="sc-cell header"><span class="big">12</span></div>
+    <div class="sc-cell header"><span class="big">5</span></div>
+    <div class="sc-cell header"><span class="big">5</span></div>
+    <div class="sc-cell header"><span class="big">22</span></div>
+  </div>
+
+  <div class="sc-insights">
+    <div class="sc-insight alert">
+      <strong>Blind spot:</strong> Retention (Sam's domain) has the most data gaps &mdash; 3 of 7 KPIs can't be measured. The function responsible for protecting revenue has the least visibility.
+    </div>
+    <div class="sc-insight positive">
+      <strong>Best covered:</strong> Volume (Surge's sales domain) and Capacity are mostly measurable. The sales funnel is visible, even if some fields are empty.
+    </div>
+    <div class="sc-insight neutral">
+      <strong>Cheapest fix:</strong> Populating Lead Source, Lead Status, and Deal Amount fields would convert 3 PARTIAL metrics to MEASURED and unlock channel / funnel analysis at zero cost.
+    </div>
+  </div>
+</div>
+
+<!-- ==== CARD MAP ==== -->
+<div class="cardmap">
+  <h3>Briefing Card &rarr; Tree Node Map</h3>
+  <div class="cm-grid">
+    <div class="cm-item"><span class="cm-card">Pipeline Pulse</span><span class="cm-arrow">&rarr;</span><span class="cm-node">Volume &gt; Closing</span></div>
+    <div class="cm-item"><span class="cm-card">Revenue Closed</span><span class="cm-arrow">&rarr;</span><span class="cm-node">Value &gt; Initial Deal</span></div>
+    <div class="cm-item"><span class="cm-card">Deals Lost</span><span class="cm-arrow">&rarr;</span><span class="cm-node">Volume &gt; Closing</span></div>
+    <div class="cm-item"><span class="cm-card">Lead Funnel</span><span class="cm-arrow">&rarr;</span><span class="cm-node">Volume &gt; Demand Gen</span></div>
+    <div class="cm-item"><span class="cm-card">Shift Activity</span><span class="cm-arrow">&rarr;</span><span class="cm-node">Retention &gt; Value Delivery</span></div>
+    <div class="cm-item"><span class="cm-card">Workforce Mix</span><span class="cm-arrow">&rarr;</span><span class="cm-node">Retention &gt; Reliability</span></div>
+    <div class="cm-item"><span class="cm-card">Market Expansion</span><span class="cm-arrow">&rarr;</span><span class="cm-node">Capacity &gt; Market Knowledge</span></div>
+    <div class="cm-item"><span class="cm-card">Revenue Concentration</span><span class="cm-arrow">&rarr;</span><span class="cm-node">Retention &gt; Churn Prevention</span></div>
+    <div class="cm-item"><span class="cm-card">Product Signal</span><span class="cm-arrow">&rarr;</span><span class="cm-node">Capacity &gt; Product</span></div>
+    <div class="cm-item"><span class="cm-card">Data Quality</span><span class="cm-arrow">&rarr;</span><span class="cm-node">Capacity &gt; Data</span></div>
+    <div class="cm-item"><span class="cm-card">Sales Capacity</span><span class="cm-arrow">&rarr;</span><span class="cm-node">Capacity &gt; People</span></div>
+  </div>
+</div>
+
+<footer>
+  Locumate KPI Tree &mdash; Universal Framework: Revenue = Volume &times; Value &times; Retention + Capacity &mdash; Click branches &amp; cards to expand
+</footer>
+
+<script>
+function tb(e,el){if(e.target.closest('.sub'))return;el.classList.toggle('open');}
+function tc(e,el){e.stopPropagation();el.classList.toggle('open');}
+</script>
+</body>
+</html>

@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Analysis View — Locumate MVD v2</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --muted: #64748b;
+    --light: #94a3b8;
+    --vol: #7c3aed; --vol-bg: #f5f3ff; --vol-border: #ddd6fe;
+    --val: #0369a1; --val-bg: #f0f9ff; --val-border: #bae6fd;
+    --ret: #059669; --ret-bg: #ecfdf5; --ret-border: #a7f3d0;
+    --cap: #d97706; --cap-bg: #fffbeb; --cap-border: #fde68a;
+    --measured: #059669; --measured-bg: #ecfdf5;
+    --partial: #d97706; --partial-bg: #fffbeb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%; overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #0f172a; color: var(--text); -webkit-font-smoothing: antialiased;
+  }
+  .phone {
+    width: 375px; height: 812px; margin: 0 auto;
+    background: var(--bg); position: relative; overflow: hidden;
+  }
+  @media (min-width: 500px) {
+    body { display: flex; align-items: center; justify-content: center; }
+    .phone { border-radius: 40px; margin-top: 20px; box-shadow: 0 0 0 8px #1e293b, 0 20px 60px rgba(0,0,0,0.5); }
+  }
+
+  .top-bar {
+    height: 44px; padding: 10px 16px 0;
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg);
+  }
+  .back-btn { font-size: 0.78rem; color: var(--val); font-weight: 600; cursor: pointer; text-decoration: none; }
+  .top-bar .view-label { font-size: 0.72rem; color: var(--light); }
+
+  .branch-tabs {
+    display: flex; gap: 6px; padding: 6px 16px;
+    overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .branch-tabs::-webkit-scrollbar { display: none; }
+  .btab {
+    flex-shrink: 0; padding: 5px 11px; border-radius: 20px;
+    font-size: 0.7rem; font-weight: 600; cursor: pointer;
+    border: 1.5px solid var(--border); background: var(--card); color: var(--muted); transition: all 0.2s;
+  }
+  .btab.active.vol { background: var(--vol-bg); color: var(--vol); border-color: var(--vol-border); }
+  .btab.active.val { background: var(--val-bg); color: var(--val); border-color: var(--val-border); }
+  .btab.active.ret { background: var(--ret-bg); color: var(--ret); border-color: var(--ret-border); }
+  .btab.active.cap { background: var(--cap-bg); color: var(--cap); border-color: var(--cap-border); }
+
+  .nav-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 16px 8px;
+  }
+  .nav-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 1.5px solid var(--border); background: var(--card);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 0.8rem; color: var(--muted);
+    transition: all 0.15s;
+  }
+  .nav-btn:hover { background: #f1f5f9; }
+  .nav-btn.disabled { opacity: 0.3; pointer-events: none; }
+  .nav-counter { font-size: 0.72rem; color: var(--light); font-weight: 500; }
+  .nav-counter .ct { font-weight: 700; color: var(--muted); }
+
+  .carousel-wrapper {
+    height: calc(100% - 44px - 38px - 40px - 44px);
+    position: relative;
+  }
+  .branch-group { display: none; height: 100%; }
+  .branch-group.active { display: block; }
+  .carousel {
+    display: flex; height: 100%;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .slide {
+    min-width: 375px; height: 100%;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding: 0 14px 20px;
+  }
+
+  .signal-card {
+    background: var(--card); border-radius: 14px;
+    border: 1px solid var(--border); overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .parent-issue {
+    padding: 10px 16px;
+    background: #f1f5f9;
+    font-size: 0.68rem;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    line-height: 1.4;
+  }
+  .parent-issue strong { color: var(--text); font-weight: 600; }
+
+  .issue-block { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .issue-crumb { font-size: 0.66rem; color: var(--light); margin-bottom: 2px; }
+  .issue-name { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+
+  .analysis-block { padding: 14px 16px; }
+  .a-label {
+    font-size: 0.6rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--light); margin-bottom: 10px;
+  }
+  .kpi-item { margin-bottom: 12px; }
+  .kpi-item:last-child { margin-bottom: 0; }
+  .kpi-header { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+  .kpi-name { font-size: 0.7rem; color: var(--muted); font-weight: 500; }
+  .status { font-size: 0.56rem; font-weight: 700; padding: 2px 5px; border-radius: 3px; }
+  .status.measured { background: var(--measured-bg); color: var(--measured); }
+  .status.partial { background: var(--partial-bg); color: var(--partial); }
+  .kpi-val { font-size: 1.05rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+  .kpi-context { font-size: 0.74rem; color: var(--muted); line-height: 1.55; margin-top: 3px; }
+  .kpi-context strong { color: var(--text); }
+
+  .reasoning-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px; cursor: pointer; border-top: 1px solid var(--border);
+    background: var(--bg); user-select: none;
+  }
+  .reasoning-toggle .rt-label {
+    font-size: 0.62rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--light);
+  }
+  .reasoning-toggle .rt-arrow {
+    font-size: 0.6rem; color: var(--light); transition: transform 0.2s;
+  }
+  .reasoning-toggle.open .rt-arrow { transform: rotate(90deg); }
+
+  .reasoning-body {
+    max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+    background: var(--bg);
+  }
+  .reasoning-toggle.open + .reasoning-body { max-height: 500px; }
+  .reasoning-content {
+    padding: 0 16px 14px;
+    font-size: 0.72rem; color: var(--muted); line-height: 1.6;
+  }
+  .r-step {
+    margin-bottom: 4px; padding-left: 10px; position: relative;
+  }
+  .r-step::before {
+    content: ''; position: absolute; left: 0; top: 7px;
+    width: 3px; height: 3px; border-radius: 50%; background: var(--light);
+  }
+
+  .bottom-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 44px;
+    background: var(--card); border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; color: var(--light);
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <div class="top-bar">
+    <a class="back-btn" href="MVD-v2-Issue-Takeaway.html">&larr; Issues</a>
+    <span class="view-label">Analysis View</span>
+  </div>
+
+  <div class="branch-tabs" id="tabs">
+    <div class="btab vol active" data-b="volume">Volume</div>
+    <div class="btab val" data-b="value">Value</div>
+    <div class="btab ret" data-b="retention">Retention</div>
+    <div class="btab cap" data-b="capacity">Capacity</div>
+  </div>
+
+  <div class="nav-row">
+    <div class="nav-btn" id="navUp" onclick="goSlide(groups[activeBranch].idx-1)">&#9650;</div>
+    <div class="nav-counter"><span class="ct" id="slideNum">1</span> of <span class="ct" id="slideTotal">3</span></div>
+    <div class="nav-btn" id="navDown" onclick="goSlide(groups[activeBranch].idx+1)">&#9660;</div>
+  </div>
+
+  <div class="carousel-wrapper">
+
+    <!-- ===== VOLUME ===== -->
+    <div class="branch-group active" id="volume">
+      <div class="carousel" id="car-volume">
+
+        <div class="slide"><div class="signal-card">
+          <div class="parent-issue"><strong>Root:</strong> How does Locumate reach its next stage of growth?</div>
+          <div class="issue-block">
+            <div class="issue-crumb">Volume &rsaquo; Get More Customers</div>
+            <div class="issue-name">1.1 Demand Generation</div>
+          </div>
+          <div class="analysis-block">
+            <div class="a-label">Analysis</div>
+            <div class="kpi-item">
+              <div class="kpi-header"><span class="kpi-name">Leads per Month</span><span class="status partial">PARTIAL</span></div>
+              <div class="kpi-val">~3 / month</div>
+              <div class="kpi-context">52 leads total on record. 3 added in Oct 2025 (most recent). All assigned to Surge or Tiani.</div>
+            </div>
+            <div class="kpi-item" style="margin-top:14px">
+              <div class="kpi-header"><span class="kpi-name">Channel Visibility</span><span class="status partial">PARTIAL</span></div>
+              <div class="kpi-val">0% populated</div>
+              <div class="kpi-context"><strong>Lead Source is empty for all 52 leads.</strong> Lead Status also empty. Industry empty. You cannot tell where leads come from or what stage they're in.</div>
+            </div>
+          </div>
+          <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
+            <span class="rt-label">Data source &amp; calculation</span><span class="rt-arrow">&#9654;</span>
+          </div>
+          <div class="reasoning-body"><div class="reasoning-content">
+            <div class="r-step">Source: Zoho CRM Leads export (52 rows)</div>
+            <div class="r-step">Counted rows by Created Time field. 3 entries in Oct 2025.</div>
+            <div class="r-step">Checked Lead Source column: 0 of 52 populated.</div>
+            <div class="r-step">Checked Lead Status column: 0 of 52 populated.</div>
+          </div></div>
+        </div></div>
+
+        <div class="slide"><div class="signal-card">
+          <div class="parent-issue"><strong>Root:</strong> How does Locumate reach its next stage of growth?</div>
+          <div class="issue-block">
+            <div class="issue-crumb">Volume &rsaquo; Get More Customers</div>
+            <div class="issue-name">1.2 Demand Conversion</div>
+          </div>
+          <div class="analysis-block">
+            <div class="a-label">Analysis</div>
+            <div class="kpi-item">
+              <div class="kpi-header"><span class="kpi-name">Lead-to-Deal Conversion</span><span class="status measured">MEASURED</span></div>
+              <div class="kpi-val">10%</div>
+              <div class="kpi-context">5 of 52 leads converted to contacts/deals. Notable: Sandra Cochrane &rarr; FriendlyCare (Closed Won). Angela Shaw &rarr; Hospital Staff Solutions.</div>
+            </div>
+          </div>
+          <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
+            <span class="rt-label">Data source &amp; calculation</span><span class="rt-arrow">&#9654;</span>
+          </div>
+          <div class="reasoning-body"><div class="reasoning-content">
+            <div class="r-step">Source: Zoho CRM Leads, filtered by "Is Converted = Yes"</div>
+            <div class="r-step">5 leads converted out of 52 total = 9.6%, rounded to 10%.</div>
+            <div class="r-step">No lead scoring or qualification process visible in CRM data.</div>
+          </div></div>
+        </div></div>
+
+        <div class="slide"><div class="signal-card">
+          <div class="parent-issue"><strong>Root:</strong> How does Locumate reach its next stage of growth?</div>
+          <div class="issue-block">
+            <div class="issue-crumb">Volume &rsaquo; Get More Customers</div>
+            <div class="issue-name">1.3 Closing</div>
+          </div>
+          <div class="analysis-block">
+            <div class="a-label">Analysis</div>
+            <div class="kpi-item">
+              <div class="kpi-header"><span class="kpi-name">Win Rate (by count)</span><span class="status measured">MEASURED</span></div>
+              <div class="kpi-val">41%</div>
+              <div class="kpi-context">13 Closed Won / 32 total deals.</div>
+            </div>
+            <div class="kpi-item" style="margin-top:14px">
+              <div class="kpi-header"><span class="kpi-name">Win Rate (by $ value)</span><span class="status measured">MEASURED</span></div>
+              <div class="kpi-val">29%</div>
+              <div class="kpi-context">$914K won / $3.2M total. <strong>Lost 2.5x more than won</strong> ($2.29M vs $914K). "No Budget" used for all 8 losses.</div>
+            </div>
+            <div class="kpi-item" style="margin-top:14px">
+              <div class="kpi-header"><span class="kpi-name">Sales Cycle</span><span class="status measured">MEASURED</span></div>
+              <div class="kpi-val">22&ndash;235 days</div>
+              <div class="kpi-context">Under $10K: 22&ndash;25 days. Above $100K: 94&ndash;235 days. Every deal above $300K lost except Healthshifts.</div>
+            </div>
+          </div>
+          <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
+            <span class="rt-label">Data source &amp; calculation</span><span class="rt-arrow">&#9654;</span>
+          </div>
+          <div class="reasoning-body"><div class="reasoning-content">
+            <div class="r-step">Source: Zoho CRM Deals (32 rows total)</div>
+            <div class="r-step">Filtered Stage = "Closed Won": 13 deals, $914K.</div>
+            <div class="r-step">Filtered Stage = "Closed - No Budget": 8 deals, $2.29M.</div>
+            <div class="r-step">Sales cycle: calculated from Created Time to Close Date.</div>
+          </div></div>
+        </div></div>
+
+      </div>
+    </div>
+
+    <!-- ===== VALUE ===== -->
+    <div class="branch-group" id="value">
+      <div class="carousel" id="car-value">
+
+        <div class="slide"><div class="signal-card">
+          <div class="parent-issue"><strong>Root:</strong> How does Locumate reach its next stage of growth?</div>
+          <div class="issue-block">
+            <div class="issue-crumb">Value &rsaquo; Get More per Customer</div>
+            <div class="issue-name">2.1 Initial Deal Value</div>
+          </div>
+          <div class="analysis-block">
+            <div class="a-label">Analysis</div>
+            <div class="kpi-item">
+              <div class="kpi-header"><span class="kpi-name">Average Deal Size</span><span class="status partial">PARTIAL</span></div>
+              <div class="kpi-val">$76K / $32K real</div>
+              <div class="kpi-context">Headline $76K includes outliers. Excluding Healthshifts ($500K) and Wesfarmers ($120K), real average is <strong>$32K</strong>. 4 won deals have no Amount.</div>
+            </div>
+            <div class="kpi-item" style="margin-top:14px">
+              <div class="kpi-header"><span class="kpi-name">Deal Size Trend</span><span class="status measured">MEASURED</span></div>
+              <div class="kpi-val">Trending down</div>
+              <div class="kpi-context">Most recent win: VH Subs at <strong>$1.2K</strong> (smallest ever). Before that: AI Agent Prime $3.5K, LPG Subs $9.9K.</div>
+            </div>
+          </div>
+          <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
+            <span class="rt-label">Data source &amp; calculation</span><span class="rt-arrow">&#9654;</span>
+          </div>
+          <div class="reasoning-body"><div class="reasoning-content">
+            <div class="r-step">Source: Zoho CRM Deals, Stage = "Closed Won" (13 deals)</div>
+            <div class="r-step">$914K / 13 = $76K. Excluding top 2: $32K.</div>
+            <div class="r-step">4 won deals have Amount = blank. Revenue is understated.</div>
+          </div></div>
+        </div></div>
+
+        <div class="slide"><div class="signal-card">
+          <div class="parent-issue"><strong>Root:</strong> How does Locumate reach its next stage of growth?</div>
+          <div class="issue-block">
+            <div class="issue-crumb">Value &rsaquo; Get More per Customer</div>
+            <div class="issue-name">2.2 Expansion Revenue</div>
+          </div>
+          <div class="analysis-block">
+            <div class="a-label">Analysis</div>
+            <div class="kpi-item">
+              <div class="kpi-header"><span class="kpi-name">Expansion Deals</span><span class="status measured">MEASURED</span></div>
+              <div class="kpi-val">1 visible expansion</div>
+              <div class="kpi-context">Wesfarmers: $120K subscription (won) &rarr; $19.5K add-on (80% probability). Total TWC/Wesfarmers: <strong>$230K won, $319.5K open.</strong> This is the proven expansion playbook.</div>
+            </div>
+          </div>
+          <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
+            <span class="rt-label">Data source &amp; calculation</span><span class="rt-arrow">&#9654;</span>
+          </div>
+          <div class="reasoning-body"><div class="reasoning-content">
+            <div class="r-step">Source: Zoho CRM Deals, grouped by Account Name</div>
+            <div class="r-step">Wesfarmers Subscription: $120K, Closed Won, 235-day cycle.</div>
+            <div class="r-step">Wesfarmers p4L: $19.5K, Contracts stage, 80% probability.</div>
+            <div class="r-step">Cross-referenced with TWC PSS ($110K, won).</div>
+          </div></div>
+        </div></div>
+
+      </div>
+    </div>
+
+    <!-- ===== RETENTION ===== -->
+    <div class="branch-group" id="retention">
+      <div class="carousel" id="car-retention">
+
+        <div class="slide"><div class="signal-card">
+          <div class="parent-issue"><strong>Root:</strong> How does Locumate reach its next stage of growth?</div>
+          <div class="issue-block">
+            <div class="issue-crumb">Retention &rsaquo; Keep Customers Longer</div>
+            <div class="issue-name">3.1 Value Delivery</div>
+          </div>
+          <div class="analysis-block">
+            <div class="a-label">Analysis</div>
+            <div class="kpi-item">
+              <div class="kpi-header"><span class="kpi-name">Platform Adoption</span><span class="status measured">MEASURED</span></div>
+              <div class="kpi-val">2,381 shifts</div>
+              <div class="kpi-context">Across 60+ pharmacies. Standard 8.5hr/3hr shifts for regular workday coverage &mdash; genuine operational integration.</div>
+            </div>
+            <div class="kpi-item" style="margin-top:14px">
+              <div class="kpi-header"><span class="kpi-name">Rate Range</span><span class="status measured">MEASURED</span></div>
+              <div class="kpi-val">$45 &ndash; $90/hr</div>
+              <div class="kpi-context">Average ~$67/hr. Regional pharmacies pay higher. 15+ shifts included travel pay ($134&ndash;$415).</div>
+            </div>
+          </div>
+          <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
+            <span class="rt-label">Data source &amp; calculation</span><span class="rt-arrow">&#9654;</span>
+          </div>
+          <div class="reasoning-body"><div class="reasoning-content">
+            <div class="r-step">Source: Shifts data export (2,381 rows)</div>
+            <div class="r-step">60+ distinct pharmacies. Rate range: min $45, max $90.</div>
+          </div></div>
+        </div></div>
+
+        <div class="slide"><div class="signal-card">
+          <div class="parent-issue"><strong>Root:</strong> How does Locumate reach its next stage of growth?</div>
+          <div class="issue-block">
+            <div class="issue-crumb">Retention &rsaquo; Keep Customers Longer</div>
+            <div class="issue-name">3.2 Customer Health</div>
+          </div>
+          <div class="analysis-block">
+            <div class="a-label">Analysis</div>
+            <div class="kpi-item">
+              <div class="kpi-header"><span class="kpi-name">Pharmacy Satisfaction</span><span class="status partial">PARTIAL</span></div>
+              <div class="kpi-val">~5/5 where recorded</div>
+              <div class="kpi-context">Most recorded ratings are 5/5. But feedback is sparse. Locum-side fields (Communication, Interpersonal, Problem Solving, Organisation) exist but are mostly empty.</div>
+            </div>
+          </div>
+          <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
+            <span class="rt-label">Data source &amp; calculation</span><span class="rt-arrow">&#9654;</span>
+          </div>
+          <div class="reasoning-body"><div class="reasoning-content">
+            <div class="r-step">Source: Shifts data, Pharmacy Feedback column</div>
+            <div class="r-step">Majority show 5/5. Locum feedback columns: 4 fields, mostly blank.</div>
+          </div></div>
+        </div></div>
+
+        <div class="slide"><div class="signal-card">
+          <div class="parent-issue"><strong>Root:</strong> How does Locumate reach its next stage of growth?</div>
+          <div class="issue-block">
+            <div class="issue-crumb">Retention &rsaquo; Keep Customers Longer</div>
+            <div class="issue-name">3.3 Churn Prevention</div>
+          </div>
+          <div class="analysis-block">
+            <div class="a-label">Analysis</div>
+            <div class="kpi-item">
+              <div class="kpi-header"><span class="kpi-name">Revenue Concentration</span><span class="status measured">MEASURED</span></div>
+              <div class="kpi-val">68% in 2 customers</div>
+              <div class="kpi-context">Healthshifts ($500K) + Wesfarmers ($120K) = 68% of all revenue. Losing either would be catastrophic.</div>
+            </div>
+            <div class="kpi-item" style="margin-top:14px">
+              <div class="kpi-header"><span class="kpi-name">Early Warning: TWC Kirwan</span><span class="status measured">MEASURED</span></div>
+              <div class="kpi-val">14 unfilled shifts</div>
+              <div class="kpi-context">TWC has $230K won + $319K open pipeline. But <strong>14 unfilled shifts</strong> at Kirwan. Operational friction in your most valuable account.</div>
+            </div>
+          </div>
+          <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
+            <span class="rt-label">Data source &amp; calculation</span><span class="rt-arrow">&#9654;</span>
+          </div>
+          <div class="reasoning-body"><div class="reasoning-content">
+            <div class="r-step">Source: Zoho CRM Deals + Shifts data</div>
+            <div class="r-step">$500K + $120K = $620K / $914K = 68%.</div>
+            <div class="r-step">Filtered TWC Kirwan shifts with no locum: 14 rows.</div>
+          </div></div>
+        </div></div>
+
+        <div class="slide"><div class="signal-card">
+          <div class="parent-issue"><strong>Root:</strong> How does Locumate reach its next stage of growth?</div>
+          <div class="issue-block">
+            <div class="issue-crumb">Retention &rsaquo; Keep Customers Longer</div>
+            <div class="issue-name">3.4 Service Reliability</div>
+          </div>
+          <div class="analysis-block">
+            <div class="a-label">Analysis</div>
+            <div class="kpi-item">
+              <div class="kpi-header"><span class="kpi-name">Shift Fill Rate</span><span class="status measured">MEASURED</span></div>
+              <div class="kpi-val">~99% overall</div>
+              <div class="kpi-context">28 unfilled out of 2,381. Concentrated at TWC Kirwan (14). Regional QLD has a supply gap.</div>
+            </div>
+            <div class="kpi-item" style="margin-top:14px">
+              <div class="kpi-header"><span class="kpi-name">Supply Concentration</span><span class="status measured">MEASURED</span></div>
+              <div class="kpi-val">1 locum = 100%</div>
+              <div class="kpi-context">Shortis &amp; Timmins: 22 shifts in September, <strong>all filled by Kim Le</strong> (419km travel each way). Zero backup.</div>
+            </div>
+          </div>
+          <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
+            <span class="rt-label">Data source &amp; calculation</span><span class="rt-arrow">&#9654;</span>
+          </div>
+          <div class="reasoning-body"><div class="reasoning-content">
+            <div class="r-step">Source: Shifts data (2,381 rows)</div>
+            <div class="r-step">28 unfilled shifts. TWC Kirwan = 14.</div>
+            <div class="r-step">Shortis &amp; Timmins: 22/22 shifts = Kim Le. Distance: 419km.</div>
+          </div></div>
+        </div></div>
+
+      </div>
+    </div>
+
+    <!-- ===== CAPACITY ===== -->
+    <div class="branch-group" id="capacity">
+      <div class="carousel" id="car-capacity">
+
+        <div class="slide"><div class="signal-card">
+          <div class="parent-issue"><strong>Root:</strong> How does Locumate reach its next stage of growth?</div>
+          <div class="issue-block">
+            <div class="issue-crumb">Capacity &rsaquo; Scale the Above Three</div>
+            <div class="issue-name">4.1 People Capacity</div>
+          </div>
+          <div class="analysis-block">
+            <div class="a-label">Analysis</div>
+            <div class="kpi-item">
+              <div class="kpi-header"><span class="kpi-name">Deals per Sales Rep</span><span class="status measured">MEASURED</span></div>
+              <div class="kpi-val">32 / 1 person</div>
+              <div class="kpi-context">Surge owns 100% of all 32 deals. Team of 17, no one else owns deals.</div>
+            </div>
+            <div class="kpi-item" style="margin-top:14px">
+              <div class="kpi-header"><span class="kpi-name">CS-Sourced Pipeline</span><span class="status measured">MEASURED</span></div>
+              <div class="kpi-val">$0</div>
+              <div class="kpi-context">Sam's team owns zero deals. Clayton Dunn (Head of Sales): <strong>zero deals in 14 months</strong>.</div>
+            </div>
+          </div>
+          <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
+            <span class="rt-label">Data source &amp; calculation</span><span class="rt-arrow">&#9654;</span>
+          </div>
+          <div class="reasoning-body"><div class="reasoning-content">
+            <div class="r-step">Source: Zoho CRM Deals, Deal Owner field</div>
+            <div class="r-step">32/32 deals owned by Surge Singh.</div>
+            <div class="r-step">Clayton Dunn: added Aug 2024, disabled Oct 2025, 0 deals.</div>
+          </div></div>
+        </div></div>
+
+        <div class="slide"><div class="signal-card">
+          <div class="parent-issue"><strong>Root:</strong> How does Locumate reach its next stage of growth?</div>
+          <div class="issue-block">
+            <div class="issue-crumb">Capacity &rsaquo; Scale the Above Three</div>
+            <div class="issue-name">4.2 Product / Service Capacity</div>
+          </div>
+          <div class="analysis-block">
+            <div class="a-label">Analysis</div>
+            <div class="kpi-item">
+              <div class="kpi-header"><span class="kpi-name">Roadmap Data Signals</span><span class="status partial">PARTIAL</span></div>
+              <div class="kpi-val">3 signals from data</div>
+              <div class="kpi-context">
+                <strong>1. Regional matching:</strong> $300&ndash;$400+ travel pay per shift. Opportunity for optimisation.
+                <br><br><strong>2. Supply-side gap:</strong> 28 unfilled shifts at specific pharmacies.
+                <br><br><strong>3. Feedback adoption:</strong> Locum feedback fields exist but are mostly empty.
+              </div>
+            </div>
+          </div>
+          <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
+            <span class="rt-label">Data source &amp; calculation</span><span class="rt-arrow">&#9654;</span>
+          </div>
+          <div class="reasoning-body"><div class="reasoning-content">
+            <div class="r-step">Source: Shifts data &mdash; Travel, Locum Assignment, Feedback columns</div>
+            <div class="r-step">15+ shifts with travel &gt; $100. 28 unfilled. Feedback fields sparse.</div>
+          </div></div>
+        </div></div>
+
+        <div class="slide"><div class="signal-card">
+          <div class="parent-issue"><strong>Root:</strong> How does Locumate reach its next stage of growth?</div>
+          <div class="issue-block">
+            <div class="issue-crumb">Capacity &rsaquo; Scale the Above Three</div>
+            <div class="issue-name">4.3 Data &amp; Decision-Making</div>
+          </div>
+          <div class="analysis-block">
+            <div class="a-label">Analysis</div>
+            <div class="kpi-item">
+              <div class="kpi-header"><span class="kpi-name">CRM Field Completion</span><span class="status measured">MEASURED</span></div>
+              <div class="kpi-val">Critical gaps</div>
+              <div class="kpi-context">
+                <strong>Lead Source:</strong> 0/52 (0%)<br>
+                <strong>Lead Status:</strong> 0/52 (0%)<br>
+                <strong>Industry:</strong> 0/52 (0%)<br>
+                <strong>Deal Amount:</strong> 28/32 (88%)<br>
+                <strong>Deal Lead Source:</strong> 6/32 (19%)<br>
+                <strong>Loss Reason:</strong> 1 value for all 8 losses<br><br>
+                Cheapest fix available. 30-min CRM cleanup unlocks channel + funnel analysis.
+              </div>
+            </div>
+          </div>
+          <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
+            <span class="rt-label">Data source &amp; calculation</span><span class="rt-arrow">&#9654;</span>
+          </div>
+          <div class="reasoning-body"><div class="reasoning-content">
+            <div class="r-step">Source: Zoho CRM Leads (52 rows) + Deals (32 rows)</div>
+            <div class="r-step">Counted non-blank values / total rows per field.</div>
+          </div></div>
+        </div></div>
+
+        <div class="slide"><div class="signal-card">
+          <div class="parent-issue"><strong>Root:</strong> How does Locumate reach its next stage of growth?</div>
+          <div class="issue-block">
+            <div class="issue-crumb">Capacity &rsaquo; Scale the Above Three</div>
+            <div class="issue-name">4.4 Market Knowledge</div>
+          </div>
+          <div class="analysis-block">
+            <div class="a-label">Analysis</div>
+            <div class="kpi-item">
+              <div class="kpi-header"><span class="kpi-name">Win Rate by Segment</span><span class="status partial">PARTIAL</span></div>
+              <div class="kpi-val">Domestic subs win</div>
+              <div class="kpi-context">8/13 won deals are subscriptions. <strong>Both international deals failed</strong> ($579K lost). All domestic deals &gt;$40K closed successfully.</div>
+            </div>
+            <div class="kpi-item" style="margin-top:14px">
+              <div class="kpi-header"><span class="kpi-name">Geographic Coverage</span><span class="status measured">MEASURED</span></div>
+              <div class="kpi-val">VIC + NSW strong</div>
+              <div class="kpi-context">Shifts concentrated in VIC/NSW. QLD has supply gaps. SA/WA minimal.</div>
+            </div>
+          </div>
+          <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
+            <span class="rt-label">Data source &amp; calculation</span><span class="rt-arrow">&#9654;</span>
+          </div>
+          <div class="reasoning-body"><div class="reasoning-content">
+            <div class="r-step">Source: Deals (names + amounts) + Shifts (pharmacy locations)</div>
+            <div class="r-step">Categorised by deal type. Filtered international deals. Grouped shifts by state.</div>
+          </div></div>
+        </div></div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottom-bar">Analysis View &mdash; Locumate</div>
+</div>
+
+<script>
+const groups = {
+  volume:    { el: document.getElementById('car-volume'),    count: 3, idx: 0, color: 'var(--vol)' },
+  value:     { el: document.getElementById('car-value'),     count: 2, idx: 0, color: 'var(--val)' },
+  retention: { el: document.getElementById('car-retention'), count: 4, idx: 0, color: 'var(--ret)' },
+  capacity:  { el: document.getElementById('car-capacity'),  count: 4, idx: 0, color: 'var(--cap)' },
+};
+let activeBranch = 'volume';
+const tabs = document.querySelectorAll('.btab');
+const slideNum = document.getElementById('slideNum');
+const slideTotal = document.getElementById('slideTotal');
+const navUp = document.getElementById('navUp');
+const navDown = document.getElementById('navDown');
+
+function updateNav() {
+  const g = groups[activeBranch];
+  slideNum.textContent = g.idx + 1;
+  slideTotal.textContent = g.count;
+  navUp.classList.toggle('disabled', g.idx === 0);
+  navDown.classList.toggle('disabled', g.idx === g.count - 1);
+}
+
+function goSlide(i) {
+  const g = groups[activeBranch];
+  g.idx = Math.max(0, Math.min(g.count - 1, i));
+  g.el.style.transform = `translateX(-${g.idx * 375}px)`;
+  updateNav();
+}
+
+function switchBranch(b) {
+  activeBranch = b;
+  document.querySelectorAll('.branch-group').forEach(el => el.classList.remove('active'));
+  document.getElementById(b).classList.add('active');
+  tabs.forEach(t => t.classList.toggle('active', t.dataset.b === b));
+  const g = groups[b];
+  g.el.style.transform = `translateX(-${g.idx * 375}px)`;
+  updateNav();
+}
+
+tabs.forEach(t => t.addEventListener('click', () => switchBranch(t.dataset.b)));
+
+let startX = 0, dx = 0, dragging = false;
+const wrapper = document.querySelector('.carousel-wrapper');
+wrapper.addEventListener('touchstart', e => { startX = e.touches[0].clientX; dragging = true; });
+wrapper.addEventListener('touchmove', e => { if (dragging) dx = e.touches[0].clientX - startX; });
+wrapper.addEventListener('touchend', () => { if (Math.abs(dx) > 50) goSlide(groups[activeBranch].idx + (dx < 0 ? 1 : -1)); dx = 0; dragging = false; });
+wrapper.addEventListener('mousedown', e => { startX = e.clientX; dragging = true; e.preventDefault(); });
+window.addEventListener('mousemove', e => { if (dragging) dx = e.clientX - startX; });
+window.addEventListener('mouseup', () => { if (dragging && Math.abs(dx) > 50) goSlide(groups[activeBranch].idx + (dx < 0 ? 1 : -1)); dx = 0; dragging = false; });
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goSlide(groups[activeBranch].idx + 1);
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goSlide(groups[activeBranch].idx - 1);
+});
+
+const hash = window.location.hash.replace('#', '');
+if (hash && groups[hash]) switchBranch(hash);
+updateNav();
+</script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+Data Briefing Cards — Ideation Decision Record
+================================================
+Date: 1 Apr 2026
+Status: Exploratory prototype
+Participants: Nhat (product), AI CDO agent
+
+Context & Problem
+-----------------
+The KPI block approach hit an impasse:
+- AI cannot encode business-specific formula decisions (e.g., what counts in "win rate")
+- KPI specs need validation by someone who knows the data AND the business intent
+- ~100 KPIs x 10 customers = unscalable hand-verification
+- Each customer defines the same KPI differently ("spec drift")
+
+Hypothesis: instead of making data fit a formula (KPI), start from the data, 
+surface what it factually says, and let the user apply their own judgment.
+
+Decision: Data Briefing Cards
+-----------------------------
+Replace KPI blocks with "Data Briefing Cards" — observation-based analysis 
+that describes what the data shows, without prescribing formulas.
+
+Card format (scannable, mobile-first, stock-ticker style):
+- Theme: what the card is about
+- Headline fact: one line, the most important thing
+- Direction indicator: factual movement vs. last week (no good/bad judgment in v1)
+- 2-3 supporting observations: notable patterns, anomalies, facts
+- Source tag: which dataset(s) the card draws from
+
+Three Lenses (User Chooses)
+----------------------------
+1. Data Domain — organized by data source (Pipeline, Shifts, Leads, Support)
+2. Upcoming Decisions — organized by what the user is about to decide
+3. Risks — organized by what could go wrong
+
+Same underlying observations, different arrangement per lens.
+
+User Interaction
+----------------
+- Default: user sees all cards
+- User can pin favourites for "Monday morning scan"
+- Cards are tappable for deeper detail
+
+Weekly Exec Brief
+-----------------
+A composed narrative for Surge, pulling from all cards. Delivered weekly.
+Covers: headline, platform activity, worth watching, data gaps.
+
+LLM Role
+--------
+- Facts computed in code (counts, sums, comparisons)
+- LLM writes observation narratives from computed facts
+- Externally quality-checkable (another model or human can verify claims vs source data)
+- Cross-source entity matching: AI fuzzy-match (e.g., "TWC" = "TerryWhite Chemmart")
+
+Direction Indicator (v1)
+------------------------
+- Factual movement only (e.g., "down $200K vs last week")
+- No good/bad judgment in v1
+- User applies their own interpretation
+- Future: layer in smart direction signals once we have user behaviour data
+
+Prototype Scope
+---------------
+- Datasets: Deals + Shifts + cross-source
+- Output: Markdown cards with real Locumate data
+- All three lenses demonstrated
+- See: decisions/Data-Briefing-Cards-Prototype-1Apr
+
+Key Risks
+---------
+- LLM hallucination in observations — mitigate with code-computed facts
+- "So what?" fatigue — value comes from cross-dataset connections and speed
+- Scope creep — need curation layer driven by onboarding profile
+- Fuzzy matching errors — "TWC" linking to wrong entity
+
+Key Opportunities
+-----------------
+- Scales across customers (no per-customer formula definitions)
+- Observations work regardless of data shape or column names
+- Verifiability built in (every claim cites source + rows)
+- Question Cards (future) could replace onboarding interview

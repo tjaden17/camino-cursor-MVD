@@ -1,0 +1,84 @@
+{
+  "$id": "https://camin.local/schemas/decision-catalogue-v1.json",
+  "title": "DecisionCatalogueV1",
+  "type": "object",
+  "required": ["version", "decisions"],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "note": {
+      "type": "string"
+    },
+    "decisions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "decisionId",
+          "role",
+          "userId",
+          "decision",
+          "timeframe",
+          "informingSignals",
+          "status"
+        ],
+        "properties": {
+          "decisionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "role": {
+            "type": "string",
+            "enum": ["CEO", "CSM"]
+          },
+          "userId": {
+            "type": "string",
+            "enum": ["surge", "sam"]
+          },
+          "decision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "timeframe": {
+            "type": "string",
+            "minLength": 1
+          },
+          "informingSignals": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "triggerPatterns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["pattern", "recommendation"],
+              "properties": {
+                "pattern": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "recommendation": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,381 @@
+{
+  "version": 2,
+  "dataSources": [
+    {
+      "sourceId": "zoho_crm_leads",
+      "label": "Zoho CRM Leads",
+      "status": "connected",
+      "filePath": "data/zoho/Zoho - CRM - Leads.csv"
+    },
+    {
+      "sourceId": "zoho_crm_deals",
+      "label": "Zoho CRM Deals",
+      "status": "connected",
+      "filePath": "data/zoho/Zoho - CRM - Deals.csv"
+    },
+    {
+      "sourceId": "zoho_desk_tickets",
+      "label": "Zoho Desk Tickets",
+      "status": "connected",
+      "filePath": "data/zoho/Zoho - Desk - XLS.xlsx",
+      "notes": "Sheet: Tickets-Desk. 4,645 rows."
+    },
+    {
+      "sourceId": "custom_shifts",
+      "label": "Shifts Data",
+      "status": "connected",
+      "filePath": "data/custom/Shifts Data - Shifts (Non protected).csv"
+    },
+    {
+      "sourceId": "zoho_users",
+      "label": "Zoho Users",
+      "status": "connected",
+      "filePath": "data/zoho/Zoho-Users.csv",
+      "notes": "14 team members with roles."
+    },
+    {
+      "sourceId": "admin_cp_signups",
+      "label": "Admin CP Signup Report",
+      "status": "expected",
+      "filePath": "",
+      "notes": "CSV export from Locumate admin panel."
+    },
+    {
+      "sourceId": "zoho_crm_activities",
+      "label": "Zoho CRM Activities",
+      "status": "expected",
+      "filePath": "",
+      "notes": "Activity Type, Date, Status, Contact/Lead ID"
+    },
+    {
+      "sourceId": "product_telemetry",
+      "label": "Product Telemetry",
+      "status": "wishlist",
+      "filePath": ""
+    },
+    {
+      "sourceId": "bug_tracker",
+      "label": "Bug Tracker Export",
+      "status": "wishlist",
+      "filePath": ""
+    }
+  ],
+  "kpis": [
+    {
+      "kpiId": "win_rate",
+      "title": "Win Rate",
+      "unitHint": "%",
+      "formula": "COUNT(Stage = 'Closed Won') / COUNT(Stage IN ('Closed Won', 'Closed Lost')) * 100",
+      "ruleId": "RULE_WIN_RATE",
+      "sourceIds": ["zoho_crm_deals"],
+      "sufficiencyThreshold": "At least 10 closed deals (won + lost) in the period",
+      "breakdowns": ["by deal size tier", "by sales cycle length"],
+      "notes": "Excludes open/active deals from denominator."
+    },
+    {
+      "kpiId": "support_issue_volume",
+      "title": "Support Issue Volume",
+      "unitHint": "count",
+      "formula": "COUNT(*) tickets where Created Time is in the period",
+      "ruleId": "RULE_SUPPORT_ISSUE_VOLUME",
+      "sourceIds": ["zoho_desk_tickets"],
+      "sufficiencyThreshold": "At least 1 ticket in the period",
+      "breakdowns": ["by Channel", "by Category/Classifications", "by Priority"],
+      "notes": "Richest data source — 4,645 rows with channel, category, resolution, SLA, sentiment."
+    },
+    {
+      "kpiId": "prospects",
+      "title": "Prospects (Leads)",
+      "unitHint": "count",
+      "formula": "COUNT(*) leads where Created Time is in the period",
+      "ruleId": "RULE_PROSPECTS",
+      "sourceIds": ["zoho_crm_leads"],
+      "sufficiencyThreshold": "At least 1 lead in the period",
+      "breakdowns": ["by month", "by converted vs not"]
+    },
+    {
+      "kpiId": "pipeline_value",
+      "title": "Pipeline Value",
+      "unitHint": "$",
+      "formula": "SUM(Amount) where Stage NOT IN ('Closed Won', 'Closed Lost')",
+      "ruleId": "RULE_PIPELINE_VALUE",
+      "sourceIds": ["zoho_crm_deals"],
+      "sufficiencyThreshold": "At least 1 open deal with Amount > 0",
+      "breakdowns": ["by stage", "by deal owner"]
+    },
+    {
+      "kpiId": "shifts",
+      "title": "Shifts Completed",
+      "unitHint": "count",
+      "formula": "COUNT(*) where Current Shift Status = 'Finished' and Shift Date in period",
+      "ruleId": "RULE_SHIFTS",
+      "sourceIds": ["custom_shifts"],
+      "sufficiencyThreshold": "At least 1 finished shift in the period",
+      "breakdowns": ["by pharmacy group", "by state"]
+    },
+    {
+      "kpiId": "shift_utilisation",
+      "title": "Shift Utilisation",
+      "unitHint": "%",
+      "formula": "SUM(Hours worked) / SUM(Total Hours Expected) * 100 where Status = Finished and Shift Date in period",
+      "ruleId": "RULE_SHIFT_UTILISATION",
+      "sourceIds": ["custom_shifts"],
+      "sufficiencyThreshold": "At least 10 finished shifts with hours data in the period",
+      "breakdowns": ["by pharmacy group", "by month"]
+    },
+    {
+      "kpiId": "inactive_pharmacy_rate",
+      "title": "Inactive Pharmacy Rate",
+      "unitHint": "%",
+      "formula": "COUNT(pharmacies with 0 finished shifts in period) / COUNT(all distinct pharmacies) * 100",
+      "ruleId": "RULE_INACTIVE_PHARMACY_RATE",
+      "sourceIds": ["custom_shifts"],
+      "sufficiencyThreshold": "At least 5 distinct pharmacies in the dataset",
+      "breakdowns": ["inactive pharmacy list", "by group"]
+    },
+    {
+      "kpiId": "jobs_posted",
+      "title": "Jobs Posted",
+      "unitHint": "count",
+      "formula": "COUNT(*) shifts where Date Created is in the period",
+      "ruleId": "RULE_JOBS_POSTED",
+      "sourceIds": ["custom_shifts"],
+      "sufficiencyThreshold": "At least 1 shift created in the period",
+      "breakdowns": ["by month", "by pharmacy group"]
+    },
+    {
+      "kpiId": "calls_per_week",
+      "title": "Calls Per Week",
+      "unitHint": "count",
+      "formula": "COUNT(Activity Type = 'Call') / weeks in period",
+      "ruleId": "RULE_CALLS_PER_WEEK",
+      "sourceIds": ["zoho_crm_activities"],
+      "sufficiencyThreshold": "Requires Zoho CRM Activities export",
+      "notes": "INSUFFICIENT — data source not yet connected."
+    },
+    {
+      "kpiId": "signups",
+      "title": "Signups",
+      "unitHint": "count",
+      "formula": "COUNT(*) new signups in period from Admin CP",
+      "ruleId": "RULE_SIGNUPS",
+      "sourceIds": ["admin_cp_signups"],
+      "sufficiencyThreshold": "Requires Admin CP Signup Report",
+      "notes": "INSUFFICIENT — data source not yet connected."
+    },
+    {
+      "kpiId": "churn_leading_indicator",
+      "title": "Churn Leading Indicator",
+      "unitHint": "index",
+      "formula": "Composite of declining shift utilisation + rising inactive rate + support sentiment",
+      "ruleId": "RULE_CHURN_INDICATOR",
+      "sourceIds": ["custom_shifts", "zoho_desk_tickets", "product_telemetry"],
+      "sufficiencyThreshold": "Requires product telemetry for full score",
+      "notes": "Partial — 2 of 3 sources connected. Full score needs product telemetry."
+    },
+    {
+      "kpiId": "bug_impact",
+      "title": "Bug Impact",
+      "unitHint": "index",
+      "formula": "Weighted count of open bugs by severity",
+      "ruleId": "RULE_BUG_IMPACT",
+      "sourceIds": ["bug_tracker"],
+      "sufficiencyThreshold": "Requires bug tracker export",
+      "notes": "INSUFFICIENT — data source not yet connected."
+    },
+    {
+      "kpiId": "resolution_time",
+      "title": "Avg Resolution Time",
+      "unitHint": "hours",
+      "formula": "AVG(Resolution Time in Business Hours) for closed tickets in period",
+      "ruleId": "RULE_RESOLUTION_TIME",
+      "sourceIds": ["zoho_desk_tickets"],
+      "sufficiencyThreshold": "At least 10 closed tickets with resolution time data",
+      "breakdowns": ["by priority", "by channel"]
+    },
+    {
+      "kpiId": "first_response_time",
+      "title": "Avg First Response Time",
+      "unitHint": "hours",
+      "formula": "AVG(First Response Time in Business Hours) for tickets in period",
+      "ruleId": "RULE_FIRST_RESPONSE_TIME",
+      "sourceIds": ["zoho_desk_tickets"],
+      "sufficiencyThreshold": "At least 10 tickets with first response time data",
+      "breakdowns": ["by channel", "by priority"]
+    },
+    {
+      "kpiId": "sla_compliance",
+      "title": "SLA Compliance",
+      "unitHint": "%",
+      "formula": "COUNT(SLA Violation Type IS NULL or empty) / COUNT(*) * 100 for tickets in period",
+      "ruleId": "RULE_SLA_COMPLIANCE",
+      "sourceIds": ["zoho_desk_tickets"],
+      "sufficiencyThreshold": "At least 10 tickets in the period",
+      "breakdowns": ["by violation type", "by priority"]
+    },
+    {
+      "kpiId": "fcr_rate",
+      "title": "First Call Resolution Rate",
+      "unitHint": "%",
+      "formula": "COUNT(Is First Call Resolution = true) / COUNT(*) * 100 for closed tickets",
+      "ruleId": "RULE_FCR_RATE",
+      "sourceIds": ["zoho_desk_tickets"],
+      "sufficiencyThreshold": "At least 10 closed tickets with FCR data"
+    },
+    {
+      "kpiId": "ticket_reopen_rate",
+      "title": "Ticket Reopen Rate",
+      "unitHint": "%",
+      "formula": "COUNT(Number of Reopen > 0) / COUNT(*) * 100 for tickets in period",
+      "ruleId": "RULE_TICKET_REOPEN_RATE",
+      "sourceIds": ["zoho_desk_tickets"],
+      "sufficiencyThreshold": "At least 10 tickets in the period"
+    },
+    {
+      "kpiId": "csat",
+      "title": "Customer Satisfaction (CSAT)",
+      "unitHint": "rating",
+      "formula": "AVG(Happiness Rating) for tickets with rating in period",
+      "ruleId": "RULE_CSAT",
+      "sourceIds": ["zoho_desk_tickets"],
+      "sufficiencyThreshold": "At least 5 tickets with happiness rating data"
+    },
+    {
+      "kpiId": "sentiment_trend",
+      "title": "Sentiment Trend",
+      "unitHint": "distribution",
+      "formula": "Distribution of Sentiment values (positive/neutral/negative) for tickets in period",
+      "ruleId": "RULE_SENTIMENT_TREND",
+      "sourceIds": ["zoho_desk_tickets"],
+      "sufficiencyThreshold": "At least 10 tickets with sentiment data"
+    },
+    {
+      "kpiId": "avg_deal_size",
+      "title": "Average Deal Size",
+      "unitHint": "$",
+      "formula": "AVG(Amount) where Stage = 'Closed Won'",
+      "ruleId": "RULE_AVG_DEAL_SIZE",
+      "sourceIds": ["zoho_crm_deals"],
+      "sufficiencyThreshold": "At least 3 closed-won deals with Amount > 0"
+    },
+    {
+      "kpiId": "job_seekers",
+      "title": "Job Seekers",
+      "unitHint": "count",
+      "formula": "COUNT(*) locum signups/registrations in period",
+      "ruleId": "RULE_JOB_SEEKERS",
+      "sourceIds": ["admin_cp_signups"],
+      "sufficiencyThreshold": "Requires Admin CP locum signup data",
+      "notes": "INSUFFICIENT — borderline. Needs Admin CP export."
+    },
+    {
+      "kpiId": "adoption_by_segment",
+      "title": "Adoption by Segment",
+      "unitHint": "%",
+      "formula": "Active pharmacies per segment / total pharmacies per segment * 100",
+      "ruleId": "RULE_ADOPTION_BY_SEGMENT",
+      "sourceIds": ["custom_shifts", "admin_cp_signups"],
+      "sufficiencyThreshold": "Requires segment definition + signup data",
+      "notes": "INSUFFICIENT — partial. Needs segment mapping."
+    },
+    {
+      "kpiId": "onboarding_quality",
+      "title": "Onboarding Quality",
+      "unitHint": "score",
+      "formula": "Composite score from onboarding completion milestones",
+      "ruleId": "RULE_ONBOARDING_QUALITY",
+      "sourceIds": ["admin_cp_signups"],
+      "sufficiencyThreshold": "Requires Admin CP onboarding milestone data",
+      "notes": "INSUFFICIENT — recommended for Surge."
+    },
+    {
+      "kpiId": "feature_adoption_trend",
+      "title": "Feature Adoption Trend",
+      "unitHint": "%",
+      "formula": "Usage of key features over time from product telemetry",
+      "ruleId": "RULE_FEATURE_ADOPTION",
+      "sourceIds": ["product_telemetry"],
+      "sufficiencyThreshold": "Requires product telemetry integration",
+      "notes": "INSUFFICIENT — recommended for Surge."
+    }
+  ],
+  "userMappings": [
+    {
+      "userId": "surge",
+      "sufficientKpis": [
+        "win_rate",
+        "support_issue_volume",
+        "prospects",
+        "pipeline_value",
+        "resolution_time",
+        "sla_compliance",
+        "fcr_rate",
+        "ticket_reopen_rate",
+        "csat",
+        "sentiment_trend"
+      ],
+      "insufficientKpis": [
+        "calls_per_week",
+        "churn_leading_indicator",
+        "bug_impact",
+        "onboarding_quality",
+        "feature_adoption_trend"
+      ],
+      "recommendedWithinSufficientKpis": [
+        "resolution_time",
+        "sla_compliance"
+      ],
+      "recommendedOrgWideKpis": []
+    },
+    {
+      "userId": "sam",
+      "sufficientKpis": [
+        "shifts",
+        "shift_utilisation",
+        "inactive_pharmacy_rate",
+        "jobs_posted",
+        "avg_deal_size"
+      ],
+      "insufficientKpis": [
+        "signups",
+        "job_seekers",
+        "adoption_by_segment"
+      ],
+      "recommendedWithinSufficientKpis": [
+        "inactive_pharmacy_rate",
+        "avg_deal_size"
+      ],
+      "recommendedOrgWideKpis": [
+        "win_rate",
+        "pipeline_value"
+      ]
+    }
+  ],
+  "unlockTable": [
+    {
+      "priority": 1,
+      "sourceId": "admin_cp_signups",
+      "unlocksKpis": ["signups", "job_seekers", "adoption_by_segment", "onboarding_quality"],
+      "strengthensDecisions": "Retention & renewal (Sam), Product roadmap (Surge)"
+    },
+    {
+      "priority": 2,
+      "sourceId": "zoho_crm_activities",
+      "unlocksKpis": ["calls_per_week"],
+      "strengthensDecisions": "Market expansion (Surge)"
+    },
+    {
+      "priority": 3,
+      "sourceId": "product_telemetry",
+      "unlocksKpis": ["feature_adoption_trend", "churn_leading_indicator"],
+      "strengthensDecisions": "Product roadmap (Surge)",
+      "notes": "Completes churn leading indicator (currently 2/3 sources)"
+    },
+    {
+      "priority": 4,
+      "sourceId": "bug_tracker",
+      "unlocksKpis": ["bug_impact"],
+      "strengthensDecisions": "Product roadmap (Surge)"
+    }
+  ]
+}

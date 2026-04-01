@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Locumate — Revenue Issue Tree</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --card: #ffffff;
+    --border: #e7e5e4;
+    --text: #1c1917;
+    --muted: #78716c;
+    --accent: #0f766e;
+    --accent-light: #ccfbf1;
+    --red: #dc2626;
+    --red-light: #fef2f2;
+    --amber: #d97706;
+    --amber-light: #fffbeb;
+    --blue: #2563eb;
+    --blue-light: #eff6ff;
+    --purple: #7c3aed;
+    --purple-light: #f5f3ff;
+    --connector: #d6d3d1;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 2rem;
+  }
+
+  header {
+    max-width: 900px;
+    margin: 0 auto 2.5rem;
+    text-align: center;
+  }
+
+  header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+  }
+
+  header .subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .root-node {
+    max-width: 520px;
+    margin: 0 auto 1rem;
+    background: var(--accent);
+    color: white;
+    padding: 1.25rem 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.15rem;
+    box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
+  }
+
+  .root-node .amount {
+    font-size: 0.85rem;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-top: 0.25rem;
+  }
+
+  .connector-down {
+    width: 2px;
+    height: 28px;
+    background: var(--connector);
+    margin: 0 auto;
+  }
+
+  .formula-bar {
+    max-width: 800px;
+    margin: 0 auto 1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem 1.25rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  .formula-bar strong { color: var(--text); }
+
+  .branches {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    max-width: 1200px;
+    margin: 0 auto 1rem;
+  }
+
+  .branch {
+    position: relative;
+  }
+
+  .branch-header {
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: 2px solid transparent;
+  }
+
+  .branch-header:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .branch-header .number {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.15rem;
+    opacity: 0.7;
+  }
+
+  .branch-header.green { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
+  .branch-header.red { background: var(--red-light); color: var(--red); border-color: var(--red); }
+  .branch-header.blue { background: var(--blue-light); color: var(--blue); border-color: var(--blue); }
+  .branch-header.purple { background: var(--purple-light); color: var(--purple); border-color: var(--purple); }
+
+  .sub-branches {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.4s ease;
+  }
+
+  .branch.open .sub-branches {
+    max-height: 2000px;
+  }
+
+  .sub-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: box-shadow 0.15s;
+  }
+
+  .sub-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  .sub-card .sub-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sub-card .sub-title .toggle {
+    font-size: 0.75rem;
+    color: var(--muted);
+    transition: transform 0.2s;
+  }
+
+  .sub-card.open .sub-title .toggle {
+    transform: rotate(90deg);
+  }
+
+  .sub-detail {
+    display: none;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+
+  .sub-card.open .sub-detail {
+    display: block;
+  }
+
+  .sub-detail ul {
+    padding-left: 1rem;
+    margin: 0.25rem 0;
+  }
+
+  .sub-detail li { margin-bottom: 0.2rem; }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    margin-right: 0.25rem;
+    margin-top: 0.35rem;
+  }
+
+  .tag.data { background: #dbeafe; color: #1d4ed8; }
+  .tag.gap { background: #fef3c7; color: #92400e; }
+  .tag.action { background: #d1fae5; color: #065f46; }
+  .tag.risk { background: #fee2e2; color: #991b1b; }
+
+  .summary-bar {
+    max-width: 1200px;
+    margin: 2rem auto 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .summary-bar h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+
+  .summary-item {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+  }
+
+  .summary-item.finding { background: #f0fdf4; border-left: 3px solid var(--accent); }
+  .summary-item.risk-item { background: #fef2f2; border-left: 3px solid var(--red); }
+  .summary-item.opportunity { background: #eff6ff; border-left: 3px solid var(--blue); }
+
+  .summary-item strong { display: block; margin-bottom: 0.15rem; }
+
+  footer {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 900px) {
+    .branches { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 550px) {
+    .branches { grid-template-columns: 1fr; }
+    body { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Locumate Revenue Issue Tree</h1>
+  <div class="subtitle">McKinsey-style MECE breakdown for Surge & Sam &mdash; based on real data (Apr 2026)</div>
+</header>
+
+<div class="root-node">
+  How does Locumate increase revenue?
+  <div class="amount">Current: $914K closed-won &bull; $1.4M open pipeline (real active: ~$100K)</div>
+</div>
+
+<div class="connector-down"></div>
+
+<div class="formula-bar">
+  <strong>Revenue</strong> = Leads &times; Conversion Rate &times; Win Rate &times; Avg Deal Size &times; Expansion &minus; Churn
+</div>
+
+<div class="branches" id="tree">
+
+  <!-- BRANCH 1: Win More New Deals -->
+  <div class="branch open" onclick="toggleBranch(event, this)">
+    <div class="branch-header green">
+      <span class="number">Branch 1</span>
+      Win More New Deals
+    </div>
+    <div class="sub-branches">
+
+      <div class="sub-card" onclick="toggleCard(event, this)">
+        <div class="sub-title">1A. Generate More Leads <span class="toggle">&#9654;</span></div>
+        <div class="sub-detail">
+          <ul>
+            <li>Only <strong>52 leads</strong> on record; 3 added in most recent month</li>
+            <li>Lead Source field is <strong>empty for all 52 leads</strong> &mdash; no idea what channel works</li>
+            <li>Lead Status also empty &mdash; no funnel visibility</li>
+            <li>All leads assigned to Surge or Tiani &mdash; no outbound prospecting beyond CEO</li>
+          </ul>
+          <span class="tag gap">Data Gap</span>
+          <span class="tag action">Fix: populate Lead Source &amp; Status</span>
+        </div>
+      </div>
+
+      <div class="sub-card" onclick="toggleCard(event, this)">
+        <div class="sub-title">1B. Convert More Leads to Deals <span class="toggle">&#9654;</span></div>
+        <div class="sub-detail">
+          <ul>
+            <li>Current conversion: <strong>5 of 52 leads</strong> converted (~10%)</li>
+            <li>No lead scoring or qualification process visible in CRM</li>
+            <li>Duplicate leads exist (e.g. Asha Gilkapalli appears twice)</li>
+          </ul>
+          <span class="tag data">10% conversion</span>
+          <span class="tag action">Implement lead qualification</span>
+        </div>
+      </div>
+
+      <div class="sub-card" onclick="toggleCard(event, this)">
+        <div class="sub-title">1C. Improve Win Rate <span class="toggle">&#9654;</span></div>
+        <div class="sub-detail">
+          <ul>
+            <li>Win rate by count: <strong>13 won / 32 total = 41%</strong></li>
+            <li>Win rate by value: <strong>$914K / $3.2M = 29%</strong></li>
+            <li>Lost 2.5x more dollar value than won ($2.29M vs $914K)</li>
+            <li>"No Budget" used for <em>all</em> losses &mdash; real loss reasons unclear</li>
+            <li><strong>Deal-size ceiling:</strong> every deal above $300K lost, except Healthshifts</li>
+          </ul>
+          <span class="tag risk">2.5x more lost than won by $</span>
+          <span class="tag action">Clarify loss reasons beyond "No Budget"</span>
+        </div>
+      </div>
+
+      <div class="sub-card" onclick="toggleCard(event, this)">
+        <div class="sub-title">1D. Increase Average Deal Size <span class="toggle">&#9654;</span></div>
+        <div class="sub-detail">
+          <ul>
+            <li>Average deal: <strong>$76K</strong> (but $32K excluding top 2)</li>
+            <li>Most recent win: <strong>$1.2K</strong> &mdash; smallest ever. Trend is down.</li>
+            <li>Small deals (&lt;$10K) close in 22&ndash;25 days</li>
+            <li>Large deals ($300K+) almost always fail</li>
+            <li>Sweet spot appears to be <strong>$10K&ndash;$230K</strong></li>
+          </ul>
+          <span class="tag data">$32K real average</span>
+          <span class="tag risk">Deal size trending down</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BRANCH 2: Grow Existing Customers -->
+  <div class="branch" onclick="toggleBranch(event, this)">
+    <div class="branch-header blue">
+      <span class="number">Branch 2</span>
+      Grow Existing Customers
+    </div>
+    <div class="sub-branches">
+
+      <div class="sub-card" onclick="toggleCard(event, this)">
+        <div class="sub-title">2A. Expand Key Accounts <span class="toggle">&#9654;</span></div>
+        <div class="sub-detail">
+          <ul>
+            <li><strong>Wesfarmers/TWC</strong> is the model: $120K subscription won &rarr; $19.5K add-on at 80% probability</li>
+            <li>TWC-related revenue: $230K won, $319.5K open</li>
+            <li>Organic expansion is happening here &mdash; can this be replicated with other accounts?</li>
+            <li>Healthshifts ($500K) &mdash; largest deal. Any expansion opportunity?</li>
+          </ul>
+          <span class="tag data">Wesfarmers = proven expansion</span>
+          <span class="tag action">Map expansion plays for top 5 accounts</span>
+        </div>
+      </div>
+
+      <div class="sub-card" onclick="toggleCard(event, this)">
+        <div class="sub-title">2B. Increase Platform Usage (Shifts) <span class="toggle">&#9654;</span></div>
+        <div class="sub-detail">
+          <ul>
+            <li>2,381 shifts across 60+ pharmacies</li>
+            <li><strong>28 unfilled shifts</strong> = lost revenue (concentrated at TWC Kirwan)</li>
+            <li>Regional QLD has a supply gap &mdash; no locums covering those shifts</li>
+            <li>More shifts per pharmacy = more platform value = stickier accounts</li>
+          </ul>
+          <span class="tag risk">28 unfilled shifts</span>
+          <span class="tag action">Solve regional supply gap</span>
+        </div>
+      </div>
+
+      <div class="sub-card" onclick="toggleCard(event, this)">
+        <div class="sub-title">2C. Enable Customer Success to Drive Revenue <span class="toggle">&#9654;</span></div>
+        <div class="sub-detail">
+          <ul>
+            <li>Sam's CS team owns <strong>zero deals</strong> in CRM</li>
+            <li>CS team (Sam, Edge, Tiani) is not credited with upsell/expansion</li>
+            <li>Opportunity: CS identifies expansion signals from platform usage (e.g. pharmacy growing shift volume)</li>
+          </ul>
+          <span class="tag action">Give CS team an expansion quota or target</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BRANCH 3: Reduce Revenue Leakage -->
+  <div class="branch" onclick="toggleBranch(event, this)">
+    <div class="branch-header red">
+      <span class="number">Branch 3</span>
+      Reduce Revenue Leakage
+    </div>
+    <div class="sub-branches">
+
+      <div class="sub-card" onclick="toggleCard(event, this)">
+        <div class="sub-title">3A. Fix Pipeline Staleness <span class="toggle">&#9654;</span></div>
+        <div class="sub-detail">
+          <ul>
+            <li><strong>6 of 11</strong> open deals are 170+ days old with no stage movement</li>
+            <li>RMH Outreach ($1M) &mdash; 342 days in Qualification. This is 71% of pipeline value.</li>
+            <li>TWC Network ($300K) &mdash; 210 days in Proposal. Combined with RMH = 93% of pipeline.</li>
+            <li><strong>If these 2 are dead, real pipeline is ~$100K,</strong> not $1.4M</li>
+          </ul>
+          <span class="tag risk">93% of pipeline is stale</span>
+          <span class="tag action">Audit RMH + TWC Network status immediately</span>
+        </div>
+      </div>
+
+      <div class="sub-card" onclick="toggleCard(event, this)">
+        <div class="sub-title">3B. De-risk Revenue Concentration <span class="toggle">&#9654;</span></div>
+        <div class="sub-detail">
+          <ul>
+            <li>Healthshifts ($500K) + Westfarmers ($120K) = <strong>68% of all revenue</strong></li>
+            <li>Lose either &rarr; revenue drops dramatically</li>
+            <li>4 won deals have no Amount recorded &mdash; real revenue may be understated</li>
+          </ul>
+          <span class="tag risk">68% from 2 customers</span>
+          <span class="tag action">Diversify by closing mid-market deals</span>
+        </div>
+      </div>
+
+      <div class="sub-card" onclick="toggleCard(event, this)">
+        <div class="sub-title">3C. Stop Losing Big Deals <span class="toggle">&#9654;</span></div>
+        <div class="sub-detail">
+          <ul>
+            <li><strong>$2.29M lost</strong> across 8 deals &mdash; 2.5x what was won</li>
+            <li>International deals: HSS NZ ($252K) + Latvia Nexus ($327K) both lost</li>
+            <li>Large-deal failure: every deal &gt;$300K lost except Healthshifts</li>
+            <li>Are these real opportunities or aspirational pipeline?</li>
+          </ul>
+          <span class="tag risk">$2.29M lost</span>
+          <span class="tag action">Focus on $10K&ndash;$230K domestic deals</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BRANCH 4: Build Sales Capacity -->
+  <div class="branch" onclick="toggleBranch(event, this)">
+    <div class="branch-header purple">
+      <span class="number">Branch 4</span>
+      Build Sales Capacity
+    </div>
+    <div class="sub-branches">
+
+      <div class="sub-card" onclick="toggleCard(event, this)">
+        <div class="sub-title">4A. Reduce Single-Person Dependency <span class="toggle">&#9654;</span></div>
+        <div class="sub-detail">
+          <ul>
+            <li>Surge owns <strong>100% of all 32 deals</strong> &mdash; won, lost, and open</li>
+            <li>Clayton Dunn (Head of Sales) hired Aug 2024, disabled Oct 2025 &mdash; <strong>zero deals attributed</strong></li>
+            <li>No pipeline generation beyond the CEO</li>
+            <li>If Surge is out for a week, pipeline stops completely</li>
+          </ul>
+          <span class="tag risk">Single point of failure</span>
+          <span class="tag action">Hire or reassign sales capacity</span>
+        </div>
+      </div>
+
+      <div class="sub-card" onclick="toggleCard(event, this)">
+        <div class="sub-title">4B. Shorten Sales Cycles <span class="toggle">&#9654;</span></div>
+        <div class="sub-detail">
+          <ul>
+            <li>Fastest wins: AI Agent Prime (22 days, $3.5K), LPG Subs (24 days, $9.9K)</li>
+            <li>Largest win: Healthshifts took an unknown cycle (no date data available for comparison)</li>
+            <li>Wesfarmers: 235-day cycle for $120K. Can this be compressed?</li>
+            <li>Pattern: deals under $10K close in &lt;25 days. Above $100K &rarr; 94&ndash;235+ days.</li>
+          </ul>
+          <span class="tag data">Under $10K = 22&ndash;25 day close</span>
+        </div>
+      </div>
+
+      <div class="sub-card" onclick="toggleCard(event, this)">
+        <div class="sub-title">4C. Fix CRM Hygiene for Better Decisions <span class="toggle">&#9654;</span></div>
+        <div class="sub-detail">
+          <ul>
+            <li>Lead Source: empty on 46 of 52 leads &mdash; can't track what channel drives pipeline</li>
+            <li>Lead Status: empty on all 52 &mdash; can't build a funnel</li>
+            <li>Industry field: 0/52 populated</li>
+            <li>4 Closed Won deals have no Amount &mdash; revenue is understated</li>
+            <li>"No Budget" catch-all &mdash; no insight into real loss reasons</li>
+          </ul>
+          <span class="tag gap">Major data gaps</span>
+          <span class="tag action">30-min CRM cleanup sprint</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Summary Bar -->
+<div class="summary-bar">
+  <h3>Key Takeaways from the Data</h3>
+  <div class="summary-grid">
+    <div class="summary-item finding">
+      <strong>Proven Wedge</strong>
+      Domestic pharmacy subscriptions ($10K&ndash;$230K) are the repeatable win. International and $300K+ deals have not converted.
+    </div>
+    <div class="summary-item risk-item">
+      <strong>Biggest Risk</strong>
+      Single-person sales function (Surge = 100% of deals) + 68% revenue concentration in 2 accounts.
+    </div>
+    <div class="summary-item opportunity">
+      <strong>Fastest Win</strong>
+      Clean up the CRM (Lead Source, deal amounts, loss reasons). Unlocks channel analysis and funnel visibility at zero cost.
+    </div>
+    <div class="summary-item finding">
+      <strong>Expansion Model</strong>
+      Wesfarmers/TWC shows organic account expansion. Replicate this playbook across other won accounts.
+    </div>
+    <div class="summary-item risk-item">
+      <strong>Pipeline Reality</strong>
+      $1.4M open pipeline is misleading. 93% sits in 2 stale deals (RMH + TWC Network). Real active pipeline is ~$100K.
+    </div>
+    <div class="summary-item opportunity">
+      <strong>Platform Leverage</strong>
+      28 unfilled shifts = lost revenue + risk in your most valuable account (TWC). Solving this drives both retention and expansion.
+    </div>
+  </div>
+</div>
+
+<footer>
+  Locumate Issue Tree &mdash; Data: Zoho CRM Deals (32), Shifts (2,381), Leads (52) &mdash; Click branches &amp; cards to expand
+</footer>
+
+<script>
+  function toggleBranch(e, el) {
+    if (e.target.closest('.sub-card')) return;
+    el.classList.toggle('open');
+  }
+
+  function toggleCard(e, el) {
+    e.stopPropagation();
+    el.classList.toggle('open');
+  }
+</script>
+</body>
+</html>

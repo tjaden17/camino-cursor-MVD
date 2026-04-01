@@ -1,0 +1,300 @@
+{
+  "version": 1,
+  "note": "Draft — best-guess from onboarding data. Users confirm and correct in Phase 1b.",
+  "decisions": [
+    {
+      "decisionId": "surge-prioritize-product-roadmap",
+      "role": "CEO",
+      "userId": "surge",
+      "decision": "Prioritize product roadmap",
+      "timeframe": "90 days",
+      "informingSignals": [
+        "support_issue_volume",
+        "bug_impact",
+        "feature_adoption_trend"
+      ],
+      "status": "assumed",
+      "triggerPatterns": [
+        {
+          "pattern": "support_issue_volume rising 3+ consecutive weeks AND resolution_time stable",
+          "recommendation": "Consider whether support team can absorb continued growth — resolution typically lags volume by 2–3 weeks."
+        },
+        {
+          "pattern": "bug_impact elevated while feature_adoption_trend is flat or declining",
+          "recommendation": "Weigh stability and quality work against new features on the near-term roadmap."
+        }
+      ]
+    },
+    {
+      "decisionId": "surge-hiring-vs-outsourcing-support",
+      "role": "CEO",
+      "userId": "surge",
+      "decision": "Hiring vs outsourcing for support",
+      "timeframe": "90 days",
+      "informingSignals": [
+        "support_issue_volume",
+        "resolution_time",
+        "sla_compliance"
+      ],
+      "status": "assumed",
+      "triggerPatterns": [
+        {
+          "pattern": "support_issue_volume rising 3+ consecutive weeks AND resolution_time stable",
+          "recommendation": "Consider whether support team can absorb continued growth — resolution typically lags volume by 2–3 weeks."
+        },
+        {
+          "pattern": "sla_compliance trending down while support_issue_volume is high",
+          "recommendation": "Evaluate capacity (hire, outsource, or process change) before SLA risk becomes customer-visible."
+        }
+      ]
+    },
+    {
+      "decisionId": "surge-market-expansion",
+      "role": "CEO",
+      "userId": "surge",
+      "decision": "Market expansion",
+      "timeframe": "6 months",
+      "informingSignals": [
+        "prospects",
+        "pipeline_value",
+        "win_rate",
+        "calls_per_week"
+      ],
+      "status": "assumed",
+      "triggerPatterns": [
+        {
+          "pattern": "pipeline_value growing but prospects or calls_per_week not keeping pace",
+          "recommendation": "Check whether growth is concentrated in existing accounts vs true market expansion — adjust GTM focus if needed."
+        },
+        {
+          "pattern": "win_rate stable or improving with healthy pipeline_value",
+          "recommendation": "Expansion timing may be favourable; validate with segment-level win_rate before committing."
+        }
+      ]
+    },
+    {
+      "decisionId": "surge-sales-team-capacity",
+      "role": "CEO",
+      "userId": "surge",
+      "decision": "Sales team capacity",
+      "timeframe": "ongoing",
+      "informingSignals": [
+        "pipeline_value",
+        "win_rate",
+        "prospects"
+      ],
+      "status": "assumed",
+      "triggerPatterns": [
+        {
+          "pattern": "pipeline_value up materially while win_rate falls",
+          "recommendation": "May indicate team at capacity or poor qualification — review rep load and stage conversion before adding headcount."
+        }
+      ]
+    },
+    {
+      "decisionId": "surge-support-team-scaling",
+      "role": "CEO",
+      "userId": "surge",
+      "decision": "Support team scaling",
+      "timeframe": "ongoing",
+      "informingSignals": [
+        "support_issue_volume",
+        "resolution_time",
+        "csat"
+      ],
+      "status": "assumed",
+      "triggerPatterns": [
+        {
+          "pattern": "support_issue_volume rising while csat declines",
+          "recommendation": "Prioritize scaling or workflow fixes — customer sentiment often moves after volume stress."
+        },
+        {
+          "pattern": "resolution_time lengthening with flat or rising issue volume",
+          "recommendation": "Backlog and burnout risk; model headcount or tooling needs against projected volume."
+        }
+      ]
+    },
+    {
+      "decisionId": "surge-product-market-fit-assessment",
+      "role": "CEO",
+      "userId": "surge",
+      "decision": "Product-market fit assessment",
+      "timeframe": "ongoing",
+      "informingSignals": [
+        "win_rate",
+        "churn_leading_indicator",
+        "feature_adoption_trend"
+      ],
+      "status": "assumed",
+      "triggerPatterns": [
+        {
+          "pattern": "churn_leading_indicator worsening while win_rate softens",
+          "recommendation": "Signal to revisit ICP, packaging, or onboarding — PMF stress often shows in both acquisition and retention."
+        }
+      ]
+    },
+    {
+      "decisionId": "surge-investment-readiness",
+      "role": "CEO",
+      "userId": "surge",
+      "decision": "Investment readiness",
+      "timeframe": "ongoing",
+      "informingSignals": [
+        "pipeline_value",
+        "win_rate",
+        "prospects",
+        "churn_leading_indicator"
+      ],
+      "status": "assumed",
+      "triggerPatterns": [
+        {
+          "pattern": "Strong pipeline_value and win_rate with churn_leading_indicator under control",
+          "recommendation": "Narrative for investors is easier to defend; still document cohort and segment breakdowns."
+        },
+        {
+          "pattern": "pipeline_value strong but churn_leading_indicator deteriorating",
+          "recommendation": "Address retention story before fundraising — investors will weight leading churn signals heavily."
+        }
+      ]
+    },
+    {
+      "decisionId": "sam-account-health-actions",
+      "role": "CSM",
+      "userId": "sam",
+      "decision": "Account health actions",
+      "timeframe": "ongoing",
+      "informingSignals": [
+        "shifts",
+        "shift_utilisation",
+        "inactive_pharmacy_rate"
+      ],
+      "status": "assumed",
+      "triggerPatterns": [
+        {
+          "pattern": "inactive_pharmacy_rate > 15%",
+          "recommendation": "Review inactive accounts for common patterns — potential churn risk."
+        },
+        {
+          "pattern": "shift_utilisation declining across multiple accounts",
+          "recommendation": "Proactive outreach playbook: usage drop often precedes renewal risk."
+        }
+      ]
+    },
+    {
+      "decisionId": "sam-renewal-upsell-strategy",
+      "role": "CSM",
+      "userId": "sam",
+      "decision": "Renewal and upsell strategy",
+      "timeframe": "before renewals",
+      "informingSignals": [
+        "shift_utilisation",
+        "shifts",
+        "inactive_pharmacy_rate"
+      ],
+      "status": "assumed",
+      "triggerPatterns": [
+        {
+          "pattern": "Renewal window approaching with low shift_utilisation or rising inactive_pharmacy_rate",
+          "recommendation": "Lead with value recovery (usage, training) before price or expansion conversations."
+        }
+      ]
+    },
+    {
+      "decisionId": "sam-meeting-preparation",
+      "role": "CSM",
+      "userId": "sam",
+      "decision": "Meeting preparation",
+      "timeframe": "before each meeting",
+      "informingSignals": [
+        "shifts",
+        "jobs_posted",
+        "shift_utilisation"
+      ],
+      "status": "assumed",
+      "triggerPatterns": [
+        {
+          "pattern": "jobs_posted spike with uneven shift_utilisation",
+          "recommendation": "Prepare talking points on filling roles and balancing supply and demand on the account."
+        }
+      ]
+    },
+    {
+      "decisionId": "sam-customer-onboarding-priorities",
+      "role": "CSM",
+      "userId": "sam",
+      "decision": "Customer onboarding priorities",
+      "timeframe": "ongoing",
+      "informingSignals": [
+        "signups",
+        "adoption_by_segment"
+      ],
+      "status": "assumed",
+      "triggerPatterns": [
+        {
+          "pattern": "signups concentrated in one segment with weaker adoption_by_segment elsewhere",
+          "recommendation": "Tailor onboarding tracks by segment instead of a single generic path."
+        }
+      ]
+    },
+    {
+      "decisionId": "sam-at-risk-account-intervention",
+      "role": "CSM",
+      "userId": "sam",
+      "decision": "At-risk account intervention",
+      "timeframe": "ongoing",
+      "informingSignals": [
+        "inactive_pharmacy_rate",
+        "shift_utilisation",
+        "shifts"
+      ],
+      "status": "assumed",
+      "triggerPatterns": [
+        {
+          "pattern": "inactive_pharmacy_rate > 15%",
+          "recommendation": "Review inactive accounts for common patterns — potential churn risk."
+        },
+        {
+          "pattern": "shifts flat or down while inactive_pharmacy_rate rises",
+          "recommendation": "Escalate to success leadership — may need executive sponsor or success plan."
+        }
+      ]
+    },
+    {
+      "decisionId": "sam-expansion-opportunities",
+      "role": "CSM",
+      "userId": "sam",
+      "decision": "Expansion opportunities",
+      "timeframe": "ongoing",
+      "informingSignals": [
+        "prospect_opportunity_size",
+        "avg_deal_size",
+        "pipeline_value"
+      ],
+      "status": "assumed",
+      "triggerPatterns": [
+        {
+          "pattern": "prospect_opportunity_size materially above avg_deal_size for similar accounts",
+          "recommendation": "Flag for commercial follow-up — whitespace may justify land-and-expand motion."
+        }
+      ]
+    },
+    {
+      "decisionId": "sam-support-escalation-decisions",
+      "role": "CSM",
+      "userId": "sam",
+      "decision": "Support escalation decisions",
+      "timeframe": "ongoing",
+      "informingSignals": [
+        "support_issue_volume",
+        "resolution_time"
+      ],
+      "status": "assumed",
+      "triggerPatterns": [
+        {
+          "pattern": "support_issue_volume rising for the account with resolution_time stretching vs team baseline",
+          "recommendation": "Consider executive escalation or dedicated support path — pattern may indicate systemic issue on the account."
+        }
+      ]
+    }
+  ]
+}

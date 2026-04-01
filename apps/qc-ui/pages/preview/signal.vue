@@ -19,6 +19,12 @@
     </p>
 
     <section class="controls">
+      <p class="muted small">
+        Pipeline v2 only: <code>out/pipeline-v2-output.json</code> if present, otherwise
+        <code>out/test-e2e-v2/pipeline-v2-output.json</code> (e.g.
+        <code>npm run test -- src/pipeline/stages/run-pipeline-v2.test.ts</code>).
+      </p>
+
       <label class="block">
         User perspective
         <select class="input" :value="userFromRoute" @change="onUserSelect($event)">
@@ -26,6 +32,22 @@
           <option value="sam">Sam</option>
         </select>
       </label>
+
+      <label class="block">
+        Layout
+        <select class="input" :value="viewAll ? 'all' : 'one'" @change="onLayoutSelect($event)">
+          <option value="one">One card (prev/next)</option>
+          <option value="all">All cards (scroll)</option>
+        </select>
+      </label>
+      <label v-if="viewAll" class="block">
+        Synthesis version
+        <select class="input" :value="deckVersionFromRoute" @change="onVersionSelect($event)">
+          <option value="A">A — org-level tone</option>
+          <option value="B">B — personal tone</option>
+        </select>
+      </label>
+
       <p class="muted small">
         Or jump directly:
         <a
@@ -41,7 +63,7 @@
         >Sam</a>
       </p>
 
-      <div class="nav">
+      <div v-if="!isDeckView" class="nav">
         <a
           v-if="cardIdx > 0"
           class="btn"
@@ -66,7 +88,7 @@
         <span v-else class="btn btn-disabled" aria-disabled="true">Next</span>
       </div>
 
-      <div class="dots">
+      <div v-if="!isDeckView" class="dots">
         <a
           v-for="i in cardCount"
           :key="i - 1"
@@ -79,102 +101,28 @@
         />
       </div>
 
-      <p v-if="cardCount <= 1" class="muted small hint">
-        <strong>Only one card</strong> is available from the current data source. If you expected multiple cards,
-        <code>out/processed-signals.json</code> may be taking priority (including a single-card pipeline run). Remove or rename it to use the multi-card stub
-        <code>fixtures/samples/signal-preview-stub-users.json</code>, or re-run the pipeline with a full deck.
+      <p v-if="!isDeckView && cardCount <= 1" class="muted small hint">
+        <strong>Only one card</strong> in the loaded v2 deck. If you expected more, re-run the v2 pipeline so
+        <code>pipeline-v2-output.json</code> includes the full user deck.
       </p>
     </section>
 
     <p v-if="error" class="err">{{ error }}</p>
+    <p v-if="deckError" class="err">{{ deckError }}</p>
+    <p v-if="isDeckView && deckPending" class="muted">Loading full deck…</p>
 
-    <article v-if="payload" class="signal">
-      <header class="signal-h">
-        <div class="badges">
-          <span class="badge" :class="badgeClassRequest">{{ requestLabel }}</span>
-          <span class="badge" :class="badgeClassData">{{ dataLabel }}</span>
-          <span class="badge" :class="badgeClassNarrative">Narrative: {{ narrativeLabel }}</span>
-        </div>
+    <template v-if="isDeckView && deckPayload?.cards?.length">
+      <p class="muted small">
+        Showing {{ deckPayload.cards.length }} cards · {{ deckPayload.source }} · run
+        {{ deckPayload.runId ?? "—" }}
+      </p>
+      <article v-for="(pl, di) in deckPayload.cards" :key="di" class="signal deck-card">
+        <SignalCardBody :payload="pl" />
+      </article>
+    </template>
 
-        <p class="kpi-id">{{ payload.overview.kpiId }}</p>
-        <h2 class="title">{{ payload.overview.title }}</h2>
-        <p class="value">{{ payload.overview.currentValue }}</p>
-        <p v-if="payload.overview.changeLabel" class="change">
-          <span
-            v-if="
-              payload.overview.changePct !== null && payload.overview.changePct !== undefined
-            "
-          >
-            {{ payload.overview.changePct }}% ·
-          </span>
-          {{ payload.overview.changeLabel }}
-        </p>
-        <p class="summary">{{ payload.overview.oneLineSummary }}</p>
-      </header>
-
-      <section
-        v-if="meta.recommendationRationale && meta.recommendationRationale.length"
-        class="block why-rec"
-      >
-        <h3>Why it’s recommended</h3>
-        <p class="lead">{{ meta.recommendationRationale }}</p>
-      </section>
-
-      <hr class="rule" />
-
-      <section v-if="payload.expanded" class="block">
-        <h3>Analysis &amp; synthesis</h3>
-        <p class="lead">{{ payload.expanded.execSummary }}</p>
-        <h4>Takeaway</h4>
-        <ul>
-          <li>{{ payload.expanded.takeawayBreakdown.directionGoodOrBad }}</li>
-          <li>{{ payload.expanded.takeawayBreakdown.expectedOrUnexpected }}</li>
-        </ul>
-
-        <template v-if="payload.expanded.benchmarkComparison">
-          <h4>Benchmark</h4>
-          <p>{{ payload.expanded.benchmarkComparison }}</p>
-        </template>
-        <template v-if="payload.expanded.rootCauseAnalysis">
-          <h4>Root cause</h4>
-          <p>{{ payload.expanded.rootCauseAnalysis }}</p>
-        </template>
-        <template v-if="payload.expanded.rootCauseRationale">
-          <h4>Audit rationale (chain)</h4>
-          <p class="mono">{{ payload.expanded.rootCauseRationale }}</p>
-        </template>
-      </section>
-
-      <section v-else-if="payload.insufficient" class="block">
-        <h3>What’s missing</h3>
-        <p class="lead">{{ payload.insufficient.whyItMatters }}</p>
-
-        <h4>Missing data</h4>
-        <ul>
-          <li v-for="(m, idx) in payload.insufficient.missingData" :key="idx">
-            {{ m }}
-          </li>
-        </ul>
-
-        <template v-if="payload.insufficient.sourcingTips?.length">
-          <h4>How to source it</h4>
-          <ul>
-            <li v-for="(t, idx) in payload.insufficient.sourcingTips" :key="idx">
-              {{ t }}
-            </li>
-          </ul>
-        </template>
-      </section>
-
-      <details class="prov">
-        <summary>What we found (provenance)</summary>
-        <p class="small">Overview</p>
-        <pre class="mono">{{ JSON.stringify(payload.overview.provenance, null, 2) }}</pre>
-        <template v-if="payload.expanded">
-          <p class="small">Expanded</p>
-          <pre class="mono">{{ JSON.stringify(payload.expanded.provenance, null, 2) }}</pre>
-        </template>
-      </details>
+    <article v-else-if="payload" class="signal">
+      <SignalCardBody :payload="payload" />
     </article>
   </div>
 </template>
@@ -184,7 +132,6 @@ import type { SignalPreviewPayload } from "~/types/signal-preview";
 
 const route = useRoute();
 
-/** Single source of truth: URL query (works with production Nitro + SSR; no fragile client refresh). */
 const userFromRoute = computed(() => {
   const u = String(route.query.userId ?? "surge").toLowerCase();
   return u === "sam" ? "sam" : "surge";
@@ -196,69 +143,127 @@ const cardIdx = computed(() => {
   return Math.floor(n);
 });
 
+const viewAll = computed(() => String(route.query.view ?? "").toLowerCase() === "all");
+
+const deckVersionFromRoute = computed(() =>
+  String(route.query.version ?? "A").toUpperCase() === "B" ? "B" : "A",
+);
+
+const isDeckView = computed(() => viewAll.value);
+
 const { data: payload, error } = await useAsyncData(
   () => `preview-signal:${route.fullPath}`,
-  () =>
-    $fetch<SignalPreviewPayload>("/api/preview/signal", {
+  async () => {
+    if (viewAll.value) return null;
+    return await $fetch<SignalPreviewPayload>("/api/preview/signal", {
       query: {
         userId: userFromRoute.value,
         card: cardIdx.value,
       },
-    }),
+    });
+  },
 );
 
 const cardCount = computed(() => Math.max(1, payload.value?.cardCount ?? 1));
+
+type DeckResponse = {
+  cards: SignalPreviewPayload[];
+  runId: string | null;
+  source: string;
+  cardVersion: string;
+};
+
+const deckPayload = ref<DeckResponse | null>(null);
+const deckError = ref<string | null>(null);
+const deckPending = ref(false);
+
+async function loadDeck() {
+  deckError.value = null;
+  if (!isDeckView.value) {
+    deckPayload.value = null;
+    return;
+  }
+  deckPending.value = true;
+  try {
+    deckPayload.value = await $fetch<DeckResponse>("/api/preview/signal-deck", {
+      query: { userId: userFromRoute.value, version: deckVersionFromRoute.value },
+    });
+  } catch (e) {
+    deckPayload.value = null;
+    deckError.value =
+      e && typeof e === "object" && "statusMessage" in e
+        ? String((e as { statusMessage?: string }).statusMessage)
+        : "Could not load deck";
+  } finally {
+    deckPending.value = false;
+  }
+}
+
+watch(() => route.fullPath, loadDeck, { immediate: true });
 
 function buildHref(userId: string, card: number): string {
   const u = userId === "sam" ? "sam" : "surge";
   const c = Math.max(0, Math.floor(card));
   const qs = new URLSearchParams({ userId: u, card: String(c) });
+  if (viewAll.value) {
+    qs.set("view", "all");
+    qs.set("version", deckVersionFromRoute.value);
+  }
   return `${route.path}?${qs.toString()}`;
 }
 
-/** Full navigation (not SPA) so card changes always reload data — matches user dropdown behaviour. */
 function goTo(userId: string, card: number) {
   if (import.meta.client) {
     window.location.assign(buildHref(userId, card));
   }
 }
 
+function applyQueryFromControls(partial: {
+  userId?: string;
+  card?: string;
+  view?: "all";
+  version?: string;
+}) {
+  const qs = new URLSearchParams();
+  qs.set("userId", partial.userId ?? userFromRoute.value);
+  qs.set("card", partial.card ?? "0");
+  if (partial.view === "all") {
+    qs.set("view", "all");
+    qs.set("version", partial.version ?? deckVersionFromRoute.value);
+  }
+  if (import.meta.client) {
+    window.location.assign(`${route.path}?${qs.toString()}`);
+  }
+}
+
 function onUserSelect(ev: Event) {
   const v = (ev.target as HTMLSelectElement).value;
   const userId = v === "sam" ? "sam" : "surge";
-  goTo(userId, 0);
+  applyQueryFromControls({
+    userId,
+    card: "0",
+    ...(viewAll.value ? { view: "all" as const, version: deckVersionFromRoute.value } : {}),
+  });
 }
 
-const meta = computed(() => ({
-  requestType: payload.value?.requestType ?? "requested",
-  dataSufficiency: payload.value?.dataSufficiency ?? "sufficient",
-  recommendationRationale: payload.value?.recommendationRationale ?? "",
-  narrativeSource: payload.value?.narrativeSource ?? "fallback",
-}));
+function onLayoutSelect(ev: Event) {
+  const v = (ev.target as HTMLSelectElement).value;
+  applyQueryFromControls({
+    userId: userFromRoute.value,
+    card: "0",
+    ...(v === "all" ? { view: "all", version: deckVersionFromRoute.value } : {}),
+  });
+}
 
-const requestLabel = computed(() =>
-  meta.value.requestType === "recommended" ? "Recommended" : "Requested",
-);
-
-const dataLabel = computed(() =>
-  meta.value.dataSufficiency === "sufficient" ? "Sufficient data" : "Insufficient data",
-);
-
-const badgeClassRequest = computed(() =>
-  meta.value.requestType === "recommended" ? "ok" : "info",
-);
-
-const badgeClassData = computed(() =>
-  meta.value.dataSufficiency === "sufficient" ? "ok" : "bad",
-);
-
-const narrativeLabel = computed(() =>
-  meta.value.narrativeSource === "llm" ? "LLM" : "Stub/Fallback",
-);
-
-const badgeClassNarrative = computed(() =>
-  meta.value.narrativeSource === "llm" ? "info" : "bad",
-);
+function onVersionSelect(ev: Event) {
+  const ver = (ev.target as HTMLSelectElement).value === "B" ? "B" : "A";
+  applyQueryFromControls({
+    userId: userFromRoute.value,
+    card: "0",
+    view: "all",
+    version: ver,
+  });
+}
 </script>
 
 <style scoped>
@@ -408,6 +413,9 @@ a.dot:hover {
   margin-top: 1rem;
   max-width: 42rem;
   background: #fff;
+}
+.signal.deck-card {
+  margin-top: 1.5rem;
 }
 .signal-h .kpi-id {
   font-size: 0.75rem;

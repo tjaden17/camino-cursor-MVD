@@ -22,10 +22,35 @@ export interface SignalPreviewExpanded {
   provenance: Record<string, unknown>;
 }
 
+/** Pipeline v2 — structured analysis for readable preview (preferred over flat expanded). */
+export interface SignalPreviewAnalysisSection {
+  conclusion: string;
+  chainOfThought: string[];
+}
+
+/** Pipeline v2 — structured synthesis for readable preview. */
+export interface SignalPreviewSynthesisSection {
+  conclusion: string;
+  chainOfThought: string[];
+  /** Pre-rendered benchmark lines for display. */
+  citedBenchmarksDisplay?: string;
+}
+
 export interface SignalPreviewInsufficient {
   whyItMatters: string;
   missingData: string[];
   sourcingTips?: string[];
+}
+
+export interface SignalPreviewQualityNote {
+  level: string;
+  message: string;
+}
+
+export interface SignalPreviewRetrievedSourceRow {
+  kb: string;
+  heading: string;
+  sourcePath: string;
 }
 
 /** Response body for GET `/api/preview/signal`. */
@@ -38,6 +63,19 @@ export interface SignalPreviewPayload {
   dataSufficiency?: string;
   narrativeSource?: "llm" | "fallback";
   recommendationRationale?: string;
+  /** Pipeline v2 A/B synthesis variant when present. */
+  cardVersion?: "A" | "B";
+  /** Pipeline v2 “Data as of …” line when present. */
+  dataFreshnessLine?: string;
+  /** When set, UI renders Analysis / Synthesis sections with bullets instead of legacy expanded block. */
+  analysisSection?: SignalPreviewAnalysisSection;
+  synthesisSection?: SignalPreviewSynthesisSection;
+  /** Capped list of RAG sources for this card (readability). */
+  retrievedSourcesPreview?: SignalPreviewRetrievedSourceRow[];
+  /** Hint for operators to inspect full prompts (written next to out/ by pipeline v2). */
+  llmCallsArtifactHint?: string;
+  /** Human-readable data quality messages (same notes as in raw JSON). */
+  qualityNotesForUi?: SignalPreviewQualityNote[];
   overview: SignalPreviewOverview;
   expanded?: SignalPreviewExpanded;
   insufficient?: SignalPreviewInsufficient;
