@@ -1,0 +1,95 @@
+{
+  "kind": "briefing_org_context",
+  "version": 2,
+  "orgId": "locumate",
+  "orgName": "Locumate",
+  "mergedCompanyContext": {
+    "company": "Locumate",
+    "industry": "SaaS",
+    "stage": "Seed",
+    "businessModel": "B2B",
+    "teamSize": 17
+  },
+  "contributors": [
+    {
+      "userId": "surge",
+      "displayName": "Surge",
+      "role": "CEO",
+      "roleRank": 100,
+      "onboardingPath": "data/onboarding/locumate/surge-onboarding-derived.json"
+    },
+    {
+      "userId": "sam",
+      "displayName": "Sam",
+      "role": "Customer Success Manager",
+      "roleRank": 60,
+      "onboardingPath": "data/onboarding/locumate/sam-onboarding-derived.json"
+    }
+  ],
+  "orgDecisions": [
+    {
+      "userId": "surge",
+      "decision": "Prioritize product roadmap",
+      "source": "user_stated"
+    },
+    {
+      "userId": "surge",
+      "decision": "Assess internal hiring vs external development",
+      "source": "user_stated"
+    },
+    {
+      "userId": "surge",
+      "decision": "Evaluate market expansion options",
+      "source": "user_stated"
+    },
+    {
+      "userId": "sam",
+      "decision": "Prepare for meetings quickly",
+      "source": "user_stated"
+    },
+    {
+      "userId": "sam",
+      "decision": "Justify decisions with evidence",
+      "source": "user_stated"
+    },
+    {
+      "userId": "sam",
+      "decision": "Create data stories for retention and upsell",
+      "source": "user_stated"
+    }
+  ],
+  "dataInventory": [
+    {
+      "sourceId": "zoho_crm_deals",
+      "filePath": "data/zoho/Zoho - CRM - Deals.csv",
+      "format": "csv",
+      "idColumn": "Id"
+    },
+    {
+      "sourceId": "zoho_crm_leads",
+      "filePath": "data/zoho/Zoho - CRM - Leads.csv",
+      "format": "csv",
+      "idColumn": "Id"
+    },
+    {
+      "sourceId": "zoho_desk_tickets",
+      "filePath": "data/zoho/Zoho-Desk-Tickets.csv",
+      "format": "csv",
+      "idColumn": "ID"
+    },
+    {
+      "sourceId": "zoho_users",
+      "filePath": "data/zoho/Zoho-Users.csv",
+      "format": "csv",
+      "idColumn": "Id"
+    },
+    {
+      "sourceId": "shifts",
+      "filePath": "data/custom/Shifts Data - Shifts (Non protected).csv",
+      "format": "csv",
+      "idColumn": "Shift Alias"
+    }
+  ],
+  "rootIssue": "How does Locumate reach its next stage of growth?",
+  "generatedAt": "2026-04-02T10:00:00Z"
+}

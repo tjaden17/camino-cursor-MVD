@@ -14,6 +14,7 @@
     "onboarding:csv": "tsx src/onboarding/csv-cli.ts",
     "pipeline": "tsx src/pipeline/cli.ts",
     "pipeline:v2": "tsx src/pipeline/cli-v2.ts",
+    "briefing": "tsx src/briefing/cli.ts",
     "lint": "eslint src",
     "format": "prettier --write . --ignore-path .gitignore",
     "format:check": "prettier --check . --ignore-path .gitignore",
@@ -47,6 +48,7 @@
     "graphology-communities-louvain": "^2.0.2",
     "graphology-metrics": "^2.4.0",
     "graphology-pagerank": "^1.1.0",
-    "graphology-types": "^0.24.8"
+    "graphology-types": "^0.24.8",
+    "jsonrepair": "^3.13.3"
   }
 }

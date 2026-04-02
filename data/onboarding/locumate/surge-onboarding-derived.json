@@ -1,0 +1,105 @@
+{
+  "source": {
+    "type": "derived_from_onboarding_csv",
+    "document": "User profile-Surge.csv",
+    "derived_by": "assistant",
+    "derived_at": "2026-03-24"
+  },
+  "user": {
+    "user_id": "surge",
+    "name": "Surge",
+    "role": "CEO",
+    "experience_summary": "Exec perspective from onboarding profile"
+  },
+  "company_context": {
+    "company": "Locumate",
+    "industry": "SaaS",
+    "business_model": "B2B",
+    "stage": "Seed",
+    "team_size": 17
+  },
+  "decision_context": {
+    "primary_goals": [
+      "Improve decisions with same-page visibility across sales, support, and usage",
+      "Prioritize roadmap and expansion decisions with evidence",
+      "Reduce reaction time from signal to insight"
+    ],
+    "review_moments": [
+      "Daily checks",
+      "Before meetings"
+    ],
+    "decision_outcomes": [
+      "Prioritize product roadmap",
+      "Assess internal hiring vs external development",
+      "Evaluate market expansion options"
+    ]
+  },
+  "owned_metrics": {
+    "current_top_metrics": [
+      "prospects",
+      "calls_per_week",
+      "sales_win_loss_rate",
+      "customer_support_issues",
+      "leading_indicators_of_churn",
+      "bugs_impact"
+    ],
+    "additional_focus_metrics": [
+      "platform_usage",
+      "onboarding_quality",
+      "agency_usage_change"
+    ]
+  },
+  "data_sources": {
+    "uses": [
+      "Zoho Desk",
+      "Zoho CRM",
+      "Zoho Marketing",
+      "App usage tracking"
+    ],
+    "known_constraints": [
+      "Metrics often exist in separate tools and in people's heads",
+      "Context stitching across support, CRM and usage is difficult",
+      "Time-to-answer can take days for deeper questions"
+    ]
+  },
+  "pain_points": [
+    "Slow conversion from signal to explanation",
+    "Limited confidence in cross-functional interpretation",
+    "Difficulty connecting customer behavior signals to action"
+  ],
+  "trust_and_validation": {
+    "attitude_to_ai": "AI should support fast understanding but outputs must remain verifiable",
+    "required_transparency": [
+      "Source-level traceability",
+      "Calculation and logic explainability",
+      "Cross-team consistency"
+    ]
+  },
+  "signal_preferences": {
+    "requested_signal_candidates": [
+      "sales_win_rate",
+      "prospects",
+      "calls_per_week",
+      "support_issue_volume",
+      "churn_leading_indicator",
+      "bug_impact"
+    ],
+    "recommended_signal_candidates": [
+      "onboarding_completion_quality",
+      "agency_usage_risk",
+      "feature_adoption_trend"
+    ]
+  },
+  "glossary": {
+    "agency_usage": "Use of external staffing agency instead of direct shift fill",
+    "signal_to_insight": "Time from metric change detection to understood cause"
+  },
+  "gaps_and_assumptions": {
+    "missing_structured_fields": [
+      "explicit_competitor_weighting",
+      "formal_decision_frequency_by_metric",
+      "department_owner_per_signal"
+    ],
+    "note": "Values are normalized from onboarding CSV text fields and should be confirmed in a structured onboarding form."
+  }
+}

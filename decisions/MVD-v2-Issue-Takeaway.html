@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Issue Takeaway View — Locumate MVD v2</title>
+<title>Issue Takeaways — Locumate MVD v2</title>
 <style>
   :root {
     --bg: #f8fafc;
@@ -12,9 +12,7 @@
     --text: #0f172a;
     --muted: #64748b;
     --light: #94a3b8;
-    --teal: #0f766e;
-    --teal-bg: #f0fdfa;
-    --teal-border: #99f6e4;
+    --teal: #0f766e; --teal-bg: #f0fdfa;
     --vol: #7c3aed; --vol-bg: #f5f3ff;
     --val: #0369a1; --val-bg: #f0f9ff;
     --ret: #059669; --ret-bg: #ecfdf5;
@@ -36,93 +34,68 @@
   }
 
   .status-bar {
-    height: 48px; padding: 12px 20px 0;
-    display: flex; align-items: flex-start; justify-content: space-between;
-    font-size: 0.72rem; font-weight: 600; color: var(--muted); background: var(--bg);
+    display: flex; justify-content: space-between; padding: 12px 16px 0;
+    font-size: 0.68rem; color: var(--light);
   }
+  .page-header { padding: 8px 16px 4px; }
+  .page-header h1 { font-size: 1.15rem; font-weight: 700; }
+  .page-header .hint { font-size: 0.68rem; color: var(--light); margin-top: 2px; }
 
-  .page-header { padding: 4px 20px 10px; background: var(--bg); }
-  .page-header h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
-  .page-header .hint { font-size: 0.7rem; color: var(--light); margin-top: 1px; }
-
-  .dots { display: flex; justify-content: center; gap: 6px; padding: 6px 0 10px; }
+  .dots { display: flex; gap: 6px; justify-content: center; padding: 10px 0 8px; }
   .dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: #cbd5e1; transition: all 0.3s; cursor: pointer;
+    width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: all 0.2s;
   }
   .dot.active { width: 20px; border-radius: 4px; }
-  .dot.c0.active { background: var(--vol); }
-  .dot.c1.active { background: var(--val); }
-  .dot.c2.active { background: var(--ret); }
-  .dot.c3.active { background: var(--cap); }
+  .dot.active.c0 { background: var(--vol); }
+  .dot.active.c1 { background: var(--val); }
+  .dot.active.c2 { background: var(--ret); }
+  .dot.active.c3 { background: var(--cap); }
 
-  .carousel {
-    display: flex;
-    transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    height: calc(100% - 48px - 44px - 33px - 46px);
-    touch-action: pan-y;
+  #carousel {
+    display: flex; height: calc(100% - 44px - 46px - 36px - 44px);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    overflow: hidden;
   }
   .slide {
-    min-width: 375px; padding: 0 16px;
+    min-width: 375px; padding: 0 14px;
     overflow-y: auto; -webkit-overflow-scrolling: touch;
   }
 
   .signal-card {
-    background: var(--card); border-radius: 16px;
+    background: var(--card); border-radius: 14px;
     border: 1px solid var(--border); overflow: hidden;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   }
 
-  /* KEY TAKEAWAY — styled like Issue Tree "Key Takeaways from the Data" */
   .takeaway-block {
-    padding: 18px 18px 16px;
-    background: var(--teal-bg);
+    padding: 14px 16px;
     border-left: 4px solid var(--teal);
-    margin: 12px;
-    border-radius: 10px;
+    background: var(--teal-bg);
+    border-radius: 8px;
+    margin: 14px 14px 0;
   }
-  .takeaway-block .tk-heading {
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--teal);
-    margin-bottom: 10px;
+  .tk-heading {
+    font-size: 0.58rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--teal); margin-bottom: 6px;
   }
-  .takeaway-block .tk-title {
-    font-size: 1.05rem;
-    font-weight: 800;
-    color: var(--text);
-    margin-bottom: 6px;
-  }
-  .takeaway-block .tk-text {
-    font-size: 0.88rem;
-    line-height: 1.6;
-    color: var(--text);
-  }
+  .tk-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .tk-text { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
 
-  /* ISSUE BLOCK — below takeaway */
-  .issue-block {
-    padding: 12px 18px;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
+  .issue-block { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .branch-label {
+    display: inline-block; font-size: 0.6rem; font-weight: 700;
+    padding: 2px 8px; border-radius: 3px; margin-bottom: 4px;
   }
-  .issue-block .branch-label {
-    display: inline-block; font-size: 0.62rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.06em;
-    padding: 2px 7px; border-radius: 4px; margin-bottom: 4px;
-  }
-  .issue-block .branch-label.vol { background: var(--vol-bg); color: var(--vol); }
-  .issue-block .branch-label.val { background: var(--val-bg); color: var(--val); }
-  .issue-block .branch-label.ret { background: var(--ret-bg); color: var(--ret); }
-  .issue-block .branch-label.cap { background: var(--cap-bg); color: var(--cap); }
-  .issue-block .issue-path { font-weight: 600; font-size: 0.88rem; color: var(--text); }
-  .issue-block .owner { margin-top: 2px; color: var(--light); font-size: 0.7rem; }
+  .branch-label.vol { background: var(--vol-bg); color: var(--vol); }
+  .branch-label.val { background: var(--val-bg); color: var(--val); }
+  .branch-label.ret { background: var(--ret-bg); color: var(--ret); }
+  .branch-label.cap { background: var(--cap-bg); color: var(--cap); }
+  .issue-path { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .issue-owner { font-size: 0.72rem; color: var(--light); }
 
-  /* REASONING — collapsible */
   .reasoning-toggle {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 18px; cursor: pointer; border-top: 1px solid var(--border);
+    padding: 10px 16px; cursor: pointer; border-top: 1px solid var(--border);
     background: var(--bg); user-select: none;
   }
   .reasoning-toggle .rt-label {
@@ -138,31 +111,28 @@
     background: var(--bg);
   }
   .reasoning-toggle.open + .reasoning-body { max-height: 600px; }
-  .reasoning-content {
-    padding: 0 18px 16px;
-    font-size: 0.74rem; color: var(--muted); line-height: 1.6;
-  }
-  .r-step {
-    margin-bottom: 4px; padding-left: 10px; position: relative;
-  }
+  .reasoning-content { padding: 0 16px 14px; font-size: 0.72rem; color: var(--muted); line-height: 1.6; }
+  .r-step { margin-bottom: 4px; padding-left: 10px; position: relative; }
   .r-step::before {
     content: ''; position: absolute; left: 0; top: 7px;
     width: 3px; height: 3px; border-radius: 50%; background: var(--light);
   }
 
   .tap-hint {
-    padding: 12px 18px; text-align: center;
-    font-size: 0.72rem; color: var(--light);
+    display: block; padding: 12px 16px;
+    font-size: 0.72rem; color: var(--val); font-weight: 600;
+    text-decoration: none; text-align: center;
   }
-  .tap-hint a { color: var(--val); text-decoration: none; font-weight: 600; }
 
   .bottom-bar {
-    position: absolute; bottom: 0; left: 0; right: 0; height: 46px;
+    position: absolute; bottom: 0; left: 0; right: 0; height: 44px;
     background: var(--card); border-top: 1px solid var(--border);
     display: flex; align-items: center; justify-content: center;
-    font-size: 0.72rem; color: var(--light); gap: 4px;
+    font-size: 0.72rem; color: var(--light);
   }
-  .bottom-bar .count { font-weight: 600; color: var(--muted); }
+  .bottom-bar .ct { font-weight: 700; color: var(--muted); }
+
+  .loading { display: flex; align-items: center; justify-content: center; height: 60%; color: var(--muted); font-size: 0.85rem; }
 </style>
 </head>
 <body>
@@ -170,156 +140,110 @@
 
   <div class="status-bar">
     <span>Issue View</span>
-    <span>Locumate</span>
+    <span id="orgLabel"></span>
   </div>
 
   <div class="page-header">
     <h1>Issue Takeaways</h1>
-    <div class="hint">Swipe left &amp; right between issues</div>
+    <div class="hint">Swipe to explore all branches</div>
   </div>
 
-  <div class="dots">
-    <div class="dot c0 active" data-i="0"></div>
-    <div class="dot c1" data-i="1"></div>
-    <div class="dot c2" data-i="2"></div>
-    <div class="dot c3" data-i="3"></div>
+  <div class="dots" id="dots"></div>
+
+  <div id="carousel">
+    <div class="loading" id="loadingMsg">Loading takeaway data…</div>
   </div>
 
-  <div class="carousel" id="carousel">
-
-    <!-- ===== VOLUME ===== -->
-    <div class="slide"><div class="signal-card">
-      <div class="takeaway-block">
-        <div class="tk-heading">Key Takeaway from the Data</div>
-        <div class="tk-title">Low &amp; Invisible Lead Generation</div>
-        <div class="tk-text">Only ~3 leads/month, and Lead Source is empty for all 52 &mdash; you can't tell what channel works. Win rate is 41% by count but only 29% by dollar value. You've lost 2.5x more than you've won.</div>
-      </div>
-      <div class="issue-block">
-        <div class="branch-label vol">Branch 1</div>
-        <div class="issue-path">Volume &mdash; Get More Customers</div>
-        <div class="owner">Owner: Surge (CEO / Sales)</div>
-      </div>
-      <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
-        <span class="rt-label">Takeaway reasoning</span><span class="rt-arrow">&#9654;</span>
-      </div>
-      <div class="reasoning-body"><div class="reasoning-content">
-        <div class="r-step">Counted 52 leads total, 3 added in most recent month = ~3/month rate.</div>
-        <div class="r-step">Checked Lead Source field: 0% populated across all 52 leads.</div>
-        <div class="r-step">Win rate by count: 13/32 = 41%. By value: $914K/$3.2M = 29%.</div>
-        <div class="r-step">Lost $2.29M across 8 deals vs won $914K across 13 deals = 2.5x ratio.</div>
-        <div class="r-step">Every deal above $300K lost except Healthshifts. Suggests a deal-size ceiling.</div>
-      </div></div>
-      <div class="tap-hint"><a href="MVD-v2-Analysis.html#volume">View detailed analysis &rarr;</a></div>
-    </div></div>
-
-    <!-- ===== VALUE ===== -->
-    <div class="slide"><div class="signal-card">
-      <div class="takeaway-block">
-        <div class="tk-heading">Key Takeaway from the Data</div>
-        <div class="tk-title">Proven Wedge</div>
-        <div class="tk-text">Domestic pharmacy subscriptions ($10K&ndash;$230K) are the repeatable win. International and $300K+ deals have not converted. Deal sizes are trending down &mdash; most recent win was $1.2K. Wesfarmers expansion is the one proven playbook.</div>
-      </div>
-      <div class="issue-block">
-        <div class="branch-label val">Branch 2</div>
-        <div class="issue-path">Value &mdash; Get More per Customer</div>
-        <div class="owner">Owner: Surge + Sam</div>
-      </div>
-      <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
-        <span class="rt-label">Takeaway reasoning</span><span class="rt-arrow">&#9654;</span>
-      </div>
-      <div class="reasoning-body"><div class="reasoning-content">
-        <div class="r-step">Average deal: $76K headline, $32K excluding top 2 outliers.</div>
-        <div class="r-step">Most recent win: VH Subs at $1.2K &mdash; smallest ever. Trend is downward.</div>
-        <div class="r-step">1 expansion deal visible: Wesfarmers $120K &rarr; $19.5K add-on at 80%.</div>
-        <div class="r-step">8/13 won deals are subscriptions. Both international deals ($579K) failed.</div>
-        <div class="r-step">All domestic deals above $40K closed. $300K+ = failure zone.</div>
-      </div></div>
-      <div class="tap-hint"><a href="MVD-v2-Analysis.html#value">View detailed analysis &rarr;</a></div>
-    </div></div>
-
-    <!-- ===== RETENTION ===== -->
-    <div class="slide"><div class="signal-card">
-      <div class="takeaway-block">
-        <div class="tk-heading">Key Takeaway from the Data</div>
-        <div class="tk-title">Biggest Blind Spot</div>
-        <div class="tk-text">Retention has the most data gaps &mdash; 3 of 7 KPIs can't be measured. Sam is flying blind. Platform adoption looks strong (2,381 shifts), but 68% of revenue sits in 2 customers, and TWC Kirwan has 14 unfilled shifts.</div>
-      </div>
-      <div class="issue-block">
-        <div class="branch-label ret">Branch 3</div>
-        <div class="issue-path">Retention &mdash; Keep Customers Longer</div>
-        <div class="owner">Owner: Sam (CSM)</div>
-      </div>
-      <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
-        <span class="rt-label">Takeaway reasoning</span><span class="rt-arrow">&#9654;</span>
-      </div>
-      <div class="reasoning-body"><div class="reasoning-content">
-        <div class="r-step">Mapped 7 Retention KPIs: 3 measured, 1 partial, 3 data gaps. Worst of any branch.</div>
-        <div class="r-step">2,381 shifts across 60+ pharmacies. Standard coverage patterns = operational integration.</div>
-        <div class="r-step">Healthshifts ($500K) + Wesfarmers ($120K) = 68% of all won revenue.</div>
-        <div class="r-step">TWC Kirwan: 14 unfilled shifts. This is in your most valuable account relationship.</div>
-        <div class="r-step">Churn rate, activation rate, account health: all unmeasurable from current data.</div>
-      </div></div>
-      <div class="tap-hint"><a href="MVD-v2-Analysis.html#retention">View detailed analysis &rarr;</a></div>
-    </div></div>
-
-    <!-- ===== CAPACITY ===== -->
-    <div class="slide"><div class="signal-card">
-      <div class="takeaway-block">
-        <div class="tk-heading">Key Takeaway from the Data</div>
-        <div class="tk-title">Single Point of Failure</div>
-        <div class="tk-text">Surge owns 100% of all 32 deals. Head of Sales role was filled and vacated with zero deals. CS team owns zero pipeline. CRM data quality is the cheapest fix &mdash; Lead Source is 0% populated.</div>
-      </div>
-      <div class="issue-block">
-        <div class="branch-label cap">Branch 4</div>
-        <div class="issue-path">Capacity &mdash; Scale the Above Three</div>
-        <div class="owner">Owner: Shared (Surge + Sam)</div>
-      </div>
-      <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
-        <span class="rt-label">Takeaway reasoning</span><span class="rt-arrow">&#9654;</span>
-      </div>
-      <div class="reasoning-body"><div class="reasoning-content">
-        <div class="r-step">Deal Owner field: 32/32 = Surge Singh. Zero for anyone else.</div>
-        <div class="r-step">Clayton Dunn (Head of Sales): hired Aug 2024, disabled Oct 2025. 0 deals in 14 months.</div>
-        <div class="r-step">CS team (Sam, Edge, Tiani): 0 deals owned in CRM.</div>
-        <div class="r-step">CRM completion: Lead Source 0%, Lead Status 0%, Industry 0%.</div>
-        <div class="r-step">Product signals from Shifts: regional matching, supply gaps, feedback adoption.</div>
-      </div></div>
-      <div class="tap-hint"><a href="MVD-v2-Analysis.html#capacity">View detailed analysis &rarr;</a></div>
-    </div></div>
-
-  </div>
-
-  <div class="bottom-bar">
-    <span class="count" id="counter">1</span> of <span class="count">4</span> issues
-  </div>
+  <div class="bottom-bar"><span class="ct" id="slideIdx">1</span>&nbsp;of&nbsp;<span class="ct" id="slideCount">4</span>&nbsp;issues</div>
 </div>
 
 <script>
-const carousel = document.getElementById('carousel');
-const dots = document.querySelectorAll('.dot');
-const counter = document.getElementById('counter');
-let current = 0;
-const total = 4;
-let startX = 0, dx = 0, dragging = false;
+const BRANCH_ABBR = { volume: 'vol', value: 'val', retention: 'ret', capacity: 'cap' };
+
+let current = 0, total = 0;
 
 function goTo(i) {
   current = Math.max(0, Math.min(total - 1, i));
-  carousel.style.transform = `translateX(-${current * 375}px)`;
-  dots.forEach((d, idx) => d.classList.toggle('active', idx === current));
-  counter.textContent = current + 1;
+  document.getElementById('carousel').style.transform = `translateX(-${current * 375}px)`;
+  document.getElementById('slideIdx').textContent = current + 1;
+  document.querySelectorAll('.dot').forEach((d, j) => d.classList.toggle('active', j === current));
 }
 
-carousel.addEventListener('touchstart', e => { startX = e.touches[0].clientX; dragging = true; });
-carousel.addEventListener('touchmove', e => { if (dragging) dx = e.touches[0].clientX - startX; });
-carousel.addEventListener('touchend', () => { if (Math.abs(dx) > 50) goTo(current + (dx < 0 ? 1 : -1)); dx = 0; dragging = false; });
-carousel.addEventListener('mousedown', e => { startX = e.clientX; dragging = true; e.preventDefault(); });
-window.addEventListener('mousemove', e => { if (dragging) dx = e.clientX - startX; });
-window.addEventListener('mouseup', () => { if (dragging && Math.abs(dx) > 50) goTo(current + (dx < 0 ? 1 : -1)); dx = 0; dragging = false; });
-dots.forEach(d => d.addEventListener('click', () => goTo(parseInt(d.dataset.i))));
-document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight') goTo(current + 1);
-  if (e.key === 'ArrowLeft') goTo(current - 1);
-});
+function renderTakeaway(t) {
+  const abbr = BRANCH_ABBR[t.branchId] || t.branchId.slice(0,3);
+  const reasoningHtml = (t.reasoning || [])
+    .map(s => `<div class="r-step">${esc(s)}</div>`).join('');
+
+  return `<div class="slide"><div class="signal-card">
+    <div class="takeaway-block">
+      <div class="tk-heading">Key Takeaway from the Data</div>
+      <div class="tk-title">${esc(t.title)}</div>
+      <div class="tk-text">${esc(t.text)}</div>
+    </div>
+    <div class="issue-block">
+      <div class="branch-label ${abbr}">Branch ${t.branchIndex}</div>
+      <div class="issue-path">${esc(t.branchLabel)}</div>
+      <div class="issue-owner">Owner: ${esc(t.owner.displayName)} (${esc(t.owner.role)})</div>
+    </div>
+    <div class="reasoning-toggle" onclick="this.classList.toggle('open')">
+      <span class="rt-label">Takeaway reasoning</span><span class="rt-arrow">&#9654;</span>
+    </div>
+    <div class="reasoning-body"><div class="reasoning-content">${reasoningHtml}</div></div>
+    <a class="tap-hint" href="MVD-v2-Analysis.html#${t.branchId}">View detailed analysis &rarr;</a>
+  </div></div>`;
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+async function init() {
+  let data;
+  try {
+    const resp = await fetch('../out/briefing-latest.json');
+    data = await resp.json();
+  } catch {
+    document.getElementById('loadingMsg').textContent = 'Could not load data. Run the pipeline first.';
+    return;
+  }
+
+  document.getElementById('loadingMsg').remove();
+  document.getElementById('orgLabel').textContent = data.orgName;
+
+  const carousel = document.getElementById('carousel');
+  const dotsEl = document.getElementById('dots');
+
+  total = data.branchTakeaways.length;
+  document.getElementById('slideCount').textContent = total;
+
+  for (let i = 0; i < total; i++) {
+    carousel.innerHTML += renderTakeaway(data.branchTakeaways[i]);
+    const dot = document.createElement('div');
+    dot.className = `dot c${i}`;
+    dot.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(dot);
+  }
+
+  goTo(0);
+
+  // Swipe
+  let startX = 0, dx = 0, dragging = false;
+  carousel.addEventListener('touchstart', e => { startX = e.touches[0].clientX; dragging = true; });
+  carousel.addEventListener('touchmove', e => { if (dragging) dx = e.touches[0].clientX - startX; });
+  carousel.addEventListener('touchend', () => { if (Math.abs(dx) > 50) goTo(current + (dx < 0 ? 1 : -1)); dx = 0; dragging = false; });
+  carousel.addEventListener('mousedown', e => { startX = e.clientX; dragging = true; e.preventDefault(); });
+  window.addEventListener('mousemove', e => { if (dragging) dx = e.clientX - startX; });
+  window.addEventListener('mouseup', () => { if (dragging && Math.abs(dx) > 50) goTo(current + (dx < 0 ? 1 : -1)); dx = 0; dragging = false; });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') goTo(current + 1);
+    if (e.key === 'ArrowLeft') goTo(current - 1);
+  });
+}
+
+init();
 </script>
 </body>
 </html>
